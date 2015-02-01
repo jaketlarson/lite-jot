@@ -5,7 +5,15 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  root 'pages#welcome'
+  authenticated :user do
+    root :to => "pages#dashboard", :as => "authenticated_root"
+  end
+
+  unauthenticated do
+    root :to => "pages#welcome", :as => "unauthenticated_root"
+  end
+
+  resources :pages
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

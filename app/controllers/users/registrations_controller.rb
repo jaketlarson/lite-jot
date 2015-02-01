@@ -34,15 +34,4 @@ class Users::RegistrationsController < Devise::RegistrationsController
       render :template => "/pages/welcome"
     end
   end
-
-
-  protected
-
-  def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_up) << :username
-  end
-
-  def sign_up_params
-    devise_parameter_sanitizer.sanitize(:sign_up)
-  end
 end

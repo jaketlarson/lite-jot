@@ -1,2 +1,6 @@
 header
   h1 light jot
+
+  - if user_signed_in?
+    == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
+      i.fa.fa-sign-out

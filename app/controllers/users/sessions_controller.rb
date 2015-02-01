@@ -1,5 +1,5 @@
-class Users::SessionsController < ApplicationController
-  def new
-    @user = User.new
+class Users::SessionsController < Devise::SessionsController
+  def create
+    super
   end
 end
