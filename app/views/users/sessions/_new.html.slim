@@ -1,0 +1,11 @@
+h3
+  |returning jotters
+
+.form-wrap
+  = simple_form_for @user, :url => user_session_path(@user) do |sign_in|
+    = sign_in.error_notification
+    .form-inputs
+      = sign_in.input :username, :label => false, :autofocus => true
+      = sign_in.input :password, :label => false
+    .form-actions
+      button Sign in

@@ -42,3 +42,5 @@ gem 'slim'
 
 gem 'foundation-rails', '~> 5.5.0'
 gem 'sass-rails', '~>5.0.0'
+
+gem 'devise'
