@@ -1,6 +1,9 @@
 header
   h1 light jot
 
-  - if user_signed_in?
-    == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
-      i.fa.fa-sign-out
+  nav
+    - if user_signed_in?
+      == link_to edit_user_registration_path, :class => 'secondary' do
+        == current_user.username
+      == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
+        i.fa.fa-lg.fa-sign-out
