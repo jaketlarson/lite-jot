@@ -4,8 +4,10 @@
     h2
       |welcome to light jot
 
+    == render :partial => "layouts/action_messages"
+
     .row
-      .large-6.columns
+      .medium-6.columns
         = render :partial => 'users/sessions/new'
-      .large-6.columns
+      .medium-6.columns
         = render :partial => 'users/registrations/new'
