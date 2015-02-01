@@ -1,15 +1,16 @@
 h3
   |new jotters
 
+
 .form-wrap
-  = simple_form_for @user, :url => user_registration_path(@user) do |sign_up|
+  = simple_form_for @user_sign_up, :url => user_registration_path(@user_sign_up) do |sign_up|
 
-    == sign_up.input :username, :label => false
+    == sign_up.input :username, :label => false, :error => false
 
-    == sign_up.input :password, :label => false
+    == sign_up.input :password, :label => false, :error => false
 
-    == sign_up.input :password_confirmation, :label => false
+    == sign_up.input :password_confirmation, :label => false, :error => false
 
-    == sign_up.input :email, :label => false
+    == sign_up.input :email, :label => false, :error => false
     
     button.right Sign Up

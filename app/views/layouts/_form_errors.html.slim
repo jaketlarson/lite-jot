@@ -1,0 +1,6 @@
+- if form_errors.any?
+  div class="form-error alert-error"
+    i.fa.fa-exclamation-circle.fa-lg
+    - form_errors.full_messages.each do |msg|
+      .error
+        == msg
