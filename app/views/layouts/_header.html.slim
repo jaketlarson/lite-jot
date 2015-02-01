@@ -1,5 +1,8 @@
 header
-  h1 light jot
+  == link_to "/" do
+    h1
+      i.fa.fa-feather
+      |light jot
 
   nav
     - if user_signed_in?
