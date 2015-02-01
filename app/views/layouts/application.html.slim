@@ -2,10 +2,12 @@ doctype html
 html
 head
   title LightJot
-  == stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true 
+  == stylesheet_link_tag 'lightjot', media: 'all', 'data-turbolinks-track' => true 
   == javascript_include_tag 'application', 'data-turbolinks-track' => true
   == csrf_meta_tags
+  link href='http://fonts.googleapis.com/css?family=Lato|Lobster' rel='stylesheet' type='text/css'
 
-body
+body id="#{body_id}"
+  == render :partial => "layouts/header"
 
   == yield
