@@ -7,6 +7,7 @@ class window.LightJot
     @initElems()
     @initFullScreenListener()
     @initJotFormListeners()
+    @sizeJotsWrapper()
 
   initVars: =>
     @fullscreen_expand_icon_class = 'fa-expand'
@@ -41,6 +42,10 @@ class window.LightJot
       @showFullScreenCompressButton()
     else
       @showFullScreenExpandButton()
+
+  sizeJotsWrapper: =>
+    build_height = window.innerHeight - $('header').outerHeight() - $('h2').outerHeight(true) - @new_jot_content.outerHeight(true)
+    @jots_wrapper.css 'height', build_height
 
   toggleFullScreen: =>
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement
@@ -104,7 +109,6 @@ class window.LightJot
     #reset new jot form
     @clearJotEntryTemplate()
     @new_jot_content.val('')
-
 
   clearJotEntryTemplate: =>
     @jot_entry_template.find('li').html('')

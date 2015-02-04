@@ -6,7 +6,7 @@ class JotsController < ApplicationController
       render :text => "okay"
 
     else
-      render :text => 'not okay'
+      render :text => 'not okay', :status => 409
     end
   end
 
