@@ -4,6 +4,10 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  has_many :folders
+  has_many :topics
+  has_many :jots
+
   validates :username, {
     :presence => true,
     :length => {

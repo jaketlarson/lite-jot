@@ -8,3 +8,17 @@
 
 .large-8.medium-6.columns
   h2 Jots
+
+  #jots-wrapper
+
+    ul#jots-list
+
+      - current_user.jots.each do |jot|
+        li
+          == jot.content
+
+  #jot-entry-template
+    li
+
+  = simple_form_for Jot.new do |form|
+    = form.input :content, :label => false, :autofocus => true
