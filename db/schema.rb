@@ -11,7 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150201164931) do
+ActiveRecord::Schema.define(version: 20150204173003) do
+
+  create_table "folders", force: true do |t|
+    t.integer  "user_id"
+    t.string   "title"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "jots", force: true do |t|
+    t.integer  "folder_id"
+    t.integer  "topic_id"
+    t.integer  "user_id"
+    t.boolean  "is_highlighted", default: false
+    t.integer  "order"
+    t.text     "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "topics", force: true do |t|
+    t.integer  "folder_id"
+    t.integer  "user_id"
+    t.string   "title"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

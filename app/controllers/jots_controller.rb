@@ -1,0 +1,2 @@
+class JotsController < ApplicationController
+end
