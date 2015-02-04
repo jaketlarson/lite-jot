@@ -75,32 +75,35 @@ class window.LightJot
   initJotFormListeners: =>
     @new_jot_form.submit (e) =>
       e.preventDefault()
-      content = @new_jot_content.val()
-      @jot_entry_template.find('li').append(content)
-      build_entry = @jot_entry_template.html()
-
-      @jots_list.append(build_entry)
-
-      $.ajax(
-        type: 'POST'
-        url: @new_jot_form.attr('action')
-        data: "content=#{content}"
-        success: (data) =>
-          console.log data
-
-        error: (data) =>
-          console.log data
-
-      )
-
-      #reset new jot form
-      @clearJotEntryTemplate()
-      @new_jot_content.val('')
+      @submitNewJot()
 
     @new_jot_content.keydown (e) =>
       if e.keyCode == @key_codes.enter && !e.shiftKey # enter key
         e.preventDefault()
         @new_jot_form.submit()
+
+  submitNewJot: =>
+    content = @new_jot_content.val()
+    @jot_entry_template.find('li').append(content)
+    build_entry = @jot_entry_template.html()
+
+    @jots_list.append(build_entry)
+
+    $.ajax(
+      type: 'POST'
+      url: @new_jot_form.attr('action')
+      data: "content=#{content}"
+      success: (data) =>
+        console.log data
+
+      error: (data) =>
+        console.log data
+
+    )
+
+    #reset new jot form
+    @clearJotEntryTemplate()
+    @new_jot_content.val('')
 
 
   clearJotEntryTemplate: =>
