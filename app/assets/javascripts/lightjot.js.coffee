@@ -78,7 +78,7 @@ class window.LightJot
       @submitNewJot()
 
     @new_jot_content.keydown (e) =>
-      if e.keyCode == @key_codes.enter && !e.shiftKey # enter key
+      if e.keyCode == @key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
         e.preventDefault()
         @new_jot_form.submit()
 
