@@ -100,12 +100,30 @@ class window.LightJot
     )
 
   buildTopicsList: =>
-    $.each @app.topics, (index, topic) =>
-      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.title}</li>")
+    @topics_list.html('')
 
-    if @topics_list.find('li').length > 0
-      $(@topics_list.find('li')[0]).addClass('current')
+    if typeof @app.current_topic == 'undefined' && @app.topics.length > 0
       @app.current_topic = @app.topics[0].id
+
+    offset_top = 0
+    $.each @app.topics, (index, topic) =>
+      if @app.current_topic == topic.id
+        $("li[data-topic='#{topic.id}']").addClass('current')
+        console.log @topics_list.find("li[data-topic='#{topic.id}']")
+        console.log 'okay'
+
+      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.title}</li>")
+      topic_elem = @topics_list.find("li[data-topic='#{topic.id}']")
+      topic_elem.css('top', offset_top+'px')
+      height = topic_elem.outerHeight()
+      offset_top += height
+
+    console.log 'here'
+    console.log @app.topics
+    console.log @app.current_topic
+
+    @initTopicsBinds()
+
 
   initTopicsBinds: =>
     @topics_list.find('li').click (e) =>
@@ -123,7 +141,35 @@ class window.LightJot
     target = $(e.currentTarget)
     @app.current_topic = target.data('topic')
     target.addClass('current')
+
+    # topic_key_to_temporarily_delete = null
+    # topic_object_to_temporarily_delete = null
+    
+    # $.each @app.topics, (index, topic) =>
+    #   if topic.id == topic_id
+    #     topic_key_to_temporarily_delete = index
+    #     topic_object_to_temporarily_delete = topic
+    #     return false
+
+    # delete @app.topic[topic_key_to_temporarily_delete]
+    # @app.prepend(topic_object_to_temporarily_delete)
+
+
     @buildJotsList()
+    @buildTopicsList()
+
+  reloadTopics: =>
+    $.ajax(
+      type: 'GET'
+      url: '/topics'
+
+      success: (data) =>
+        @app.topics = data.topics
+        @buildTopicsList()
+
+      error: (data) =>
+        console.log data
+    )
 
   initJotFormListeners: =>
     @new_jot_form.submit (e) =>
@@ -151,8 +197,9 @@ class window.LightJot
 
       error: (data) =>
         console.log data
-
     )
+
+    @reloadTopics()
 
     #reset new jot form
     @clearJotEntryTemplate()
