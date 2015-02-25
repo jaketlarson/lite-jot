@@ -3,6 +3,7 @@ $ ->
 
 class window.LightJot
   constructor: ->
+    @loadDataFromServer()
     @initVars()
     @initElems()
     @initFullScreenListener()
@@ -15,8 +16,11 @@ class window.LightJot
     @new_jot_form = $('form#new_jot')
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
     @jots_wrapper = $('#jots-wrapper')
-    @jots_list = @jots_wrapper.find('#jots-list')
+    @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_entry_template = $('#jot-entry-template')
+    @topics_list = $('ul#topics-list')
+
+    @app = {} # all loaded app data goes here
 
     @key_codes =
       enter: 13
@@ -77,6 +81,50 @@ class window.LightJot
     if !@fullscreen_btn.find('i').hasClass(@fullscreen_compress_icon_class)
       @fullscreen_btn.find('i').addClass(@fullscreen_compress_icon_class)
 
+  loadDataFromServer: =>
+    $.ajax(
+      type: 'GET'
+      url: '/load-data'
+      success: (data) =>
+        console.log data
+        @app.folders = data.folders
+        @app.topics = data.topics
+        @app.jots = data.jots
+
+        @buildTopicsList()
+        @initTopicsBinds()
+        @buildJotsList()
+
+      error: (data) =>
+        console.log data
+    )
+
+  buildTopicsList: =>
+    $.each @app.topics, (index, topic) =>
+      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.title}</li>")
+
+    if @topics_list.find('li').length > 0
+      $(@topics_list.find('li')[0]).addClass('current')
+      @app.current_topic = @app.topics[0].id
+
+  initTopicsBinds: =>
+    @topics_list.find('li').click (e) =>
+      @selectTopic(e)
+
+  buildJotsList: =>
+    @jots_list.html('')
+
+    $.each @app.jots, (index, jot) =>
+      if jot.topic_id == @app.current_topic
+        @jots_list.append("<li>#{jot.content}</li>")
+
+  selectTopic: (e, topic_id) =>
+    $("li[data-topic='#{@app.current_topic}']").removeClass('current')
+    target = $(e.currentTarget)
+    @app.current_topic = target.data('topic')
+    target.addClass('current')
+    @buildJotsList()
+
   initJotFormListeners: =>
     @new_jot_form.submit (e) =>
       e.preventDefault()
@@ -97,7 +145,7 @@ class window.LightJot
     $.ajax(
       type: 'POST'
       url: @new_jot_form.attr('action')
-      data: "content=#{content}"
+      data: "content=#{content}&topic_id=#{@app.current_topic}"
       success: (data) =>
         console.log data
 

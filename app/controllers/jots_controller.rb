@@ -1,8 +1,20 @@
 class JotsController < ApplicationController
   def create
-    @jot = current_user.jots.new(jot_params)
+    if params[:topic_id].nil? || params[:topic_id].to_i <= 0 || current_user.topics.find(params[:topic_id]).nil?
+      time = Time.new
+      topic = current_user.topics.new
+      topic.title = "Untitled on #{time.strftime('%b %d')}"
+      topic.save
+      puts 'cool'
+    else
+      topic = current_user.topics.find(params[:topic_id])
+      topic.touch
+    end
 
-    if @jot.save
+    jot = current_user.jots.new(jot_params)
+    jot.topic_id = topic.id
+
+    if jot.save
       render :text => "okay"
 
     else

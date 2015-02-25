@@ -6,16 +6,14 @@
 .large-2.medium-3.columns
   h2 Topics
 
+  ul#topics-list
+
 .large-8.medium-6.columns
   h2 Jots
 
   #jots-wrapper
 
     ul#jots-list
-
-      - current_user.jots.each do |jot|
-        li
-          == jot.content
 
   #jot-entry-template
     li
