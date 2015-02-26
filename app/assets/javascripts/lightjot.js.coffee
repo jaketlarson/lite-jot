@@ -106,27 +106,20 @@ class window.LightJot
       @app.current_topic = @app.topics[0].id
 
     $.each @app.topics, (index, topic) =>
-      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.id} #{topic.title}</li>")
+      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.title}</li>")
 
       if @app.current_topic == topic.id
         $("li[data-topic='#{topic.id}']").addClass('current')
-        console.log @topics_list.find("li[data-topic='#{topic.id}']")
-        console.log 'okay dude'
-
 
     @sortTopicsList()
 
   sortTopicsList: =>
     offset_top = 0
     $.each @app.topics, (index, topic) =>
-      console.log @app.topics
-      console.log index
       topic_elem = @topics_list.find("li[data-topic='#{topic.id}']")
       topic_elem.css('top', offset_top)
       height = topic_elem.outerHeight()
       offset_top += height
-    #@initTopicsBinds()
-
 
   initTopicsBinds: =>
     @topics_list.find('li').click (e) =>
@@ -146,7 +139,6 @@ class window.LightJot
     target.addClass('current')
 
     @buildJotsList()
-    #@buildTopicsList()
 
   reloadTopics: =>
     $.ajax(
@@ -189,34 +181,27 @@ class window.LightJot
         console.log data
     )
 
-    topic_key_to_temporarily_delete = null
-    topic_object_to_temporarily_delete = null
-    
-    console.log @app.topics
+    topic_key_to_move = null
+    topic_object_to_move = null
+
+    # find topic to move
     $.each @app.topics, (index, topic) =>
       if topic.id == @app.current_topic
-        topic_key_to_temporarily_delete = index
-        topic_object_to_temporarily_delete = topic
+        topic_key_to_move = index
+        topic_object_to_move = topic
         return false
 
-
+    # move topic being written in to top of list
     temp_list = $.extend({}, @app.topics)
-    for i in [0...topic_key_to_temporarily_delete]
+    for i in [0...topic_key_to_move]
       temp_list[i+1] = @app.topics[i]
 
-    console.log @app.topics
     @app.topics = $.extend({}, temp_list)
-    console.log 'update'
-    console.log @app.topics
 
-    console.log 'tooooooo'
-    console.log topic_object_to_temporarily_delete
-    @app.topics[0] = topic_object_to_temporarily_delete
-    console.log @app.topics
-    console.log 'end modifications'
+    @app.topics[0] = topic_object_to_move
     @sortTopicsList()
 
-    #reset new jot form
+    # reset new jot form
     @clearJotEntryTemplate()
     @new_jot_content.val('')
 
