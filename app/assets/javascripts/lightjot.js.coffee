@@ -1,3 +1,10 @@
+# Array Remove - By John Resig (MIT Licensed)
+Array::remove = (from, to) ->
+  rest = @slice((to or from) + 1 or @length)
+  @length = if from < 0 then @length + from else from
+  @push.apply this, rest
+
+
 $ ->
   lightjot = new window.LightJot()
 
@@ -106,7 +113,14 @@ class window.LightJot
       @app.current_topic = @app.topics[0].id
 
     $.each @app.topics, (index, topic) =>
-      @topics_list.append("<li data-topic='#{topic.id}'>#{topic.title}</li>")
+      @topics_list.append("<li data-topic='#{topic.id}' data-editing='false'>
+                            <span class='title'>#{topic.title}</span>
+                            <div class='input-edit-wrap'>
+                              <input type='text' class='input-edit' />
+                            </div>
+                            <i class='fa fa-pencil edit' data-edit />
+                            <i class='fa fa-trash delete' data-delete />
+                          </li>")
 
       if @app.current_topic == topic.id
         $("li[data-topic='#{topic.id}']").addClass('current')
@@ -125,6 +139,14 @@ class window.LightJot
     @topics_list.find('li').click (e) =>
       @selectTopic(e)
 
+    @topics_list.find('li [data-edit]').click (e) =>
+      id = $(e.currentTarget).closest('li').data('topic')
+      @editTopic(id)
+
+    @topics_list.find('li [data-delete]').click (e) =>
+      id = $(e.currentTarget).closest('li').data('topic')
+      @deleteTopic(id)
+
   buildJotsList: =>
     @jots_list.html('')
 
@@ -139,6 +161,58 @@ class window.LightJot
     target.addClass('current')
 
     @buildJotsList()
+
+  editTopic: (id) =>
+    elem = $("li[data-topic='#{id}']")
+    input = elem.find('input.input-edit')
+    title = elem.find('.title')
+    input.val(title.html())
+    elem.attr('data-editing', 'true')
+    input.focus()
+
+    submitted_edit = false
+
+    input.blur (e) =>
+      finishEditing()
+
+    input.keydown (e) =>
+      if e.keyCode == @key_codes.enter
+        finishEditing()
+
+    finishEditing = =>
+      if !submitted_edit
+        submitted_edit = true
+        elem.attr('data-editing', 'false')
+        title.html(input.val())
+
+        $.ajax(
+          type: 'PATCH'
+          url: "/topics/#{id}"
+          data: "title=#{input.val()}"
+
+          success: (data) =>
+            console.log data
+
+          error: (data) =>
+            console.log data
+        )
+
+  deleteTopic: (id) =>
+    elem = $("li[data-topic='#{id}']")
+    elem.attr('data-deleting', 'true')
+
+    setTimeout(() =>
+      topic_key = null
+      $.each @app.topics, (index, topic) =>
+        if topic.id == id
+          topic_key = index
+          return false
+
+      @app.topics.remove(topic_key)
+      console.log @app.topics
+      @sortTopicsList()
+    , 350)
+
 
   reloadTopics: =>
     $.ajax(
