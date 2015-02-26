@@ -12,5 +12,15 @@ body id="#{body_id}"
 
   == yield
 
+  .reveal-modal#delete-modal data-reveal=true
+
+  #delete-modal-template
+    h3 Really delete this topic?
+
+    p All jots within this topic will also be deleted.
+
+    .actions
+      button.primary.confirm Delete
+      button.secondary.cancel Cancel
 
   == javascript_include_tag 'application', 'data-turbolinks-track' => true

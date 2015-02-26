@@ -143,9 +143,21 @@ class window.LightJot
       id = $(e.currentTarget).closest('li').data('topic')
       @editTopic(id)
 
-    @topics_list.find('li [data-delete]').click (e) =>
-      id = $(e.currentTarget).closest('li').data('topic')
-      @deleteTopic(id)
+    @topics_list.find('li [data-delete]').click (e1) =>
+      $('#delete-modal').foundation 'reveal', 'open'
+      $('#delete-modal').html($('#delete-modal-template').html())
+
+      $('#delete-modal .cancel').click (e2) ->
+        $('#delete-modal').foundation 'reveal', 'close'
+
+      $('#delete-modal .confirm').click (e2) =>
+        id = $(e1.currentTarget).closest('li').data('topic')
+
+        $('#delete-modal').foundation 'reveal', 'close'
+
+        setTimeout(() =>
+          @deleteTopic(id)
+        , 250)
 
   buildJotsList: =>
     @jots_list.html('')
