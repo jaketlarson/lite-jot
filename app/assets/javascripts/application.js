@@ -14,5 +14,6 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require foundation
-//= require lightjot
 //= require fullscreen
+//= require jots
+//= require lightjot

@@ -1,4 +1,5 @@
-class LightJot.Fullscreen
+$ ->
+  class LightJot.Fullscreen
   constructor: ->
     @initVars()
     @initFullScreenListener()

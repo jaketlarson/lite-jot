@@ -4,26 +4,20 @@ Array::remove = (from, to) ->
   @length = if from < 0 then @length + from else from
   @push.apply this, rest
 
-
-
 $ ->
-  lightjot = new window.LightJot()
+  window.lj = {
+    lightjot: new window.LightJot()
+  }
 
 class window.LightJot
   constructor: ->
-    @loadDataFromServer()
+    @fullscreen = new LightJot.Fullscreen()
+    @jots = new Jots(@)
     @initVars()
-    @initJotFormListeners()
     @sizeUI()
-    new LightJot.Fullscreen()
+    @loadDataFromServer()
 
   initVars: =>
-    @new_jot_form = $('form#new_jot')
-    @new_jot_content = @new_jot_form.find('textarea#jot_content')
-    @jots_wrapper = $('#jots-wrapper')
-    @jots_list = @jots_wrapper.find('ul#jots-list')
-    @jot_entry_template = $('#jot-entry-template')
-
     @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
 
@@ -32,17 +26,12 @@ class window.LightJot
     @key_codes =
       enter: 13
 
-
-
-
   sizeUI: =>
-    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @new_jot_content.outerHeight(true)
-    @jots_wrapper.css 'height', jots_height
+    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    @jots.jots_wrapper.css 'height', jots_height
 
     topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true)
     @topics_wrapper.css 'height', topics_height
-
-
 
   loadDataFromServer: =>
     $.ajax(
@@ -59,7 +48,7 @@ class window.LightJot
           @initTopicBinds(topic.id)
 
         @initNewtopicListeners()
-        @buildJotsList()
+        @jots.buildJotsList()
 
       error: (data) =>
         console.log data
@@ -131,22 +120,13 @@ class window.LightJot
           @deleteTopic(id)
         , 250)
 
-  buildJotsList: =>
-    @jots_list.html('')
-
-    $.each @app.jots, (index, jot) =>
-      if jot.topic_id == @app.current_topic
-        @jots_list.append("<li>#{jot.content}</li>")
-
-    @scrollJotsToBottom()
-
   selectTopic: (topic_id) =>
     $("li[data-topic='#{@app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @app.current_topic = topic_id
     elem.addClass('current')
 
-    @buildJotsList()
+    @jots.buildJotsList()
     @new_jot_content.focus()
 
   editTopic: (id) =>
@@ -278,63 +258,3 @@ class window.LightJot
 
       @topics_list.find('form#new_topic #topic_title').val('')
     , 250)
-
-  initJotFormListeners: =>
-    @new_jot_form.submit (e) =>
-      e.preventDefault()
-      @submitNewJot()
-
-    @new_jot_content.keydown (e) =>
-      if e.keyCode == @key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
-        e.preventDefault()
-        @new_jot_form.submit()
-
-  submitNewJot: =>
-    content = @new_jot_content.val()
-    @jot_entry_template.find('li').append(content)
-    build_entry = @jot_entry_template.html()
-
-    @jots_list.append(build_entry)
-    @scrollJotsToBottom()
-
-    $.ajax(
-      type: 'POST'
-      url: @new_jot_form.attr('action')
-      data: "content=#{content}&topic_id=#{@app.current_topic}"
-      success: (data) =>
-        console.log data
-        @app.jots.push data.jot
-
-      error: (data) =>
-        console.log data
-    )
-
-    topic_key_to_move = null
-    topic_object_to_move = null
-
-    # find topic to move
-    $.each @app.topics, (index, topic) =>
-      if topic.id == @app.current_topic
-        topic_key_to_move = index
-        topic_object_to_move = topic
-        return false
-
-    # move topic being written in to top of list
-    temp_list = $.extend({}, @app.topics)
-    for i in [0...topic_key_to_move]
-      temp_list[i+1] = @app.topics[i]
-
-    @app.topics = $.extend({}, temp_list)
-
-    @app.topics[0] = topic_object_to_move
-    @sortTopicsList()
-
-    # reset new jot form
-    @clearJotEntryTemplate()
-    @new_jot_content.val('')
-
-  scrollJotsToBottom: =>
-    @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
-
-  clearJotEntryTemplate: =>
-    @jot_entry_template.find('li').html('')
