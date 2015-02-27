@@ -4,7 +4,14 @@
   h2 Folders
 
 .large-2.medium-3.columns
-  h2 Topics
+  h2#topics-heading
+    |Topics
+    i.fa.fa-plus.new-topic-icon
+
+  #new-topic-template
+    li.new-topic-form-wrap data-hidden='true'
+      = simple_form_for Topic.new do |form|
+        = form.input :title, :label => false, :autofocus => true
 
   ul#topics-list
 

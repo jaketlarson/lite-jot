@@ -5,6 +5,7 @@ Array::remove = (from, to) ->
   @push.apply this, rest
 
 
+
 $ ->
   lightjot = new window.LightJot()
 
@@ -100,6 +101,7 @@ class window.LightJot
 
         @buildTopicsList()
         @initTopicsBinds()
+        @initNewtopicListeners()
         @buildJotsList()
 
       error: (data) =>
@@ -125,18 +127,20 @@ class window.LightJot
       if @app.current_topic == topic.id
         $("li[data-topic='#{topic.id}']").addClass('current')
 
+    @topics_list.prepend("#{$('#new-topic-template').html()}")
     @sortTopicsList()
 
   sortTopicsList: =>
     offset_top = 0
-    $.each @app.topics, (index, topic) =>
-      topic_elem = @topics_list.find("li[data-topic='#{topic.id}']")
-      topic_elem.css('top', offset_top)
-      height = topic_elem.outerHeight()
-      offset_top += height
+    $.each @topics_list.find('li'), (index, topic_elem) =>
+      # data-hidden is used on the new-topic li while it is being hidden but not quite !.is(:visible) yet
+      if $(topic_elem).is(':visible') && $(topic_elem).attr('data-hidden') != 'true'
+        $(topic_elem).css('top', offset_top)
+        height = $(topic_elem).outerHeight()
+        offset_top += height
 
   initTopicsBinds: =>
-    @topics_list.find('li').click (e) =>
+    @topics_list.find('li:not(.new-topic-form-wrap)').click (e) =>
       @selectTopic(e)
 
     @topics_list.find('li [data-edit]').click (e) =>
@@ -221,10 +225,48 @@ class window.LightJot
           return false
 
       @app.topics.remove(topic_key)
-      console.log @app.topics
+      elem.remove()
       @sortTopicsList()
     , 350)
 
+  initNewtopicListeners: =>
+    $('.new-topic-icon').click (e) =>
+      if !@topics_list.find('li.new-topic-form-wrap').is(':visible')
+        @newTopic()
+        @topics_list.find('input#topic_title').focus() # dont like how there are two #topic_titles (from template)
+
+    @topics_list.find('input#topic_title').blur (e) =>
+      if @topics_list.find('form#new_topic #topic_title').val().trim().length == 0
+        @hideNewTopicForm()
+
+    $('form#new_topic').submit (e) =>
+      e.preventDefault()
+      @submitNewTopic()
+
+  newTopic: =>
+    @showNewTopicForm()
+    @sortTopicsList()
+
+  submitNewTopic: =>
+    topic_title = @topics_list.find('form#new_topic #topic_title')
+    if topic_title.val().trim().length == 0
+      @hideNewTopicForm()
+
+  showNewTopicForm: =>
+    @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')
+
+  hideNewTopicForm: =>
+    @topics_list.find('li.new-topic-form-wrap').attr('data-hidden', 'true').css('opacity', 0)
+
+    @sortTopicsList()
+
+    setTimeout(() =>
+      @topics_list.find('li.new-topic-form-wrap').hide().css({
+        opacity: 1
+      })
+
+      @topics_list.find('form#new_topic #topic_title').val('')
+    , 250)
 
   reloadTopics: =>
     $.ajax(

@@ -26,3 +26,6 @@ en:
     placeholders:
       jot:
         content: "Enter to save\nShift+Enter for new line."
+
+      topic:
+        title: "Enter a topic title"
