@@ -105,7 +105,9 @@ class window.LightJot
         @app.jots = data.jots
 
         @buildTopicsList()
-        @initTopicsBinds()
+        $.each @app.topics, (index, topic) =>
+          @initTopicBinds(topic.id)
+
         @initNewtopicListeners()
         @buildJotsList()
 
@@ -119,13 +121,13 @@ class window.LightJot
     if typeof @app.current_topic == 'undefined' && @app.topics.length > 0
       @app.current_topic = @app.topics[0].id
 
+    @topics_list.prepend("#{$('#new-topic-template').html()}")
     $.each @app.topics, (index, topic) =>
       @insertTopicElem(topic)
 
       if @app.current_topic == topic.id
         $("li[data-topic='#{topic.id}']").addClass('current')
 
-    @topics_list.prepend("#{$('#new-topic-template').html()}")
     @sortTopicsList()
 
   insertTopicElem: (topic, append = true) =>
@@ -141,7 +143,7 @@ class window.LightJot
     if append
       @topics_list.append build_html
     else
-      @topics_list.prepend build_html
+      @topics_list.find('.new-topic-form-wrap').after build_html
 
   sortTopicsList: =>
     offset_top = 0
@@ -152,15 +154,18 @@ class window.LightJot
         height = $(topic_elem).outerHeight()
         offset_top += height
 
-  initTopicsBinds: =>
-    @topics_list.find('li:not(.new-topic-form-wrap)').click (e) =>
+  initTopicBinds: (topic_id) =>
+    @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>
       @selectTopic($(e.currentTarget).data('topic'))
 
-    @topics_list.find('li [data-edit]').click (e) =>
-      id = $(e.currentTarget).closest('li').data('topic')
-      @editTopic(id)
+    @topics_list.find("li[data-topic='#{topic_id}'] [data-edit]").click (e) =>
+      @editTopic(topic_id)
+      return false
 
-    @topics_list.find('li [data-delete]').click (e1) =>
+    @topics_list.find("li[data-topic='#{topic_id}'] .input-edit").click (e) =>
+      return false
+
+    @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e1) =>
       $('#delete-modal').foundation 'reveal', 'open'
       $('#delete-modal').html($('#delete-modal-template').html())
 
@@ -209,6 +214,7 @@ class window.LightJot
 
     input.keydown (e) =>
       if e.keyCode == @key_codes.enter
+        e.preventDefault()
         finishEditing()
 
     finishEditing = =>
@@ -216,6 +222,7 @@ class window.LightJot
         submitted_edit = true
         elem.attr('data-editing', 'false')
         title.html(input.val())
+        @new_jot_content.focus()
 
         $.ajax(
           type: 'PATCH'
@@ -255,6 +262,11 @@ class window.LightJot
       @app.topics.remove(topic_key)
       elem.remove()
       @sortTopicsList()
+
+      next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]
+      console.log $(next_topic_elem).data('topic')
+      @selectTopic($(next_topic_elem).data('topic'))
+
     , 350)
 
   initNewtopicListeners: =>
@@ -278,7 +290,7 @@ class window.LightJot
   submitNewTopic: =>
     topic_title = @topics_list.find('form#new_topic #topic_title')
     unless topic_title.val().trim().length == 0
-      topic_title.attr('disabled', true)
+      topic_title.attr 'disabled', true
 
       $.ajax(
         type: 'POST'
@@ -287,9 +299,12 @@ class window.LightJot
         success: (data) =>
           @hideNewTopicForm()
           console.log data
+          @app.topics.unshift data.topic
           @insertTopicElem data.topic, false
           @sortTopicsList()
           @selectTopic(data.topic.id)
+          @initTopicBinds(data.topic.id)
+          topic_title.attr 'disabled', false
 
         error: (data) =>
           console.log data
@@ -313,19 +328,6 @@ class window.LightJot
 
       @topics_list.find('form#new_topic #topic_title').val('')
     , 250)
-
-  reloadTopics: =>
-    $.ajax(
-      type: 'GET'
-      url: '/topics'
-
-      success: (data) =>
-        @app.topics = data.topics
-        @buildTopicsList()
-
-      error: (data) =>
-        console.log data
-    )
 
   initJotFormListeners: =>
     @new_jot_form.submit (e) =>
@@ -351,6 +353,7 @@ class window.LightJot
       data: "content=#{content}&topic_id=#{@app.current_topic}"
       success: (data) =>
         console.log data
+        @app.jots.push data.jot
 
       error: (data) =>
         console.log data

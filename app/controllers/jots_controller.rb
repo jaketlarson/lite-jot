@@ -15,7 +15,7 @@ class JotsController < ApplicationController
     jot.topic_id = topic.id
 
     if jot.save
-      render :text => "okay"
+      render :json => {:jot => jot}
 
     else
       render :text => 'not okay', :status => 409
