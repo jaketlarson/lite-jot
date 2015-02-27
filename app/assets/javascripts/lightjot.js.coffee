@@ -16,7 +16,7 @@ class window.LightJot
     @initElems()
     @initFullScreenListener()
     @initJotFormListeners()
-    @sizeJotsWrapper()
+    @sizeUI()
 
   initVars: =>
     @fullscreen_expand_icon_class = 'fa-expand'
@@ -26,6 +26,8 @@ class window.LightJot
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_entry_template = $('#jot-entry-template')
+
+    @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
 
     @app = {} # all loaded app data goes here
@@ -55,9 +57,12 @@ class window.LightJot
     else
       @showFullScreenExpandButton()
 
-  sizeJotsWrapper: =>
-    build_height = window.innerHeight - $('header').outerHeight() - $('h2').outerHeight(true) - @new_jot_content.outerHeight(true)
-    @jots_wrapper.css 'height', build_height
+  sizeUI: =>
+    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @new_jot_content.outerHeight(true)
+    @jots_wrapper.css 'height', jots_height
+
+    topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true)
+    @topics_wrapper.css 'height', topics_height
 
   toggleFullScreen: =>
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement
@@ -169,6 +174,8 @@ class window.LightJot
     $.each @app.jots, (index, jot) =>
       if jot.topic_id == @app.current_topic
         @jots_list.append("<li>#{jot.content}</li>")
+
+    @scrollJotsToBottom()
 
   selectTopic: (e, topic_id) =>
     $("li[data-topic='#{@app.current_topic}']").removeClass('current')
@@ -297,6 +304,7 @@ class window.LightJot
     build_entry = @jot_entry_template.html()
 
     @jots_list.append(build_entry)
+    @scrollJotsToBottom()
 
     $.ajax(
       type: 'POST'
@@ -332,6 +340,9 @@ class window.LightJot
     # reset new jot form
     @clearJotEntryTemplate()
     @new_jot_content.val('')
+
+  scrollJotsToBottom: =>
+    @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
 
   clearJotEntryTemplate: =>
     @jot_entry_template.find('li').html('')

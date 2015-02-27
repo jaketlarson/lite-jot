@@ -13,13 +13,13 @@
       = simple_form_for Topic.new do |form|
         = form.input :title, :label => false, :autofocus => true
 
-  ul#topics-list
+  #topics-wrapper
+    ul#topics-list
 
 .large-8.medium-6.columns
-  h2 Jots
+  h2#jots-heading Jots
 
   #jots-wrapper
-
     ul#jots-list
 
   #jot-entry-template
