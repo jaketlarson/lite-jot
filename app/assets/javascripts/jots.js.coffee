@@ -2,8 +2,6 @@
 
 class window.Jots extends LightJot
   constructor: (@lj) ->
-    @lj = @lj
-    console.log @lj
     @initVars()
     @initJotFormListeners()
 
@@ -16,7 +14,7 @@ class window.Jots extends LightJot
 
   buildJotsList: =>
     @jots_list.html('')
-    console.log @app
+
     $.each @lj.app.jots, (index, jot) =>
       if jot.topic_id == @lj.app.current_topic
         @jots_list.append("<li>#{jot.content}</li>")
@@ -29,7 +27,7 @@ class window.Jots extends LightJot
       @submitNewJot()
 
     @new_jot_content.keydown (e) =>
-      if e.keyCode == @key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
+      if e.keyCode == @lj.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
         e.preventDefault()
         @new_jot_form.submit()
 
@@ -44,10 +42,10 @@ class window.Jots extends LightJot
     $.ajax(
       type: 'POST'
       url: @new_jot_form.attr('action')
-      data: "content=#{content}&topic_id=#{@app.current_topic}"
+      data: "content=#{content}&topic_id=#{@lj.app.current_topic}"
       success: (data) =>
         console.log data
-        @app.jots.push data.jot
+        @lj.app.jots.push data.jot
 
       error: (data) =>
         console.log data
@@ -57,21 +55,21 @@ class window.Jots extends LightJot
     topic_object_to_move = null
 
     # find topic to move
-    $.each @app.topics, (index, topic) =>
-      if topic.id == @app.current_topic
+    $.each @lj.app.topics, (index, topic) =>
+      if topic.id == @lj.app.current_topic
         topic_key_to_move = index
         topic_object_to_move = topic
         return false
 
     # move topic being written in to top of list
-    temp_list = $.extend({}, @app.topics)
+    temp_list = $.extend({}, @lj.app.topics)
     for i in [0...topic_key_to_move]
-      temp_list[i+1] = @app.topics[i]
+      temp_list[i+1] = @lj.app.topics[i]
 
-    @app.topics = $.extend({}, temp_list)
+    @lj.app.topics = $.extend({}, temp_list)
 
-    @app.topics[0] = topic_object_to_move
-    @sortTopicsList()
+    @lj.app.topics[0] = topic_object_to_move
+    @lj.topics.sortTopicsList()
 
     # reset new jot form
     @clearJotEntryTemplate()

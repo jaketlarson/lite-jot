@@ -16,4 +16,5 @@
 //= require foundation
 //= require fullscreen
 //= require jots
+//= require topics
 //= require lightjot
