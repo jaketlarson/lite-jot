@@ -120,20 +120,28 @@ class window.LightJot
       @app.current_topic = @app.topics[0].id
 
     $.each @app.topics, (index, topic) =>
-      @topics_list.append("<li data-topic='#{topic.id}' data-editing='false'>
-                            <span class='title'>#{topic.title}</span>
-                            <div class='input-edit-wrap'>
-                              <input type='text' class='input-edit' />
-                            </div>
-                            <i class='fa fa-pencil edit' data-edit />
-                            <i class='fa fa-trash delete' data-delete />
-                          </li>")
+      @insertTopicElem(topic)
 
       if @app.current_topic == topic.id
         $("li[data-topic='#{topic.id}']").addClass('current')
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
     @sortTopicsList()
+
+  insertTopicElem: (topic, append = true) =>
+    build_html = "<li data-topic='#{topic.id}' data-editing='false'>
+                    <span class='title'>#{topic.title}</span>
+                    <div class='input-edit-wrap'>
+                      <input type='text' class='input-edit' />
+                    </div>
+                    <i class='fa fa-pencil edit' data-edit />
+                    <i class='fa fa-trash delete' data-delete />
+                  </li>"
+
+    if append
+      @topics_list.append build_html
+    else
+      @topics_list.prepend build_html
 
   sortTopicsList: =>
     offset_top = 0
@@ -146,7 +154,7 @@ class window.LightJot
 
   initTopicsBinds: =>
     @topics_list.find('li:not(.new-topic-form-wrap)').click (e) =>
-      @selectTopic(e)
+      @selectTopic($(e.currentTarget).data('topic'))
 
     @topics_list.find('li [data-edit]').click (e) =>
       id = $(e.currentTarget).closest('li').data('topic')
@@ -177,13 +185,14 @@ class window.LightJot
 
     @scrollJotsToBottom()
 
-  selectTopic: (e, topic_id) =>
+  selectTopic: (topic_id) =>
     $("li[data-topic='#{@app.current_topic}']").removeClass('current')
-    target = $(e.currentTarget)
-    @app.current_topic = target.data('topic')
-    target.addClass('current')
+    elem = $("li[data-topic='#{topic_id}']")
+    @app.current_topic = topic_id
+    elem.addClass('current')
 
     @buildJotsList()
+    @new_jot_content.focus()
 
   editTopic: (id) =>
     elem = $("li[data-topic='#{id}']")
@@ -224,6 +233,18 @@ class window.LightJot
     elem = $("li[data-topic='#{id}']")
     elem.attr('data-deleting', 'true')
 
+    $.ajax(
+      type: 'POST'
+      url: "/topics/#{id}"
+      data: {'_method': 'delete'}
+
+      success: (data) =>
+        console.log data
+
+      error: (data) =>
+        console.log data
+    )
+
     setTimeout(() =>
       topic_key = null
       $.each @app.topics, (index, topic) =>
@@ -256,8 +277,26 @@ class window.LightJot
 
   submitNewTopic: =>
     topic_title = @topics_list.find('form#new_topic #topic_title')
-    if topic_title.val().trim().length == 0
-      @hideNewTopicForm()
+    unless topic_title.val().trim().length == 0
+      topic_title.attr('disabled', true)
+
+      $.ajax(
+        type: 'POST'
+        url: '/topics'
+        data: "title=#{topic_title.val()}"
+        success: (data) =>
+          @hideNewTopicForm()
+          console.log data
+          @insertTopicElem data.topic, false
+          @sortTopicsList()
+          @selectTopic(data.topic.id)
+
+        error: (data) =>
+          console.log data
+        )
+
+    else
+      @hideNewTopicFrm
 
   showNewTopicForm: =>
     @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')
