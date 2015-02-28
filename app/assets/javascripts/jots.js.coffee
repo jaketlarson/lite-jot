@@ -11,13 +11,24 @@ class window.Jots extends LightJot
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_entry_template = $('#jot-entry-template')
+    @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
+    @jots_loading_icon = @jots_wrapper.find('i.loading')
 
   buildJotsList: =>
     @jots_list.html('')
+    @jots_loading_icon.fadeOut()
 
-    $.each @lj.app.jots, (index, jot) =>
-      if jot.topic_id == @lj.app.current_topic
-        @jots_list.append("<li>#{jot.content}</li>")
+    if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length > 0
+      @jots_empty_message_elem.hide()
+
+      i = 0
+      $.each @lj.app.jots, (index, jot) =>
+        if jot.topic_id == @lj.app.current_topic
+          @jots_list.append("<li>#{jot.content}</li>")
+
+
+    else
+      @jots_empty_message_elem.show()
 
     @scrollJotsToBottom()
 
@@ -37,6 +48,7 @@ class window.Jots extends LightJot
     build_entry = @jot_entry_template.html()
 
     @jots_list.append(build_entry)
+    @jots_empty_message_elem.hide()
     @scrollJotsToBottom()
 
     $.ajax(
