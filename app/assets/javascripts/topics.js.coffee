@@ -16,12 +16,19 @@ class window.Topics extends LightJot
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
     $.each @lj.app.topics, (index, topic) =>
-      @insertTopicElem(topic)
+      if topic.folder_id == @lj.app.current_folder
+        @insertTopicElem(topic)
 
-      if @lj.app.current_topic == topic.id
-        $("li[data-topic='#{topic.id}']").addClass('current')
+        if @lj.app.current_topic == topic.id
+          $("li[data-topic='#{topic.id}']").addClass('current')
+
+    $.each @lj.app.topics, (index, topic) =>
+      @initTopicBinds(topic.id)
 
     @sortTopicsList()
+    @initNewTopicListeners()
+    @selectFirstTopic()
+    @lj.jots.buildJotsList()
 
   insertTopicElem: (topic, append = true) =>
     build_html = "<li data-topic='#{topic.id}' data-editing='false'>
@@ -40,8 +47,15 @@ class window.Topics extends LightJot
 
   sortTopicsList: =>
     offset_top = 0
-    $.each @topics_list.find('li'), (index, topic_elem) =>
+
+    console.log @topics_list.find('li.new-topic-form-wrap').is(':visible')
+    if @topics_list.find('li.new-topic-form-wrap').is(':visible') && @topics_list.find('li.new-topic-form-wrap').attr('data-hidden') == 'false'
+      offset_top += @topics_list.find('li.new-topic-form-wrap').outerHeight()
+
+    $.each @lj.app.topics, (index, topic) =>
       # data-hidden is used on the new-topic li while it is being hidden but not quite !.is(:visible) yet
+      topic_elem = @topics_list.find("li[data-topic='#{topic.id}']")
+
       if $(topic_elem).is(':visible') && $(topic_elem).attr('data-hidden') != 'true'
         $(topic_elem).css('top', offset_top)
         height = $(topic_elem).outerHeight()
@@ -59,16 +73,16 @@ class window.Topics extends LightJot
       return false
 
     @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e1) =>
-      $('#delete-modal').foundation 'reveal', 'open'
-      $('#delete-modal').html($('#delete-modal-template').html())
+      $('#delete-topic-modal').foundation 'reveal', 'open'
+      $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
 
-      $('#delete-modal .cancel').click (e2) ->
-        $('#delete-modal').foundation 'reveal', 'close'
+      $('#delete-topic-modal .cancel').click (e2) ->
+        $('#delete-topic-modal').foundation 'reveal', 'close'
 
-      $('#delete-modal .confirm').click (e2) =>
+      $('#delete-topic-modal .confirm').click (e2) =>
         id = $(e1.currentTarget).closest('li').data('topic')
 
-        $('#delete-modal').foundation 'reveal', 'close'
+        $('#delete-topic-modal').foundation 'reveal', 'close'
 
         setTimeout(() =>
           @deleteTopic(id)
@@ -147,13 +161,15 @@ class window.Topics extends LightJot
       elem.remove()
       @sortTopicsList()
 
-      next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]
-      console.log $(next_topic_elem).data('topic')
-      @selectTopic($(next_topic_elem).data('topic'))
+      @selectFirstTopic()
 
     , 350)
 
-  initNewtopicListeners: =>
+  selectFirstTopic: =>
+    next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]
+    @selectTopic($(next_topic_elem).data('topic')) 
+
+  initNewTopicListeners: =>
     $('.new-topic-icon').click (e) =>
       if !@topics_list.find('li.new-topic-form-wrap').is(':visible')
         @newTopic()
@@ -179,11 +195,17 @@ class window.Topics extends LightJot
       $.ajax(
         type: 'POST'
         url: '/topics'
-        data: "title=#{topic_title.val()}"
+        data: "title=#{topic_title.val()}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
           @hideNewTopicForm()
           console.log data
-          @lj.app.topics.unshift data.topic
+          console.log typeof @lj.app.topics
+          console.log @lj.app.topics
+          if @lj.app.topics.length == 0
+            @lj.app.topics.push data.topic
+          else
+            @lj.app.topics.unshift data.topic
+
           @insertTopicElem data.topic, false
           @sortTopicsList()
           @selectTopic(data.topic.id)
@@ -195,7 +217,7 @@ class window.Topics extends LightJot
         )
 
     else
-      @hideNewTopicFrm
+      @hideNewTopicForm
 
   showNewTopicForm: =>
     @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')

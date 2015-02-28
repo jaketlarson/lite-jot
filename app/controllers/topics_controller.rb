@@ -41,6 +41,6 @@ class TopicsController < ApplicationController
   protected
 
     def topic_params
-      params.permit(:title)
+      params.permit(:title, :folder_id)
     end
 end

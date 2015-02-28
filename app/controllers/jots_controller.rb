@@ -25,6 +25,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:content)
+      params.permit(:content, :topic_id, :folder_id)
     end
 end

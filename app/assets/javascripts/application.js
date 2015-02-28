@@ -15,6 +15,7 @@
 //= require turbolinks
 //= require foundation
 //= require fullscreen
-//= require jots
+//= require folders
 //= require topics
+//= require jots
 //= require lightjot

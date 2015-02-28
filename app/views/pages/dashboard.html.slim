@@ -1,7 +1,17 @@
 .row
 
 .large-2.medium-3.columns
-  h2 Folders
+  h2#folders-heading
+    |Folders
+    i.fa.fa-plus.new-folder-icon
+
+  #new-folder-template
+    li.new-folder-form-wrap data-hidden='true'
+      = simple_form_for Folder.new do |form|
+        = form.input :title, :label => false, :autofocus => true
+
+  #folders-wrapper
+    ul#folders-list
 
 .large-2.medium-3.columns
   h2#topics-heading

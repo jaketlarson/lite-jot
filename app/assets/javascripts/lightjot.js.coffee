@@ -12,8 +12,9 @@ $ ->
 class window.LightJot
   constructor: ->
     @fullscreen = new LightJot.Fullscreen()
-    @jots = new Jots(@)
+    @folders = new Folders(@)
     @topics = new Topics(@)
+    @jots = new Jots(@)
     @initVars()
     @sizeUI()
     @loadDataFromServer()
@@ -25,11 +26,14 @@ class window.LightJot
       enter: 13
 
   sizeUI: =>
-    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
-    @jots.jots_wrapper.css 'height', jots_height
+    folders_height = window.innerHeight - $('header').outerHeight() - $('#folders-heading').outerHeight(true)
+    @folders.folders_wrapper.css 'height', folders_height
 
     topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
+
+    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    @jots.jots_wrapper.css 'height', jots_height
 
   loadDataFromServer: =>
     $.ajax(
@@ -41,11 +45,10 @@ class window.LightJot
         @app.topics = data.topics
         @app.jots = data.jots
 
-        @topics.buildTopicsList()
-        $.each @app.topics, (index, topic) =>
-          @topics.initTopicBinds(topic.id)
+        @folders.buildFoldersList()
 
-        @topics.initNewtopicListeners()
+        @topics.buildTopicsList()
+
         @jots.buildJotsList()
 
       error: (data) =>

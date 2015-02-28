@@ -62,11 +62,15 @@ class window.Jots extends LightJot
         return false
 
     # move topic being written in to top of list
-    temp_list = $.extend({}, @lj.app.topics)
+    temp_list = $.extend([], @lj.app.topics)
     for i in [0...topic_key_to_move]
       temp_list[i+1] = @lj.app.topics[i]
 
-    @lj.app.topics = $.extend({}, temp_list)
+    console.log @lj.app.topics
+    console.log 'to'
+    @lj.app.topics = $.extend([], temp_list)
+    console.log @lj.app.topics
+
 
     @lj.app.topics[0] = topic_object_to_move
     @lj.topics.sortTopicsList()

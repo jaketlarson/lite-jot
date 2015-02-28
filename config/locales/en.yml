@@ -29,3 +29,6 @@ en:
 
       topic:
         title: "Enter a topic title"
+
+      folder:
+        title: "Enter a folder title"
