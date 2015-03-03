@@ -1,6 +1,7 @@
-$ ->
-  class LightJot.Fullscreen
-  constructor: ->
+#= require lightjot
+
+class window.Fullscreen extends LightJot
+  constructor: (@lj) ->
     @initVars()
     @initFullScreenListener()
 

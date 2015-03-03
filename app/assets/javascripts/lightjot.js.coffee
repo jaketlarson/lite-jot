@@ -11,7 +11,7 @@ $ ->
 
 class window.LightJot
   constructor: ->
-    @fullscreen = new LightJot.Fullscreen()
+    @fullscreen = new Fullscreen(@)
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)

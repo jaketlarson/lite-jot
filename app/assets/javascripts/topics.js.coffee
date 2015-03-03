@@ -232,3 +232,23 @@ class window.Topics extends LightJot
 
       @topics_list.find('form#new_topic #topic_title').val('')
     , 250)
+
+  moveCurrentTopicToTop: =>
+    topic_key_to_move = null
+    topic_object_to_move = null
+
+    # find topic to move
+    $.each @lj.app.topics, (index, topic) =>
+      if topic.id == @lj.app.current_topic
+        topic_key_to_move = index
+        topic_object_to_move = topic
+        return false
+
+    # move topic being written in to top of list
+    temp_list = $.extend([], @lj.app.topics)
+    for i in [0...topic_key_to_move]
+      temp_list[i+1] = @lj.app.topics[i]
+
+    @lj.app.topics = $.extend([], temp_list)
+    @lj.app.topics[0] = topic_object_to_move
+    @lj.topics.sortTopicsList()

@@ -63,44 +63,8 @@ class window.Jots extends LightJot
         console.log data
     )
 
-    topic_key_to_move = null
-    topic_object_to_move = null
-
-    # find topic to move
-    $.each @lj.app.topics, (index, topic) =>
-      if topic.id == @lj.app.current_topic
-        topic_key_to_move = index
-        topic_object_to_move = topic
-        return false
-
-    # move topic being written in to top of list
-    temp_list = $.extend([], @lj.app.topics)
-    for i in [0...topic_key_to_move]
-      temp_list[i+1] = @lj.app.topics[i]
-
-    @lj.app.topics = $.extend([], temp_list)
-    @lj.app.topics[0] = topic_object_to_move
-    @lj.topics.sortTopicsList()
-
-
-    folder_key_to_move = null
-    folder_object_to_move = null
-
-    # find folder to move
-    $.each @lj.app.folders, (index, folder) =>
-      if folder.id == @lj.app.current_folder
-        folder_key_to_move = index
-        folder_object_to_move = folder
-        return false
-
-    # move folder being written in to top of list
-    temp_list = $.extend([], @lj.app.folders)
-    for i in [0...folder_key_to_move]
-      temp_list[i+1] = @lj.app.folders[i]
-
-    @lj.app.folders = $.extend([], temp_list)
-    @lj.app.folders[0] = folder_object_to_move
-    @lj.folders.sortFoldersList()
+    @lj.folders.moveCurrentFolderToTop()
+    @lj.topics.moveCurrentTopicToTop()
 
     # reset new jot form
     @clearJotEntryTemplate()
