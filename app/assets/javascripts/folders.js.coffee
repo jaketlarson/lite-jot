@@ -86,8 +86,9 @@ class window.Folders extends LightJot
         , 250)
 
   initNewFolderListeners: =>
-    $('.new-folder-icon').click (e) =>
+    $('.new-folder-icon').mousedown (e) =>
       if !@folders_list.find('li.new-folders-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'true'
+        e.preventDefault()
         @newFolder()
         @folders_list.find('input#folder_title').focus() # dont like how there are two #folder_titles (from template)
 

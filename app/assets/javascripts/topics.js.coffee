@@ -170,8 +170,9 @@ class window.Topics extends LightJot
     @selectTopic($(next_topic_elem).data('topic')) 
 
   initNewTopicListeners: =>
-    $('.new-topic-icon').click (e) =>
+    $('.new-topic-icon').mousedown (e) =>
       if !@topics_list.find('li.new-topic-form-wrap').is(':visible')
+        e.preventDefault()
         @newTopic()
         @topics_list.find('input#topic_title').focus() # dont like how there are two #topic_titles (from template)
 
