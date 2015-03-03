@@ -17,6 +17,7 @@ class window.LightJot
     @jots = new Jots(@)
     @initVars()
     @sizeUI()
+    @setUIInterval()
     @loadDataFromServer()
 
   initVars: =>
@@ -24,6 +25,13 @@ class window.LightJot
 
     @key_codes =
       enter: 13
+
+    @setViewport()
+
+  setViewport: =>
+    @viewport =
+      width: window.innerWidth
+      height: window.innerHeight
 
   sizeUI: =>
     folders_height = window.innerHeight - $('header').outerHeight() - $('#folders-heading').outerHeight(true)
@@ -34,6 +42,15 @@ class window.LightJot
 
     jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
+
+  setUIInterval: =>
+    @UIInterval = setInterval(() =>
+      if @viewport.width != window.innerWidth || @viewport.height != window.innerHeight
+        @setViewport()
+        @sizeUI()
+
+    , 500)
+
 
   loadDataFromServer: =>
     $.ajax(
