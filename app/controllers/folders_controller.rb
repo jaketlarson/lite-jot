@@ -22,7 +22,7 @@ class FoldersController < ApplicationController
   def update
     folder = Folder.find(params[:id])
 
-    # temporarily turn off since updated_at controls order of topics in UI
+    # temporarily turn off since updated_at controls order of folders in UI
     Folder.record_timestamps = false
     
     if folder.update(folder_params)
