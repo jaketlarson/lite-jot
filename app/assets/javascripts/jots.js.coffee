@@ -54,7 +54,7 @@ class window.Jots extends LightJot
     $.ajax(
       type: 'POST'
       url: @new_jot_form.attr('action')
-      data: "content=#{content}&topic_id=#{@lj.app.current_topic}"
+      data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
       success: (data) =>
         console.log data
         @lj.app.jots.push data.jot
@@ -78,14 +78,29 @@ class window.Jots extends LightJot
     for i in [0...topic_key_to_move]
       temp_list[i+1] = @lj.app.topics[i]
 
-    console.log @lj.app.topics
-    console.log 'to'
     @lj.app.topics = $.extend([], temp_list)
-    console.log @lj.app.topics
-
-
     @lj.app.topics[0] = topic_object_to_move
     @lj.topics.sortTopicsList()
+
+
+    folder_key_to_move = null
+    folder_object_to_move = null
+
+    # find folder to move
+    $.each @lj.app.folders, (index, folder) =>
+      if folder.id == @lj.app.current_folder
+        folder_key_to_move = index
+        folder_object_to_move = folder
+        return false
+
+    # move folder being written in to top of list
+    temp_list = $.extend([], @lj.app.folders)
+    for i in [0...folder_key_to_move]
+      temp_list[i+1] = @lj.app.folders[i]
+
+    @lj.app.folders = $.extend([], temp_list)
+    @lj.app.folders[0] = folder_object_to_move
+    @lj.folders.sortFoldersList()
 
     # reset new jot form
     @clearJotEntryTemplate()

@@ -48,7 +48,6 @@ class window.Topics extends LightJot
   sortTopicsList: =>
     offset_top = 0
 
-    console.log @topics_list.find('li.new-topic-form-wrap').is(':visible')
     if @topics_list.find('li.new-topic-form-wrap').is(':visible') && @topics_list.find('li.new-topic-form-wrap').attr('data-hidden') == 'false'
       offset_top += @topics_list.find('li.new-topic-form-wrap').outerHeight()
 
@@ -199,9 +198,7 @@ class window.Topics extends LightJot
         data: "title=#{topic_title.val()}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
           @hideNewTopicForm()
-          console.log data
-          console.log typeof @lj.app.topics
-          console.log @lj.app.topics
+
           if @lj.app.topics.length == 0
             @lj.app.topics.push data.topic
           else

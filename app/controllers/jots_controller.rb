@@ -5,14 +5,14 @@ class JotsController < ApplicationController
       topic = current_user.topics.new
       topic.title = "Untitled on #{time.strftime('%b %d')}"
       topic.save
-      puts 'cool'
     else
+      folder = current_user.folders.find(params[:folder_id])
+      folder.touch
       topic = current_user.topics.find(params[:topic_id])
       topic.touch
     end
 
     jot = current_user.jots.new(jot_params)
-    jot.topic_id = topic.id
 
     if jot.save
       render :json => {:jot => jot}

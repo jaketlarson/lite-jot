@@ -45,7 +45,6 @@ class window.Folders extends LightJot
   sortFoldersList: =>
     offset_top = 0
 
-    console.log @folders_list.find('li.new-folder-form-wrap').is(':visible')
     if @folders_list.find('li.new-folder-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'false'
       offset_top += @folders_list.find('li.new-folder-form-wrap').outerHeight()
 
@@ -224,7 +223,6 @@ class window.Folders extends LightJot
       @sortFoldersList()
 
       next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
-      console.log $(next_folder_elem).data('folder')
       @selectFolder($(next_folder_elem).data('folder'))
 
     , 350)
