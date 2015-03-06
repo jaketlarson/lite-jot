@@ -50,12 +50,19 @@ form#new_jot
       transition: margin-left .25s, opacity .25s
       transition-timing-function: ease-out
 
+      &:hover
+        color: $palette-soft-red
+        
+        i.highlight, i.delete
+          display: block
+
       i.highlight, i.delete
         position: absolute
         top: .25rem
         cursor: pointer
         display: none
         font-size: 1.2rem
+        color: $palette-black
 
         &:hover
           color: $palette-soft-red
@@ -94,10 +101,6 @@ form#new_jot
 
       &.temp
         color: red
-
-      &:hover
-        i.highlight, i.delete
-          display: block
 
       &[data-deleting='true']
         margin-left: -200px
