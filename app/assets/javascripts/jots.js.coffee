@@ -10,7 +10,7 @@ class window.Jots extends LightJot
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
-    @jot_entry_template = $('#jot-entry-template')
+    @jot_temp_entry_template = $('#jot-temp-entry-template')
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
     @jots_loading_icon = @jots_wrapper.find('i.loading')
 
@@ -24,8 +24,7 @@ class window.Jots extends LightJot
       i = 0
       $.each @lj.app.jots, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
-          @jots_list.append("<li>#{jot.content}</li>")
-
+          @insertJotElem(jot)
 
     else
       @jots_empty_message_elem.show()
@@ -44,10 +43,8 @@ class window.Jots extends LightJot
 
   submitNewJot: =>
     content = @new_jot_content.val()
-    @jot_entry_template.find('li').append(content)
-    build_entry = @jot_entry_template.html()
-
-    @jots_list.append(build_entry)
+    key = @randomKey()
+    @insertTempJotElem(content, key)
     @jots_empty_message_elem.hide()
     @scrollJotsToBottom()
 
@@ -58,6 +55,7 @@ class window.Jots extends LightJot
       success: (data) =>
         console.log data
         @lj.app.jots.push data.jot
+        @integrateTempJot(data.jot, key)
 
       error: (data) =>
         console.log data
@@ -70,8 +68,171 @@ class window.Jots extends LightJot
     @clearJotEntryTemplate()
     @new_jot_content.val('')
 
+  insertTempJotElem: (content, key) =>
+    content = @new_jot_content.val()
+    @jot_temp_entry_template.find('li').attr('id', key).append("<div class='content'>#{content}</div>")
+    build_entry = @jot_temp_entry_template.html()
+
+    @jots_list.append(build_entry)
+
+  integrateTempJot: (jot, key) =>
+    elem = @jots_list.find("##{key}")
+    elem.removeClass('temp').attr('data-jot', jot.id)
+
+    to_insert = "<i class='fa fa-tag highlight' />
+                <i class='fa fa-trash delete' />
+                <div class='input-edit-wrap'>
+                  <input type='text' class='input-edit' />
+                </div>"
+
+    elem.append(to_insert)
+
+    @initJotBinds jot.id
+
+  insertJotElem: (jot) =>
+    highlighted_class = if jot.is_highlighted then 'highlighted' else ''
+    @jots_list.append("<li data-jot='#{jot.id}' class='#{highlighted_class}'>
+                        <i class='fa fa-tag highlight' />
+                        <i class='fa fa-trash delete' />
+                        <div class='content'>
+                          #{jot.content}
+                        </div>
+                        <div class='input-edit-wrap'>
+                          <input type='text' class='input-edit' />
+                        </div>
+                      </li>")
+
+    @initJotBinds jot.id
+
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
 
   clearJotEntryTemplate: =>
-    @jot_entry_template.find('li').html('')
+    @jot_temp_entry_template.find('li').html('')
+
+  randomKey: =>
+    build_key = ""
+    possibilities = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+
+    for i in [0..50]
+      build_key += possibilities.charAt(Math.floor(Math.random() * possibilities.length))
+
+    return build_key;
+
+  initJotBinds: (jot_id) =>
+    @jots_list.find("li[data-jot='#{jot_id}']").click (e) =>
+      @editJot(jot_id)
+      return false
+
+    @jots_list.find("li[data-jot='#{jot_id}'] i.highlight").click (e) =>
+      e.stopPropagation()
+      @highlightJot jot_id
+
+    @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
+      e.stopPropagation()
+      @deleteJot jot_id
+
+  highlightJot: (id) =>
+    elem = $("li[data-jot='#{id}']")
+    is_highlighted = elem.hasClass('highlighted') ? true : false
+    console.log is_highlighted
+
+    unless is_highlighted
+      elem.addClass('highlighted')
+
+    else
+      elem.removeClass('highlighted')
+
+    is_highlighted = !is_highlighted
+    $.ajax(
+      type: 'PATCH'
+      url: "/jots/#{id}"
+      data: "is_highlighted=#{is_highlighted}"
+
+      success: (data) =>
+        console.log data
+
+      error: (data) =>
+        console.log data
+    )
+
+
+  editJot: (id) =>
+    elem = $("li[data-jot='#{id}']")
+    input = elem.find('input.input-edit')
+    content_elem = elem.find('.content')
+    raw_content = @lj.app.jots.filter((jot) => jot.id == id)[0].content
+
+    input.val(raw_content)
+    elem.attr('data-editing', 'true')
+    input.focus()
+
+    submitted_edit = false
+
+    input.blur (e) =>
+      finishEditing()
+
+    input.keydown (e) =>
+      if e.keyCode == @lj.key_codes.enter
+        e.preventDefault()
+        finishEditing()
+
+    finishEditing = =>
+      if !submitted_edit
+        submitted_edit = true
+        elem.attr('data-editing', 'false')
+        content_elem.html(input.val())
+
+        @lj.jots.new_jot_content.focus()
+
+        # only update folder/topic order & send server request if the user
+        # changed the content field of the jot
+        if input.val() != raw_content
+          @lj.folders.moveCurrentFolderToTop()
+          @lj.topics.moveCurrentTopicToTop()
+
+          $.ajax(
+            type: 'PATCH'
+            url: "/jots/#{id}"
+            data: "content=#{input.val()}"
+
+            success: (data) =>
+              console.log data
+
+            error: (data) =>
+              console.log data
+          )
+
+  deleteJot: (id) =>
+    elem = $("li[data-jot='#{id}']")
+    elem.attr('data-deleting', 'true')
+
+    $.ajax(
+      type: 'POST'
+      url: "/jots/#{id}"
+      data: {'_method': 'delete'}
+
+      success: (data) =>
+        console.log data
+
+      error: (data) =>
+        console.log data
+    )
+
+    setTimeout(() =>
+      jot_key = null
+      $.each @lj.app.jots, (index, jot) =>
+        if jot.id == id
+          jot_key = index
+          return false
+
+      @lj.app.jots.remove(jot_key)
+      elem.remove()
+
+      @checkIfJotsEmpty()
+
+    , 350)
+
+  checkIfJotsEmpty: =>
+    if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
+      @jots_empty_message_elem.show()

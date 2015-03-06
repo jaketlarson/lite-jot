@@ -3,12 +3,13 @@ form#new_jot
     min-height: 6rem
     margin-top: 1rem
 
-#jot-entry-template
+#jot-temp-entry-template
   display: none
 
 #jots-wrapper
   overflow-y: auto
   position: relative
+  padding-left: .5rem
 
   i.loading
     display: block
@@ -46,3 +47,58 @@ form#new_jot
 
     li
       position: relative
+      transition: margin-left .25s, opacity .25s
+      transition-timing-function: ease-out
+
+      i.highlight, i.delete
+        position: absolute
+        top: .25rem
+        cursor: pointer
+        display: none
+        font-size: 1.2rem
+
+        &:hover
+          color: $palette-soft-red
+
+      i.highlight
+        right: 2.5rem
+
+      i.delete
+        right: .5rem
+
+      &.highlighted
+        &:before
+          content: '\f138'
+          color: $palette-soft-red
+          font-size: 1rem
+          margin-top: -0.35rem
+          margin-left: -1.35rem
+
+      .input-edit-wrap
+        position: absolute
+        top: .25rem
+        left: 0
+        bottom: .25rem
+        right: .25rem
+        z-index: 2
+        display: none
+
+        input.input-edit
+          width: 100%
+          height: 100%
+          border: 0
+
+      &[data-editing='true']
+        .input-edit-wrap
+          display: block
+
+      &.temp
+        color: red
+
+      &:hover
+        i.highlight, i.delete
+          display: block
+
+      &[data-deleting='true']
+        margin-left: -200px
+        opacity: 0
