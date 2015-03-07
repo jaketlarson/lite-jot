@@ -16,11 +16,6 @@ class window.KeyControls extends LightJot
 
     # virtual architecture user is navigating w/ keyboard
     @key_nav = {}
-    @key_nav.folders =
-      left: null
-      up: 'next-folder-up'
-      down: 'next-folder-down'
-      right: 'topics'
 
     @key_nav.folders =
       left: null
