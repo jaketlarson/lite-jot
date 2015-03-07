@@ -156,7 +156,6 @@ class window.Folders extends LightJot
     elem.addClass('current')
 
     @lj.topics.buildTopicsList()
-    @lj.jots.new_jot_content.focus()
 
   editFolder: (id) =>
     elem = $("li[data-folder='#{id}']")

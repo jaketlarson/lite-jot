@@ -10,7 +10,7 @@
       = simple_form_for Folder.new do |form|
         = form.input :title, :label => false, :autofocus => true
 
-  #folders-wrapper
+  #folders-wrapper tabindex='1'
     ul#folders-list
 
 .large-2.medium-3.columns
@@ -23,13 +23,13 @@
       = simple_form_for Topic.new do |form|
         = form.input :title, :label => false, :autofocus => true
 
-  #topics-wrapper
+  #topics-wrapper tabindex='2'
     ul#topics-list
 
 .large-8.medium-6.columns
   h2#jots-heading Jots
 
-  #jots-wrapper
+  #jots-wrapper tabindex='3'
     i.loading.fa.fa-cog.fa-spin
 
     .empty-message

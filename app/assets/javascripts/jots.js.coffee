@@ -43,30 +43,31 @@ class window.Jots extends LightJot
 
   submitNewJot: =>
     content = @new_jot_content.val()
-    key = @randomKey()
-    @insertTempJotElem(content, key)
-    @jots_empty_message_elem.hide()
-    @scrollJotsToBottom()
+    if content.trim().length > 0
+      key = @randomKey()
+      @insertTempJotElem(content, key)
+      @jots_empty_message_elem.hide()
+      @scrollJotsToBottom()
 
-    $.ajax(
-      type: 'POST'
-      url: @new_jot_form.attr('action')
-      data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
-      success: (data) =>
-        console.log data
-        @lj.app.jots.push data.jot
-        @integrateTempJot(data.jot, key)
+      $.ajax(
+        type: 'POST'
+        url: @new_jot_form.attr('action')
+        data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
+        success: (data) =>
+          console.log data
+          @lj.app.jots.push data.jot
+          @integrateTempJot(data.jot, key)
 
-      error: (data) =>
-        console.log data
-    )
+        error: (data) =>
+          console.log data
+      )
 
-    @lj.folders.moveCurrentFolderToTop()
-    @lj.topics.moveCurrentTopicToTop()
+      @lj.folders.moveCurrentFolderToTop()
+      @lj.topics.moveCurrentTopicToTop()
 
-    # reset new jot form
-    @clearJotEntryTemplate()
-    @new_jot_content.val('')
+      # reset new jot form
+      @clearJotEntryTemplate()
+      @new_jot_content.val('')
 
   insertTempJotElem: (content, key) =>
     content = @new_jot_content.val()

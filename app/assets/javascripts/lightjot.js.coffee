@@ -15,6 +15,7 @@ class window.LightJot
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
+    @key_controls = new KeyControls(@)
     @initVars()
     @sizeUI()
     @setUIInterval()

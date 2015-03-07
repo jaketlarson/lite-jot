@@ -94,7 +94,6 @@ class window.Topics extends LightJot
     elem.addClass('current')
 
     @lj.jots.buildJotsList()
-    @lj.jots.new_jot_content.focus()
 
   editTopic: (id) =>
     elem = $("li[data-topic='#{id}']")

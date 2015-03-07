@@ -18,4 +18,5 @@
 //= require folders
 //= require topics
 //= require jots
+//= require key_controls
 //= require lightjot
