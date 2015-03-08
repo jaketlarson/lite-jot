@@ -45,7 +45,7 @@ class window.Topics extends LightJot
     else
       @topics_list.find('.new-topic-form-wrap').after build_html
 
-  sortTopicsList: =>
+  sortTopicsList: (sort_dom=true) =>
     offset_top = 0
 
     if @topics_list.find('li.new-topic-form-wrap').is(':visible') && @topics_list.find('li.new-topic-form-wrap').attr('data-hidden') == 'false'
@@ -60,13 +60,14 @@ class window.Topics extends LightJot
         height = $(topic_elem).outerHeight()
         offset_top += height
 
-    setTimeout(() =>
-      topic_elems = @lj.topics.topics_list.children('li')
-      topic_elems.detach().sort (a, b) =>
-          return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
+    if sort_dom
+      setTimeout(() =>
+        topic_elems = @lj.topics.topics_list.children('li')
+        topic_elems.detach().sort (a, b) =>
+            return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
 
-      @lj.topics.topics_list.append(topic_elems)
-    , 250)
+        @lj.topics.topics_list.append(topic_elems)
+      , 250)
 
 
   initTopicBinds: (topic_id) =>
@@ -193,7 +194,7 @@ class window.Topics extends LightJot
 
   newTopic: =>
     @showNewTopicForm()
-    @sortTopicsList()
+    @sortTopicsList false
 
   submitNewTopic: =>
     topic_title = @topics_list.find('form#new_topic #topic_title')

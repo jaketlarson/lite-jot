@@ -13,6 +13,8 @@ class window.KeyControls extends LightJot
       right: 39
       down: 40
       delete: 46
+      h: 72
+      n: 78
 
     # virtual architecture user is navigating w/ keyboard
     @key_nav = {}
@@ -22,18 +24,22 @@ class window.KeyControls extends LightJot
       up: @keyToNextFolderUp
       down: @keyToNextFolderDown
       right: @keyToFirstTopic
+      n: @keyToNewFolder
 
     @key_nav.topics =
       left: @keyToCurrentFolder
       up: @keyToNextTopicUp
       down: @keyToNextTopicDown
       right: @keyToNewJot
+      n: @keyToNewTopic
 
     @key_nav.jots =
       left: @keyToCurrentTopic
       up: @keyToNextJotUp
       down: @keyToNextJotDown
       right: null
+      h: @highlightJotKeyedAt
+      n: @keyToNewJot
 
 
     @curr_pos = 'new-jot'
@@ -51,6 +57,8 @@ class window.KeyControls extends LightJot
         @keyToCurrentTopic()
 
     @lj.jots.jots_wrapper.keydown (e) =>
+      e.preventDefault()
+
       if e.keyCode == @key_codes.up
         @key_nav.jots.up()
 
@@ -60,7 +68,16 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.left
         @key_nav.jots.left()
 
+      if e.keyCode == @key_codes.h
+        @key_nav.jots.h()
+
+      if e.keyCode == @key_codes.n
+        @key_nav.jots.n()
+
     @lj.topics.topics_wrapper.keydown (e) =>
+      if !@lj.topics.topics_list.find('form#new_topic #topic_title').is(':focus')
+        e.preventDefault()
+
       if e.keyCode == @key_codes.up
         @key_nav.topics.up()
 
@@ -73,7 +90,13 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.right
         @key_nav.topics.right()
 
+      if e.keyCode == @key_codes.n
+        @key_nav.topics.n()
+
     @lj.folders.folders_wrapper.keydown (e) =>
+      if !@lj.folders.folders_list.find('form#new_folder #folder_title').is(':focus')
+        e.preventDefault()
+
       if e.keyCode == @key_codes.up
         @key_nav.folders.up()
 
@@ -82,6 +105,9 @@ class window.KeyControls extends LightJot
         
       if e.keyCode == @key_codes.right
         @key_nav.folders.right()
+
+      if e.keyCode == @key_codes.n
+        @key_nav.folders.n()
 
 
   clearKeyedOverData: =>
@@ -136,7 +162,12 @@ class window.KeyControls extends LightJot
         @keyToFirstJot()
 
   keyToNewJot: =>
+    @clearKeyedOverData()
     @lj.jots.new_jot_content.focus()
+
+  highlightJotKeyedAt: =>
+    id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
+    @lj.jots.highlightJot id
 
   keyToCurrentTopic: =>
     if typeof @lj.app.current_topic == 'undefined'
@@ -202,6 +233,10 @@ class window.KeyControls extends LightJot
     elem = $(@lj.topics.topics_wrapper.find("li[data-keyed-over='true']")[0])
     @lj.topics.selectTopic elem.data('topic')
 
+  keyToNewTopic: =>
+    @lj.topics.newTopic()
+    @lj.topics.topics_list.find('input#topic_title')[0].focus()
+
   keyToCurrentFolder: =>
     if typeof @lj.app.current_folder == 'undefined'
       return
@@ -263,6 +298,10 @@ class window.KeyControls extends LightJot
 
       else
         @keyToFirstFolder()
+
+  keyToNewFolder: =>
+    @lj.folders.newFolder()
+    @lj.folders.folders_list.find('input#folder_title')[0].focus()
 
   openFolderKeyedTo: =>
     elem = $(@lj.folders.folders_wrapper.find("li[data-keyed-over='true']")[0])

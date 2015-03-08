@@ -42,7 +42,7 @@ class window.Folders extends LightJot
     else
       @folders_list.find('.new-folder-form-wrap').after build_html
 
-  sortFoldersList: =>
+  sortFoldersList: (sort_dom=true) =>
     offset_top = 0
 
     if @folders_list.find('li.new-folder-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'false'
@@ -57,13 +57,14 @@ class window.Folders extends LightJot
         height = $(folder_elem).outerHeight()
         offset_top += height
 
-    setTimeout(() =>
-      folder_elems = @lj.folders.folders_list.children('li')
-      folder_elems.detach().sort (a, b) =>
-          return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
+    if sort_dom
+      setTimeout(() =>
+        folder_elems = @lj.folders.folders_list.children('li')
+        folder_elems.detach().sort (a, b) =>
+            return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
 
-      @lj.folders.folders_list.append(folder_elems)
-    , 250)
+        @lj.folders.folders_list.append(folder_elems)
+      , 250)
 
   initFolderBinds: (folder_id) =>
     @folders_list.find("li:not(.new-folder-form-wrap)[data-folder='#{folder_id}']").click (e) =>
@@ -109,7 +110,7 @@ class window.Folders extends LightJot
 
   newFolder: =>
     @showNewFolderForm()
-    @sortFoldersList()
+    @sortFoldersList false
 
   submitNewFolder: =>
     folder_title = @folders_list.find('form#new_folder #folder_title')
