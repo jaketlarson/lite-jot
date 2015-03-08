@@ -56,9 +56,18 @@ class window.Topics extends LightJot
       topic_elem = @topics_list.find("li[data-topic='#{topic.id}']")
 
       if $(topic_elem).is(':visible') && $(topic_elem).attr('data-hidden') != 'true'
-        $(topic_elem).css('top', offset_top)
+        $(topic_elem).css('top', offset_top).attr('data-sort', offset_top)
         height = $(topic_elem).outerHeight()
         offset_top += height
+
+    setTimeout(() =>
+      topic_elems = @lj.topics.topics_list.children('li')
+      topic_elems.detach().sort (a, b) =>
+          return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
+
+      @lj.topics.topics_list.append(topic_elems)
+    , 250)
+
 
   initTopicBinds: (topic_id) =>
     @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>

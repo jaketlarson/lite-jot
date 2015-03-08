@@ -53,9 +53,17 @@ class window.Folders extends LightJot
       folder_elem = @folders_list.find("li[data-folder='#{folder.id}']")
 
       if $(folder_elem).is(':visible') && $(folder_elem).attr('data-hidden') != 'true'
-        $(folder_elem).css('top', offset_top)
+        $(folder_elem).css('top', offset_top).attr('data-sort', offset_top)
         height = $(folder_elem).outerHeight()
         offset_top += height
+
+    setTimeout(() =>
+      folder_elems = @lj.folders.folders_list.children('li')
+      folder_elems.detach().sort (a, b) =>
+          return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
+
+      @lj.folders.folders_list.append(folder_elems)
+    , 250)
 
   initFolderBinds: (folder_id) =>
     @folders_list.find("li:not(.new-folder-form-wrap)[data-folder='#{folder_id}']").click (e) =>
