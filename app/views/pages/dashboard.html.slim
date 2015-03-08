@@ -8,7 +8,7 @@
   #new-folder-template
     li.new-folder-form-wrap data-hidden='true'
       = simple_form_for Folder.new do |form|
-        = form.input :title, :label => false, :autofocus => true
+        = form.input :title, :label => false
 
   #folders-wrapper tabindex='1'
     ul#folders-list
@@ -21,7 +21,7 @@
   #new-topic-template
     li.new-topic-form-wrap data-hidden='true'
       = simple_form_for Topic.new do |form|
-        = form.input :title, :label => false, :autofocus => true
+        = form.input :title, :label => false
 
   #topics-wrapper tabindex='2'
     ul#topics-list

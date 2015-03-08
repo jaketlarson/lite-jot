@@ -228,6 +228,8 @@ class window.Topics extends LightJot
 
   showNewTopicForm: =>
     @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')
+    @topics_list.find('form#new_topic #topic_title').focus()
+
 
   hideNewTopicForm: =>
     @topics_list.find('li.new-topic-form-wrap').attr('data-hidden', 'true').css('opacity', 0)
@@ -240,6 +242,7 @@ class window.Topics extends LightJot
       })
 
       @topics_list.find('form#new_topic #topic_title').val('')
+      @lj.jots.new_jot_content.focus()
     , 250)
 
   moveCurrentTopicToTop: =>

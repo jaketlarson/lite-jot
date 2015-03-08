@@ -131,9 +131,11 @@ class window.Folders extends LightJot
 
           @insertFolderElem data.folder, false
           @sortFoldersList()
-          @selectFolder(data.folder.id)
+          @selectFolder data.folder.id, true
           @initFolderBinds(data.folder.id)
           folder_title.attr 'disabled', false
+
+          @lj.topics.newTopic()
 
         error: (data) =>
           console.log data
@@ -158,13 +160,14 @@ class window.Folders extends LightJot
       @folders_list.find('form#new_folder #folder_title').val('')
     , 250)
 
-  selectFolder: (folder_id) =>
+  selectFolder: (folder_id, new_folder_init=false) =>
     $("li[data-folder='#{@lj.app.current_folder}']").removeClass('current')
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id
     elem.addClass('current')
 
-    @lj.topics.buildTopicsList()
+    if !new_folder_init
+      @lj.topics.buildTopicsList()
 
   editFolder: (id) =>
     elem = $("li[data-folder='#{id}']")
