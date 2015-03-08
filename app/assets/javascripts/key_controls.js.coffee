@@ -46,6 +46,10 @@ class window.KeyControls extends LightJot
         $(e.currentTarget).blur()
         @keyToLastJot()
 
+      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0
+        $(e.currentTarget).blur()
+        @keyToCurrentTopic()
+
     @lj.jots.jots_wrapper.keydown (e) =>
       if e.keyCode == @key_codes.up
         @key_nav.jots.up()
