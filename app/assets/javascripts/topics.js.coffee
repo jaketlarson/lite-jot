@@ -15,20 +15,26 @@ class window.Topics extends LightJot
       @lj.app.current_topic = @lj.app.topics[0].id
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
-    $.each @lj.app.topics, (index, topic) =>
-      if topic.folder_id == @lj.app.current_folder
-        @insertTopicElem(topic)
 
-        if @lj.app.current_topic == topic.id
-          $("li[data-topic='#{topic.id}']").addClass('current')
+    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+      $.each @lj.app.topics, (index, topic) =>
+        if topic.folder_id == @lj.app.current_folder
+          @insertTopicElem(topic)
 
-    $.each @lj.app.topics, (index, topic) =>
-      @initTopicBinds(topic.id)
+          if @lj.app.current_topic == topic.id
+            $("li[data-topic='#{topic.id}']").addClass('current')
 
-    @sortTopicsList()
+      $.each @lj.app.topics, (index, topic) =>
+        @initTopicBinds(topic.id)
+
+      @sortTopicsList()
+      @selectFirstTopic()
+      @lj.jots.buildJotsList()
+
+    else
+      @showNewTopicForm()
+
     @initNewTopicListeners()
-    @selectFirstTopic()
-    @lj.jots.buildJotsList()
 
   insertTopicElem: (topic, append = true) =>
     build_html = "<li data-topic='#{topic.id}' data-editing='false'>
@@ -185,16 +191,22 @@ class window.Topics extends LightJot
         @topics_list.find('input#topic_title').focus() # dont like how there are two #topic_titles (from template)
 
     @topics_list.find('input#topic_title').blur (e) =>
-      if @topics_list.find('form#new_topic #topic_title').val().trim().length == 0
+      topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
+      topic_title_length = @topics_list.find('form#new_topic #topic_title').val().trim().length
+      
+      if topics_count > 0 && topic_title_length == 0
         @hideNewTopicForm()
 
     $('form#new_topic').submit (e) =>
       e.preventDefault()
       @submitNewTopic()
 
-  newTopic: =>
+  newTopic: (focus_title=true) =>
     @showNewTopicForm()
     @sortTopicsList false
+
+    if focus_title
+      @topics_list.find('form#new_topic #topic_title').focus()
 
   submitNewTopic: =>
     topic_title = @topics_list.find('form#new_topic #topic_title')
@@ -208,15 +220,12 @@ class window.Topics extends LightJot
         success: (data) =>
           @hideNewTopicForm()
 
-          if @lj.app.topics.length == 0
-            @lj.app.topics.push data.topic
-          else
-            @lj.app.topics.unshift data.topic
+          @pushTopicIntoData data.topic
 
-          @insertTopicElem data.topic, false
-          @sortTopicsList()
-          @selectTopic(data.topic.id)
-          @initTopicBinds(data.topic.id)
+          if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
+            @lj.folders.hideNewFolderForm()
+            @lj.folders.pushFolderIntoData data.auto_folder
+
           topic_title.attr 'disabled', false
 
         error: (data) =>
@@ -226,9 +235,19 @@ class window.Topics extends LightJot
     else
       @hideNewTopicForm
 
+  pushTopicIntoData: (topic) =>
+    if @lj.app.topics.length == 0
+      @lj.app.topics.push topic
+    else
+      @lj.app.topics.unshift topic
+
+    @insertTopicElem topic, false
+    @sortTopicsList()
+    @selectTopic topic.id
+    @initTopicBinds topic.id
+
   showNewTopicForm: =>
     @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')
-    @topics_list.find('form#new_topic #topic_title').focus()
 
 
   hideNewTopicForm: =>

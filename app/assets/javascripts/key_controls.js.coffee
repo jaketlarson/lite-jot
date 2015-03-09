@@ -170,12 +170,17 @@ class window.KeyControls extends LightJot
     @lj.jots.highlightJot id
 
   keyToCurrentTopic: =>
+    @clearKeyedOverData()
+
     if typeof @lj.app.current_topic == 'undefined'
+      return
+
+    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length == 0
+      @lj.topics.newTopic()
       return
 
     @lj.topics.topics_wrapper.focus()
 
-    @clearKeyedOverData()
     elem = $(@lj.topics.topics_wrapper.find("li[data-topic='#{@lj.app.current_topic}']")[0])
     elem.attr('data-keyed-over', 'true')
 
@@ -183,7 +188,7 @@ class window.KeyControls extends LightJot
     @clearKeyedOverData()
     @lj.topics.topics_wrapper.focus()
 
-    if @lj.topics.topics_wrapper.find('li').length > 0
+    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       $(@lj.topics.topics_wrapper.find('li')[@lj.topics.topics_wrapper.find('li').length - 1]).attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @curr_pos_index = @lj.topics.topics_wrapper.find('li').length - 1
@@ -193,11 +198,14 @@ class window.KeyControls extends LightJot
     @clearKeyedOverData()
     @lj.topics.topics_wrapper.focus()
 
-    if @lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)').length > 0
+    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       $(@lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)')[0]).attr('data-keyed-over', 'true')
       @curr_pos = 'topic'
       @cur_pos_index = 0
       @openTopicKeyedTo()
+
+    else
+      @lj.topics.newTopic()
 
   keyToNextTopicUp: =>
     if @lj.topics.topics_wrapper.find("li[data-keyed-over='true']").length > 0
@@ -262,7 +270,7 @@ class window.KeyControls extends LightJot
     @clearKeyedOverData()
     @lj.folders.folders_wrapper.focus()
 
-    if @lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)').length > 0
+    if @lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)').length > 0 #change this to use filter instead!
       $(@lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)')[0]).attr('data-keyed-over', 'true')
       @curr_pos = 'folder'
       @cur_pos_index = 0

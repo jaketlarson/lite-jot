@@ -15,16 +15,22 @@ class window.Folders extends LightJot
       @lj.app.current_folder = @lj.app.folders[0].id
 
     @folders_list.prepend("#{$('#new-folder-template').html()}")
-    $.each @lj.app.folders, (index, folder) =>
-      @insertFolderElem(folder)
 
-      if @lj.app.current_folder == folder.id
-        $("li[data-folder='#{folder.id}']").addClass('current')
+    if @lj.app.folders.length > 0
+      $.each @lj.app.folders, (index, folder) =>
+        @insertFolderElem(folder)
 
-    $.each @lj.app.folders, (index, folders) =>
-      @initFolderBinds(folders.id)
+        if @lj.app.current_folder == folder.id
+          $("li[data-folder='#{folder.id}']").addClass('current')
 
-    @sortFoldersList()
+      $.each @lj.app.folders, (index, folders) =>
+        @initFolderBinds(folders.id)
+
+      @sortFoldersList()
+
+    else
+      @showNewFolderForm()
+
     @initNewFolderListeners()
 
   insertFolderElem: (folder, append = true) =>
@@ -101,7 +107,10 @@ class window.Folders extends LightJot
         @folders_list.find('input#folder_title').focus() # dont like how there are two #folder_titles (from template)
 
     @folders_list.find('input#folder_title').blur (e) =>
-      if @folders_list.find('form#new_folder #folder_title').val().trim().length == 0
+      folders_count = @lj.app.folders.length
+      folder_title_length = @folders_list.find('form#new_folder #folder_title').val().trim().length
+
+      if folders_count > 0 && folder_title_length == 0
         @hideNewFolderForm()
 
     $('form#new_folder').submit (e) =>
@@ -124,15 +133,7 @@ class window.Folders extends LightJot
         success: (data) =>
           @hideNewFolderForm()
           console.log data
-          if @lj.app.folders.length == 0
-            @lj.app.folders.push data.folder
-          else
-            @lj.app.folders.unshift data.folder
-
-          @insertFolderElem data.folder, false
-          @sortFoldersList()
-          @selectFolder data.folder.id, true
-          @initFolderBinds(data.folder.id)
+          @pushFolderIntoData data.folder
           folder_title.attr 'disabled', false
 
           @lj.topics.newTopic()
@@ -143,6 +144,17 @@ class window.Folders extends LightJot
 
     else
       @hideNewFolderForm()
+
+  pushFolderIntoData: (folder) =>
+    if @lj.app.folders.length == 0
+      @lj.app.folders.push folder
+    else
+      @lj.app.folders.unshift folder
+
+    @insertFolderElem folder, false
+    @sortFoldersList()
+    @selectFolder folder.id, true
+    @initFolderBinds folder.id
 
   showNewFolderForm: =>
     @folders_list.find('li.new-folder-form-wrap').show().attr('data-hidden', 'false')
@@ -168,6 +180,9 @@ class window.Folders extends LightJot
 
     if !new_folder_init
       @lj.topics.buildTopicsList()
+
+    if @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length == 0
+      @lj.topics.newTopic false
 
   editFolder: (id) =>
     elem = $("li[data-folder='#{id}']")

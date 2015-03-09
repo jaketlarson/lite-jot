@@ -58,12 +58,23 @@ class window.Jots extends LightJot
           @lj.app.jots.push data.jot
           @integrateTempJot(data.jot, key)
 
+          if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
+            @lj.folders.hideNewFolderForm()
+            @lj.folders.pushFolderIntoData data.auto_folder
+
+          if typeof @lj.app.current_topic == 'undefined' && typeof data.auto_topic != 'undefined'
+            @lj.topics.hideNewTopicForm()
+            @lj.topics.pushTopicIntoData data.auto_topic
+
         error: (data) =>
           console.log data
       )
 
-      @lj.folders.moveCurrentFolderToTop()
-      @lj.topics.moveCurrentTopicToTop()
+      if @lj.app.folders.length > 1
+        @lj.folders.moveCurrentFolderToTop()
+
+      if @lj.app.topics.length > 1
+        @lj.topics.moveCurrentTopicToTop()
 
       # reset new jot form
       @clearJotEntryTemplate()

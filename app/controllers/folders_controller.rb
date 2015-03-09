@@ -5,7 +5,7 @@ class FoldersController < ApplicationController
     jots = current_user.jots
 
     json = {:folders => folders, :topics => topics, :jots => jots}
-
+    
     render :json => json
   end
 
