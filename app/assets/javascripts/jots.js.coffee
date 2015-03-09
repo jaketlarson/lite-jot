@@ -15,6 +15,7 @@ class window.Jots extends LightJot
     @jots_loading_icon = @jots_wrapper.find('i.loading')
 
   buildJotsList: =>
+    console.log 'eey'
     @jots_list.html('')
     @jots_loading_icon.fadeOut()
 

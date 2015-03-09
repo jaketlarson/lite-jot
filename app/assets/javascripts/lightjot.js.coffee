@@ -67,7 +67,7 @@ class window.LightJot
 
         @topics.buildTopicsList()
 
-        @jots.buildJotsList()
+        #@jots.buildJotsList()
 
       error: (data) =>
         console.log data

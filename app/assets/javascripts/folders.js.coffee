@@ -177,11 +177,11 @@ class window.Folders extends LightJot
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id
     elem.addClass('current')
+    topics_count = @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length
 
-    if !new_folder_init
-      @lj.topics.buildTopicsList()
+    @lj.topics.buildTopicsList()
 
-    if @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length == 0
+    if topics_count == 0
       @lj.topics.newTopic false
 
   editFolder: (id) =>

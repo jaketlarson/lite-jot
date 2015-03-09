@@ -29,11 +29,12 @@ class window.Topics extends LightJot
 
       @sortTopicsList()
       @selectFirstTopic()
-      @lj.jots.buildJotsList()
 
     else
+      @lj.app.current_topic = undefined
       @showNewTopicForm()
 
+    @lj.jots.buildJotsList()
     @initNewTopicListeners()
 
   insertTopicElem: (topic, append = true) =>
