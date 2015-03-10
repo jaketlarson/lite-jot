@@ -148,7 +148,7 @@ class window.Jots extends LightJot
   highlightJot: (id) =>
     elem = $("li[data-jot='#{id}']")
     is_highlighted = elem.hasClass('highlighted') ? true : false
-    jot_object = @lj.app.jots.filter((jot) => jot.id == parseInt(id))[0]
+    jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
 
     unless is_highlighted
       jot_object.is_highlighted = true
@@ -176,7 +176,8 @@ class window.Jots extends LightJot
     elem = $("li[data-jot='#{id}']")
     input = elem.find('input.input-edit')
     content_elem = elem.find('.content')
-    raw_content = @lj.app.jots.filter((jot) => jot.id == id)[0].content
+    jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+    raw_content = jot_object.content
 
     input.val(raw_content)
     elem.attr('data-editing', 'true')
@@ -195,10 +196,11 @@ class window.Jots extends LightJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
+        jot_object.content = input.val()
         elem.attr('data-editing', 'false')
         content_elem.html(input.val())
 
-        @lj.jots.new_jot_content.focus()
+        @jots_wrapper.focus()
 
         # only update folder/topic order & send server request if the user
         # changed the content field of the jot

@@ -13,6 +13,7 @@ class window.KeyControls extends LightJot
       right: 39
       down: 40
       delete: 46
+      e: 69
       h: 72
       n: 78
 
@@ -38,6 +39,7 @@ class window.KeyControls extends LightJot
       up: @keyToNextJotUp
       down: @keyToNextJotDown
       right: null
+      e: @editJotKeyedAt
       h: @highlightJotKeyedAt
       n: @keyToNewJot
 
@@ -58,7 +60,17 @@ class window.KeyControls extends LightJot
         @keyToCurrentTopic()
 
     @lj.jots.jots_wrapper.keydown (e) =>
-      e.preventDefault()
+      edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
+
+      if edit_field_has_focus
+        if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
+          @getKeyedOverElem().find('input.input-edit')[0].blur()
+
+        else
+          return
+
+      else
+        e.preventDefault()
 
       if e.keyCode == @key_codes.up
         @key_nav.jots.up()
@@ -68,6 +80,9 @@ class window.KeyControls extends LightJot
 
       if e.keyCode == @key_codes.left
         @key_nav.jots.left()
+
+      if e.keyCode == @key_codes.e
+        @key_nav.jots.e()
 
       if e.keyCode == @key_codes.h
         @key_nav.jots.h()
@@ -168,7 +183,11 @@ class window.KeyControls extends LightJot
 
   highlightJotKeyedAt: =>
     id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
-    @lj.jots.highlightJot id
+    @lj.jots.highlightJot parseInt(id)
+
+  editJotKeyedAt: =>
+    id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
+    @lj.jots.editJot parseInt(id)
 
   keyToCurrentTopic: =>
     @clearKeyedOverData()
