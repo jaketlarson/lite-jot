@@ -48,7 +48,8 @@ class window.KeyControls extends LightJot
 
   initKeyBinds: =>
     @lj.jots.new_jot_content.keydown (e) =>
-      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0
+      jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
+      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0
         $(e.currentTarget).blur()
         @keyToLastJot()
 
