@@ -20,6 +20,7 @@ class window.LightJot
     @sizeUI()
     @setUIInterval()
     @loadDataFromServer()
+    @initAppInfoModalBind()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -72,3 +73,13 @@ class window.LightJot
       error: (data) =>
         console.log data
     )
+
+  initAppInfoModalBind: =>
+    console.log 'i'
+    $('nav a#app-info-modal-link').click (e) =>
+      console.log 'c'
+      $('#app-info-modal').foundation 'reveal', 'open'
+      $('#app-info-modal').html($('#app-info-modal-template').html())
+
+      $('#app-info-modal .confirm').click (e2) =>
+        $('#app-info-modal').foundation 'reveal', 'close'

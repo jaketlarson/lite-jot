@@ -15,6 +15,7 @@ body id="#{body_id}"
 
   .reveal-modal#delete-topic-modal data-reveal=true
   .reveal-modal#delete-folder-modal data-reveal=true
+  .reveal-modal#app-info-modal data-reveal=true
 
   .modal-template#delete-topic-modal-template
     h3 Really delete this topic?
@@ -34,5 +35,22 @@ body id="#{body_id}"
     .actions
       button.primary.confirm Delete
       button.secondary.cancel Cancel
+
+  .modal-template#app-info-modal-template
+    h3 Information
+
+    p
+      | For any feedback or issues with this application, please email&nbsp;
+      a href="mailto:codereloadrepeat@gmail.com" codereloadrepeat@gmail.com
+      |.
+
+    p
+      i.fa.fa-copyright
+      |&nbsp;2015&nbsp;
+      a href="http://www.codereloadrepeat.com/" Jake Larson
+
+    .actions
+      button.secondary.confirm Close
+
 
   == javascript_include_tag 'application', 'data-turbolinks-track' => true
