@@ -160,7 +160,7 @@ class window.KeyControls extends LightJot
         nextElem.attr('data-keyed-over', 'true')
 
       else
-        @keyToFirstJot()
+        @keyToNewJot()
 
   keyToNewJot: =>
     @clearKeyedOverData()

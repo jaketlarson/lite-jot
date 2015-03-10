@@ -49,6 +49,7 @@ form#new_jot
       position: relative
       transition: margin-left .25s, opacity .25s
       transition-timing-function: ease-out
+      padding-left: .25rem
 
       &:hover
         color: $palette-soft-red
@@ -108,4 +109,7 @@ form#new_jot
 
       &[data-keyed-over='true']
         background-color: $keyover-color
+
+        .content
+          color: $palette-white
         
