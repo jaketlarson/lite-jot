@@ -116,6 +116,7 @@ class window.Topics extends LightJot
     elem = $("li[data-topic='#{id}']")
     input = elem.find('input.input-edit')
     title = elem.find('.title')
+    topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
     input.val(title.html())
     elem.attr('data-editing', 'true')
     input.focus()
@@ -133,9 +134,10 @@ class window.Topics extends LightJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
+        topic_object.title = input.val()
         elem.attr('data-editing', 'false')
         title.html(input.val())
-        @lj.jots.new_jot_content.focus()
+        @topics_wrapper.focus()
 
         $.ajax(
           type: 'PATCH'

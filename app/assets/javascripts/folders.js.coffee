@@ -188,6 +188,7 @@ class window.Folders extends LightJot
     elem = $("li[data-folder='#{id}']")
     input = elem.find('input.input-edit')
     title = elem.find('.title')
+    folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
     input.val(title.html())
     elem.attr('data-editing', 'true')
     input.focus()
@@ -205,9 +206,10 @@ class window.Folders extends LightJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
+        folder_object.title = input.val()
         elem.attr('data-editing', 'false')
         title.html(input.val())
-        @lj.jots.new_jot_content.focus()
+        @folders_wrapper.focus()
 
         $.ajax(
           type: 'PATCH'
