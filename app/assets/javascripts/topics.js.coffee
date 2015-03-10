@@ -105,6 +105,9 @@ class window.Topics extends LightJot
         , 250)
 
   selectTopic: (topic_id) =>
+    if topic_id == @lj.app.current_topic
+      return
+      
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id

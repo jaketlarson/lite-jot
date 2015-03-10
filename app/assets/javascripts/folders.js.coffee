@@ -173,6 +173,9 @@ class window.Folders extends LightJot
     , 250)
 
   selectFolder: (folder_id, new_folder_init=false) =>
+    if folder_id == @lj.app.current_folder
+      return
+      
     $("li[data-folder='#{@lj.app.current_folder}']").removeClass('current')
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id

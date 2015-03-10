@@ -24,7 +24,7 @@ class window.KeyControls extends LightJot
       left: null
       up: @keyToNextFolderUp
       down: @keyToNextFolderDown
-      right: @keyToFirstTopic
+      right: @keyToCurrentTopic
       e: @editFolderKeyedAt
       n: @keyToNewFolder
 
@@ -132,7 +132,7 @@ class window.KeyControls extends LightJot
           return
       else
         e.preventDefault()
-        
+
       if !@lj.folders.folders_list.find('form#new_folder #folder_title').is(':focus')
         e.preventDefault()
 
