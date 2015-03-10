@@ -148,12 +148,14 @@ class window.Jots extends LightJot
   highlightJot: (id) =>
     elem = $("li[data-jot='#{id}']")
     is_highlighted = elem.hasClass('highlighted') ? true : false
-    console.log is_highlighted
+    jot_object = @lj.app.jots.filter((jot) => jot.id == parseInt(id))[0]
 
     unless is_highlighted
+      jot_object.is_highlighted = true
       elem.addClass('highlighted')
 
     else
+      jot_object.is_highlighted = false
       elem.removeClass('highlighted')
 
     is_highlighted = !is_highlighted
