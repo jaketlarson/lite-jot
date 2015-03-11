@@ -6,14 +6,38 @@ header
 
   nav
     - if user_signed_in?
-      == link_to edit_user_registration_path, :class => 'secondary' do
+      == link_to edit_user_registration_path, :id => 'user-settings-link', :class => 'secondary' do
         == current_user.username
+
       == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
         i.fa.fa-lg.fa-sign-out
 
       a#app-info-modal-link.secondary
         i.fa.fa-lg.fa-info-circle
 
+      a#keyboard-shortcuts-link.secondary
+        i.fa.fa-lg.fa-keyboard-o
 
-    a#fullscreen-request.secondary
-      i.fa.fa-lg.fa-expand
+      a#fullscreen-request.secondary
+        i.fa.fa-lg.fa-expand
+
+  - if user_signed_in?
+    #keyboard-shortcuts
+      /.default Click on any element below to show keyboard shortcuts here.
+      ul
+        li
+          .key A
+          .description Highlight jot
+
+        li
+          .key B
+          .description Delete jot
+
+        li
+          .key
+            i.fa.fa-long-arrow-left
+          .description Highlight jot
+
+        li
+          .key B
+          .description Delete jot
