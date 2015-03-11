@@ -92,10 +92,10 @@ class window.KeyControls extends LightJot
         @key_nav.jots.n()
 
     @lj.topics.topics_wrapper.keydown (e) =>
-      edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
+      edit_field_has_focus = @lj.topics.topics_list.find('.new-topic-form-wrap input#topic_title').is(':focus')
       if edit_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
-          @getKeyedOverElem().find('input.input-edit')[0].blur()
+          @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
         else
           return
@@ -124,10 +124,10 @@ class window.KeyControls extends LightJot
         @key_nav.topics.n()
 
     @lj.folders.folders_wrapper.keydown (e) =>
-      edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
+      edit_field_has_focus = @lj.folders.folders_list.find('.new-folder-form-wrap input#folder_title').is(':focus')
       if edit_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
-          @getKeyedOverElem().find('input.input-edit')[0].blur()
+          @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
         else
           return
