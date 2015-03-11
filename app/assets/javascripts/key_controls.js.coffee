@@ -152,6 +152,18 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.n
         @key_nav.folders.n()
 
+    @lj.folders.folders_wrapper.focus (e) =>
+      @curr_pos = 'folders'
+      @switchKeyboardShortcutsPane()
+
+    @lj.topics.topics_wrapper.focus (e) =>
+      @curr_pos = 'topics'
+      @switchKeyboardShortcutsPane()
+
+    @lj.jots.jots_wrapper.focus (e) =>
+      @curr_pos = 'jots'
+      @switchKeyboardShortcutsPane()
+
   initKeyboardShortcutsHelpBind: =>
     $('header a#keyboard-shortcuts-link').click =>
       @toggleKeyboardShortcutsHelp()
@@ -170,6 +182,19 @@ class window.KeyControls extends LightJot
       keyboard_shortcuts_link.addClass('active')
 
     @lj.sizeUI()
+
+  switchKeyboardShortcutsPane: =>
+    panes = 
+      folders: '#keyboard-shortcuts #folder-keys'
+      topics: '#keyboard-shortcuts #topic-keys'
+      jots: '#keyboard-shortcuts #jot-keys'
+
+    $.each panes, (key, selector) =>
+      if key == @curr_pos
+        $(selector).show()
+
+      else
+        $(selector).hide()
 
   clearKeyedOverData: =>
     $("[data-keyed-over='true']").attr('data-keyed-over', 'false')

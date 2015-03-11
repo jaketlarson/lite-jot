@@ -24,20 +24,85 @@ header
   - if user_signed_in?
     #keyboard-shortcuts
       /.default Click on any element below to show keyboard shortcuts here.
-      ul
+      ul#jot-keys
         li
-          .key A
-          .description Highlight jot
+          .key
+            i.fa.fa-long-arrow-up
+          .description Move Up
 
         li
-          .key B
-          .description Delete jot
+          .key
+            i.fa.fa-long-arrow-down
+          .description Move Down
 
         li
           .key
             i.fa.fa-long-arrow-left
-          .description Highlight jot
+          .description Go To Topics
 
         li
-          .key B
-          .description Delete jot
+          .key H
+          .description Highlight Jot
+
+        li
+          .key E
+          .description Edit Jot
+
+        li
+          .key D
+          .description Delete Jot
+
+      ul#topic-keys
+        li
+          .key
+            i.fa.fa-long-arrow-up
+          .description Move Up
+
+        li
+          .key
+            i.fa.fa-long-arrow-down
+          .description Move Down
+
+        li
+          .key
+            i.fa.fa-long-arrow-left
+          .description Go To Folders
+
+        li
+          .key
+            i.fa.fa-long-arrow-right
+          .description Go To New Jot
+
+        li
+          .key E
+          .description Edit Topic
+
+        li
+          .key D
+          .description Delete Topic
+
+
+
+      ul#folder-keys
+        li
+          .key
+            i.fa.fa-long-arrow-up
+          .description Move Up
+
+        li
+          .key
+            i.fa.fa-long-arrow-down
+          .description Move Down
+
+        li
+          .key
+            i.fa.fa-long-arrow-right
+          .description Go To Topics
+
+        li
+          .key E
+          .description Edit Folder
+
+        li
+          .key D
+          .description Delete Folder
