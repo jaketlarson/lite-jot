@@ -4,6 +4,7 @@ class window.KeyControls extends LightJot
   constructor: (@lj) ->
     @initVars()
     @initKeyBinds()
+    @initKeyboardShortcutsHelpBind()
 
   initVars: =>
     @key_codes =
@@ -151,6 +152,24 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.n
         @key_nav.folders.n()
 
+  initKeyboardShortcutsHelpBind: =>
+    $('header a#keyboard-shortcuts-link').click =>
+      @toggleKeyboardShortcutsHelp()
+
+  toggleKeyboardShortcutsHelp: =>
+    keyboard_shortcuts_list = $('#keyboard-shortcuts')
+    keyboard_shortcuts_link = $('header a#keyboard-shortcuts-link')
+    help_is_visible = if keyboard_shortcuts_list.is(':visible') then true else false
+
+    if help_is_visible
+      keyboard_shortcuts_list.hide()
+      keyboard_shortcuts_link.removeClass('active')
+
+    else
+      keyboard_shortcuts_list.show()
+      keyboard_shortcuts_link.addClass('active')
+
+    @lj.sizeUI()
 
   clearKeyedOverData: =>
     $("[data-keyed-over='true']").attr('data-keyed-over', 'false')
