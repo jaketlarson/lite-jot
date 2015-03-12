@@ -25,7 +25,7 @@ en:
   simple_form:
     placeholders:
       jot:
-        content: "Press Return to save\nShift+Return for new line."
+        content: "Press Return to save. Shift + Return for new line."
 
       topic:
         title: "Enter a topic title"
