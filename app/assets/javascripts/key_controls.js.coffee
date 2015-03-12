@@ -46,7 +46,6 @@ class window.KeyControls extends LightJot
       h: @highlightJotKeyedAt
       n: @keyToNewJot
 
-
     @curr_pos = 'new_jot'
     @curr_pos_index = null
 
@@ -63,8 +62,10 @@ class window.KeyControls extends LightJot
         @keyToCurrentTopic()
 
     @lj.jots.jots_wrapper.keydown (e) =>
-      edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
-      if edit_field_has_focus
+      #edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
+      is_editing = if @lj.jots.jots_wrapper.find("li[data-editing='true']").length > 0 then true else false
+
+      if is_editing
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
           @getKeyedOverElem().find('input.input-edit')[0].blur()
 
@@ -92,8 +93,11 @@ class window.KeyControls extends LightJot
         @key_nav.jots.n()
 
     @lj.topics.topics_wrapper.keydown (e) =>
-      edit_field_has_focus = @lj.topics.topics_list.find('.new-topic-form-wrap input#topic_title').is(':focus')
-      if edit_field_has_focus
+      new_field_has_focus = @lj.topics.topics_list.find('.new-topic-form-wrap input#topic_title').is(':focus')
+
+      is_editing = if @lj.topics.topics_wrapper.find("li[data-editing='true']").length > 0 then true else false
+
+      if is_editing || new_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
           @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
@@ -124,8 +128,10 @@ class window.KeyControls extends LightJot
         @key_nav.topics.n()
 
     @lj.folders.folders_wrapper.keydown (e) =>
-      edit_field_has_focus = @lj.folders.folders_list.find('.new-folder-form-wrap input#folder_title').is(':focus')
-      if edit_field_has_focus
+      new_field_has_focus = @lj.folders.folders_list.find('.new-folder-form-wrap input#folder_title').is(':focus')
+      is_editing = if @lj.folders.folders_wrapper.find("li[data-editing='true']").length > 0 then true else false
+
+      if is_editing || new_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
           @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
@@ -170,19 +176,19 @@ class window.KeyControls extends LightJot
 
     @lj.folders.folders_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
-      @clearKeyedOverData()
+      #@clearKeyedOverData()
 
     @lj.topics.topics_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
-      @clearKeyedOverData()
+      #@clearKeyedOverData()
 
     @lj.jots.jots_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
-      @clearKeyedOverData()
+      #@clearKeyedOverData()
 
     @lj.jots.new_jot_content.blur (e) =>
       @clearKeyboardShortcutsPane()
-      @clearKeyedOverData()
+      #@clearKeyedOverData()
 
   initKeyboardShortcutsHelpBind: =>
     $('header a#keyboard-shortcuts-link').click =>
@@ -231,6 +237,10 @@ class window.KeyControls extends LightJot
 
   getKeyedOverElem: =>
     return $($('html').find("li[data-keyed-over='true']")[0])
+
+  switchKeyedOverElem: (new_elem) =>
+    @clearKeyedOverData()
+    new_elem.attr('data-keyed-over', 'true')
 
   keyToLastJot: =>
     @clearKeyedOverData()

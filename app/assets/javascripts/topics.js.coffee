@@ -114,6 +114,7 @@ class window.Topics extends LightJot
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
     elem.addClass('current')
+    elem.attr('data-keyed-over', 'true')
 
     @lj.jots.buildJotsList()
 
@@ -217,7 +218,9 @@ class window.Topics extends LightJot
       @topics_list.find('form#new_topic #topic_title').focus()
 
   submitNewTopic: =>
+    @lj.key_controls.clearKeyedOverData()
     topic_title = @topics_list.find('form#new_topic #topic_title')
+
     unless topic_title.val().trim().length == 0
       topic_title.attr 'disabled', true
 
@@ -269,6 +272,7 @@ class window.Topics extends LightJot
       })
 
       @topics_list.find('form#new_topic #topic_title').val('')
+      @lj.key_controls.clearKeyedOverData()
       @lj.jots.new_jot_content.focus()
     , 250)
 

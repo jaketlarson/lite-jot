@@ -124,7 +124,9 @@ class window.Folders extends LightJot
     @sortFoldersList false
 
   submitNewFolder: =>
+    @lj.key_controls.clearKeyedOverData()
     folder_title = @folders_list.find('form#new_folder #folder_title')
+    
     unless folder_title.val().trim().length == 0
       folder_title.attr 'disabled', true
 
