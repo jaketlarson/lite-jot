@@ -16,6 +16,7 @@ class window.LightJot
     @topics = new Topics(@)
     @jots = new Jots(@)
     @key_controls = new KeyControls(@)
+    @user_settings = new UserSettings(@)
     @initVars()
     @sizeUI()
     @setUIInterval()
@@ -77,9 +78,7 @@ class window.LightJot
     )
 
   initAppInfoModalBind: =>
-    console.log 'i'
     $('nav a#app-info-modal-link').click (e) =>
-      console.log 'c'
       $('#app-info-modal').foundation 'reveal', 'open'
       $('#app-info-modal').html($('#app-info-modal-template').html())
 

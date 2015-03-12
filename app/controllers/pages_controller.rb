@@ -10,6 +10,6 @@ class PagesController < ApplicationController
   end
 
   def panel
-
+    
   end
 end
