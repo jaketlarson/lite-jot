@@ -114,7 +114,7 @@ class window.Topics extends LightJot
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
     elem.addClass('current')
-    elem.attr('data-keyed-over', 'true')
+    #elem.attr('data-keyed-over', 'true')
 
     @lj.jots.buildJotsList()
 
