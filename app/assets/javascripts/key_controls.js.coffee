@@ -47,7 +47,7 @@ class window.KeyControls extends LightJot
       n: @keyToNewJot
 
 
-    @curr_pos = 'new-jot'
+    @curr_pos = 'new_jot'
     @curr_pos_index = null
 
 
@@ -164,9 +164,32 @@ class window.KeyControls extends LightJot
       @curr_pos = 'jots'
       @switchKeyboardShortcutsPane()
 
+    @lj.jots.new_jot_content.focus (e) =>
+      @curr_pos = 'new_jot'
+      @switchKeyboardShortcutsPane()
+
+    @lj.folders.folders_wrapper.blur (e) =>
+      @clearKeyboardShortcutsPane()
+
+    @lj.topics.topics_wrapper.blur (e) =>
+      @clearKeyboardShortcutsPane()
+
+    @lj.jots.jots_wrapper.blur (e) =>
+      @clearKeyboardShortcutsPane()
+
+    @lj.jots.new_jot_content.blur (e) =>
+      @clearKeyboardShortcutsPane()
+
   initKeyboardShortcutsHelpBind: =>
     $('header a#keyboard-shortcuts-link').click =>
       @toggleKeyboardShortcutsHelp()
+
+    $('#keyboard-shortcuts .default').show()
+
+  clearKeyboardShortcutsPane: =>
+    @curr_pos = null
+    @switchKeyboardShortcutsPane()
+    $('#keyboard-shortcuts .default').show()
 
   toggleKeyboardShortcutsHelp: =>
     keyboard_shortcuts_list = $('#keyboard-shortcuts')
@@ -188,6 +211,9 @@ class window.KeyControls extends LightJot
       folders: '#keyboard-shortcuts #folder-keys'
       topics: '#keyboard-shortcuts #topic-keys'
       jots: '#keyboard-shortcuts #jot-keys'
+      new_jot: '#keyboard-shortcuts #new_jot-keys'
+
+    $('#keyboard-shortcuts .default').hide()
 
     $.each panes, (key, selector) =>
       if key == @curr_pos
