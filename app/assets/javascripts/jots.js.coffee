@@ -15,7 +15,6 @@ class window.Jots extends LightJot
     @jots_loading_icon = @jots_wrapper.find('i.loading')
 
   buildJotsList: =>
-    console.log 'eey'
     @jots_list.html('')
     @jots_loading_icon.fadeOut()
 
@@ -82,7 +81,7 @@ class window.Jots extends LightJot
       @new_jot_content.val('')
 
   insertTempJotElem: (content, key) =>
-    content = @new_jot_content.val()
+    content = @new_jot_content.val().replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li').attr('id', key).append("<div class='content'>#{content}</div>")
     build_entry = @jot_temp_entry_template.html()
 
@@ -104,11 +103,13 @@ class window.Jots extends LightJot
 
   insertJotElem: (jot) =>
     highlighted_class = if jot.is_highlighted then 'highlighted' else ''
+    jot_content = jot.content.replace /\n/g, '<br />'
+
     @jots_list.append("<li data-jot='#{jot.id}' class='#{highlighted_class}'>
                         <i class='fa fa-tag highlight' />
                         <i class='fa fa-trash delete' />
                         <div class='content'>
-                          #{jot.content}
+                          #{jot_content}
                         </div>
                         <div class='input-edit-wrap'>
                           <input type='text' class='input-edit' />
