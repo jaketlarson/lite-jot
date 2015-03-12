@@ -253,3 +253,19 @@ class window.Jots extends LightJot
   checkIfJotsEmpty: =>
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
       @jots_empty_message_elem.show()
+      @positionEmptyMessage()
+      return true
+    else
+      return false
+
+  positionEmptyMessage: =>
+    empty_message_width = @jots_empty_message_elem.width()
+    empty_message_height = @jots_empty_message_elem.height()
+
+    pos_left = (@jots_wrapper.width() - empty_message_width) / 2
+    pos_top = @jots_wrapper.height() / 2 - empty_message_height
+
+    @jots_empty_message_elem.css(
+      'top': pos_top
+      'left': pos_left
+    )

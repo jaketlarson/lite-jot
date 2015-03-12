@@ -45,6 +45,8 @@ class window.LightJot
     jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
+    @jots.positionEmptyMessage()
+
   setUIInterval: =>
     @UIInterval = setInterval(() =>
       if @viewport.width != window.innerWidth || @viewport.height != window.innerHeight
