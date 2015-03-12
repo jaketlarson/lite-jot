@@ -87,13 +87,15 @@ class window.Folders extends LightJot
       $('#delete-folder-modal').foundation 'reveal', 'open'
       $('#delete-folder-modal').html($('#delete-folder-modal-template').html())
 
-      $('#delete-folder-modal .cancel').click (e2) ->
+      $('#delete-folder-modal .cancel').click (e2) =>
         $('#delete-folder-modal').foundation 'reveal', 'close'
+        @folders_wrapper.focus()
 
       $('#delete-folder-modal .confirm').click (e2) =>
         id = $(e1.currentTarget).closest('li').data('folder')
 
         $('#delete-folder-modal').foundation 'reveal', 'close'
+        @folders_wrapper.focus()
 
         setTimeout(() =>
           @deleteFolder(id)

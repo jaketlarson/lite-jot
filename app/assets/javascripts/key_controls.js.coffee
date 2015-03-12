@@ -170,15 +170,19 @@ class window.KeyControls extends LightJot
 
     @lj.folders.folders_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.topics.topics_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.jots.jots_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.jots.new_jot_content.blur (e) =>
       @clearKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
   initKeyboardShortcutsHelpBind: =>
     $('header a#keyboard-shortcuts-link').click =>

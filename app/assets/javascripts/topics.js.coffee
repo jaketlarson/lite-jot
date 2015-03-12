@@ -92,13 +92,15 @@ class window.Topics extends LightJot
       $('#delete-topic-modal').foundation 'reveal', 'open'
       $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
 
-      $('#delete-topic-modal .cancel').click (e2) ->
+      $('#delete-topic-modal .cancel').click (e2) =>
         $('#delete-topic-modal').foundation 'reveal', 'close'
+        @topics_wrapper.focus()
 
       $('#delete-topic-modal .confirm').click (e2) =>
         id = $(e1.currentTarget).closest('li').data('topic')
 
         $('#delete-topic-modal').foundation 'reveal', 'close'
+        @topics_wrapper.focus()
 
         setTimeout(() =>
           @deleteTopic(id)
