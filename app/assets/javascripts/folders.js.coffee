@@ -8,6 +8,8 @@ class window.Folders extends LightJot
   initVars: =>
     @folders_wrapper = $('#folders-wrapper')
     @folders_list = $('ul#folders-list')
+    @new_folder_form_wrap = null
+    @new_folder_title = null
 
   initDeleteFolderModalBinds: =>
     $('#delete-folder-modal').keydown (e) =>
@@ -25,6 +27,8 @@ class window.Folders extends LightJot
       @lj.app.current_folder = @lj.app.folders[0].id
 
     @folders_list.prepend("#{$('#new-folder-template').html()}")
+    @new_folder_form_wrap = @folders_wrapper.find('li.new-folder-form-wrap')
+    @new_folder_title = @new_folder_form_wrap.find('input#folder_title')
 
     if @lj.app.folders.length > 0
       $.each @lj.app.folders, (index, folder) =>
@@ -56,13 +60,13 @@ class window.Folders extends LightJot
     if append
       @folders_list.append build_html
     else
-      @folders_list.find('.new-folder-form-wrap').after build_html
+      @new_folder_form_wrap.after build_html
 
   sortFoldersList: (sort_dom=true) =>
     offset_top = 0
 
-    if @folders_list.find('li.new-folder-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'false'
-      offset_top += @folders_list.find('li.new-folder-form-wrap').outerHeight()
+    if @new_folder_form_wrap.is(':visible') && @new_folder_form_wrap.attr('data-hidden') == 'false'
+      offset_top += @new_folder_form_wrap.outerHeight()
 
     $.each @lj.app.folders, (index, folder) =>
       # data-hidden is used on the new-topic li while it is being hidden but not quite !.is(:visible) yet
@@ -98,14 +102,14 @@ class window.Folders extends LightJot
 
   initNewFolderListeners: =>
     $('.new-folder-icon').mousedown (e) =>
-      if !@folders_list.find('li.new-folder-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'true'
+      if !@new_folder_form_wrap.is(':visible') && @new_folder_form_wrap.attr('data-hidden') == 'true'
         e.preventDefault()
         @newFolder()
-        @folders_list.find('input#folder_title').focus() # dont like how there are two #folder_titles (from template)
+        @new_folder_title.focus() # dont like how there are two #folder_titles (from template)
 
-    @folders_list.find('input#folder_title').blur (e) =>
+    @new_folder_title.blur (e) =>
       folders_count = @lj.app.folders.length
-      folder_title_length = @folders_list.find('form#new_folder #folder_title').val().trim().length
+      folder_title_length = @new_folder_title.val().trim().length
 
       if folders_count > 0 && folder_title_length == 0
         @hideNewFolderForm()
@@ -120,7 +124,7 @@ class window.Folders extends LightJot
 
   submitNewFolder: =>
     @lj.key_controls.clearKeyedOverData()
-    folder_title = @folders_list.find('form#new_folder #folder_title')
+    folder_title = @new_folder_title
 
     unless folder_title.val().trim().length == 0
       folder_title.attr 'disabled', true
@@ -156,19 +160,20 @@ class window.Folders extends LightJot
     @initFolderBinds folder.id
 
   showNewFolderForm: =>
-    @folders_list.find('li.new-folder-form-wrap').show().attr('data-hidden', 'false')
+    @new_folder_form_wrap.show().attr('data-hidden', 'false')
+    console.log @new_folder_form_wrap.length
 
   hideNewFolderForm: =>
-    @folders_list.find('li.new-folder-form-wrap').attr('data-hidden', 'true').css('opacity', 0)
+    @new_folder_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
 
     @sortFoldersList()
 
     setTimeout(() =>
-      @folders_list.find('li.new-folder-form-wrap').hide().css({
+      @new_folder_form_wrap.hide().css({
         opacity: 1
       })
 
-      @folders_list.find('form#new_folder #folder_title').val('')
+      @new_folder_title.val('')
     , 250)
 
   selectFolder: (folder_id, new_folder_init=false) =>

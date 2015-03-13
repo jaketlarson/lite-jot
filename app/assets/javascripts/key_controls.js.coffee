@@ -68,7 +68,6 @@ class window.KeyControls extends LightJot
         @keyToCurrentTopic()
 
     @lj.jots.jots_wrapper.keydown (e) =>
-      #edit_field_has_focus = @getKeyedOverElem().find('input.input-edit').is(':focus')
       is_editing = if @lj.jots.jots_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
       if is_editing
@@ -102,9 +101,14 @@ class window.KeyControls extends LightJot
         @key_nav.jots.del()
 
     @lj.topics.topics_wrapper.keydown (e) =>
-      new_field_has_focus = @lj.topics.topics_list.find('.new-topic-form-wrap input#topic_title').is(':focus')
-
+      new_field_has_focus = @lj.topics.new_topic_title.is(':focus')
       is_editing = if @lj.topics.topics_wrapper.find("li[data-editing='true']").length > 0 then true else false
+
+      if new_field_has_focus && @lj.topics.new_topic_title.val().trim().length == 0
+        if e.keyCode == @key_codes.left
+          @key_nav.topics.left()
+        else if e.keyCode == @key_codes.right
+          @key_nav.topics.right()
 
       if is_editing || new_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
@@ -115,7 +119,7 @@ class window.KeyControls extends LightJot
       else
         e.preventDefault()
 
-      if !@lj.topics.topics_list.find('form#new_topic #topic_title').is(':focus')
+      if !@lj.topics.new_topic_title.is(':focus')
         e.preventDefault()
 
       if e.keyCode == @key_codes.up
@@ -140,8 +144,12 @@ class window.KeyControls extends LightJot
         @key_nav.topics.del()
 
     @lj.folders.folders_wrapper.keydown (e) =>
-      new_field_has_focus = @lj.folders.folders_list.find('.new-folder-form-wrap input#folder_title').is(':focus')
+      new_field_has_focus = @lj.folders.new_folder_title.is(':focus')
       is_editing = if @lj.folders.folders_wrapper.find("li[data-editing='true']").length > 0 then true else false
+
+      if new_field_has_focus && @lj.folders.new_folder_title.val().trim().length == 0
+        if e.keyCode == @key_codes.right
+          @key_nav.folders.right()
 
       if is_editing || new_field_has_focus
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
@@ -152,7 +160,7 @@ class window.KeyControls extends LightJot
       else
         e.preventDefault()
 
-      if !@lj.folders.folders_list.find('form#new_folder #folder_title').is(':focus')
+      if !@lj.folders.new_folder_title.is(':focus')
         e.preventDefault()
 
       if e.keyCode == @key_codes.up
@@ -317,9 +325,6 @@ class window.KeyControls extends LightJot
 
   keyToCurrentTopic: =>
     @clearKeyedOverData()
-
-    if typeof @lj.app.current_topic == 'undefined'
-      return
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length == 0
       @lj.topics.newTopic()

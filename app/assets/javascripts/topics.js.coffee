@@ -8,6 +8,8 @@ class window.Topics extends LightJot
   initVars: =>
     @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
+    @new_topic_form_wrap = null
+    @new_topic_title = null
 
   initDeleteTopicModalBinds: =>
     $('#delete-topic-modal').keydown (e) =>
@@ -21,10 +23,12 @@ class window.Topics extends LightJot
   buildTopicsList: =>
     @topics_list.html('')
 
-    if typeof @lj.app.current_topic == 'undefined' && @lj.app.topics.length > 0
-      @lj.app.current_topic = @lj.app.topics[0].id
+    if typeof @lj.app.current_topic == 'undefined' && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+      @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
+    @new_topic_form_wrap = @topics_wrapper.find('li.new-topic-form-wrap')
+    @new_topic_title = @new_topic_form_wrap.find('input#topic_title')
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       $.each @lj.app.topics, (index, topic) =>
@@ -60,13 +64,13 @@ class window.Topics extends LightJot
     if append
       @topics_list.append build_html
     else
-      @topics_list.find('.new-topic-form-wrap').after build_html
+      @new_topic_form_wrap.after build_html
 
   sortTopicsList: (sort_dom=true) =>
     offset_top = 0
 
-    if @topics_list.find('li.new-topic-form-wrap').is(':visible') && @topics_list.find('li.new-topic-form-wrap').attr('data-hidden') == 'false'
-      offset_top += @topics_list.find('li.new-topic-form-wrap').outerHeight()
+    if @new_topic_form_wrap.is(':visible') && @new_topic_form_wrap.attr('data-hidden') == 'false'
+      offset_top += @new_topic_form_wrap.outerHeight()
 
     $.each @lj.app.topics, (index, topic) =>
       # data-hidden is used on the new-topic li while it is being hidden but not quite !.is(:visible) yet
@@ -214,14 +218,14 @@ class window.Topics extends LightJot
 
   initNewTopicListeners: =>
     $('.new-topic-icon').mousedown (e) =>
-      if !@topics_list.find('li.new-topic-form-wrap').is(':visible')
+      if !@new_topic_form_wrap.is(':visible')
         e.preventDefault()
         @newTopic()
-        @topics_list.find('input#topic_title').focus() # dont like how there are two #topic_titles (from template)
+        @new_topic_title.focus() # dont like how there are two #topic_titles (from template)
 
-    @topics_list.find('input#topic_title').blur (e) =>
+    @new_topic_title.blur (e) =>
       topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
-      topic_title_length = @topics_list.find('form#new_topic #topic_title').val().trim().length
+      topic_title_length = @new_topic_title.val().trim().length
       
       if topics_count > 0 && topic_title_length == 0
         @hideNewTopicForm()
@@ -235,11 +239,11 @@ class window.Topics extends LightJot
     @sortTopicsList false
 
     if focus_title
-      @topics_list.find('form#new_topic #topic_title').focus()
+      @new_topic_title.focus()
 
   submitNewTopic: =>
     @lj.key_controls.clearKeyedOverData()
-    topic_title = @topics_list.find('form#new_topic #topic_title')
+    topic_title = @new_topic_title
 
     unless topic_title.val().trim().length == 0
       topic_title.attr 'disabled', true
@@ -278,20 +282,20 @@ class window.Topics extends LightJot
     @initTopicBinds topic.id
 
   showNewTopicForm: =>
-    @topics_list.find('li.new-topic-form-wrap').show().attr('data-hidden', 'false')
+    @new_topic_form_wrap.show().attr('data-hidden', 'false')
 
 
   hideNewTopicForm: =>
-    @topics_list.find('li.new-topic-form-wrap').attr('data-hidden', 'true').css('opacity', 0)
+    @new_topic_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
 
     @sortTopicsList()
 
     setTimeout(() =>
-      @topics_list.find('li.new-topic-form-wrap').hide().css({
+      @new_topic_form_wrap.hide().css({
         opacity: 1
       })
 
-      @topics_list.find('form#new_topic #topic_title').val('')
+      @new_topic_title.val('')
       @lj.key_controls.clearKeyedOverData()
       @lj.jots.new_jot_content.focus()
     , 250)
