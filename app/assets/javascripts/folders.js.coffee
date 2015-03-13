@@ -161,7 +161,7 @@ class window.Folders extends LightJot
 
   showNewFolderForm: =>
     @new_folder_form_wrap.show().attr('data-hidden', 'false')
-    console.log @new_folder_form_wrap.length
+    @new_folder_title.focus()
 
   hideNewFolderForm: =>
     @new_folder_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
@@ -279,10 +279,13 @@ class window.Folders extends LightJot
 
       @lj.app.folders.remove(folder_key)
       elem.remove()
-      @sortFoldersList()
+      @sortFoldersList false
 
-      next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
-      @selectFolder($(next_folder_elem).data('folder'))
+      if @lj.app.folders.length > 0
+        next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
+        @selectFolder($(next_folder_elem).data('folder'))
+      else
+        @newFolder()
 
     , 350)
 
