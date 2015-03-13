@@ -206,9 +206,12 @@ class window.Topics extends LightJot
 
       @lj.app.topics.remove(topic_key)
       elem.remove()
-      @sortTopicsList()
 
-      @selectFirstTopic()
+      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+        @sortTopicsList()
+        @selectFirstTopic()
+      else
+        @newTopic()
 
     , 350)
 
@@ -283,7 +286,6 @@ class window.Topics extends LightJot
 
   showNewTopicForm: =>
     @new_topic_form_wrap.show().attr('data-hidden', 'false')
-
 
   hideNewTopicForm: =>
     @new_topic_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
