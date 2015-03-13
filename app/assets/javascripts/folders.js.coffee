@@ -81,7 +81,7 @@ class window.Folders extends LightJot
       setTimeout(() =>
         folder_elems = @lj.folders.folders_list.children('li')
         folder_elems.detach().sort (a, b) =>
-            return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
+          return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
 
         @lj.folders.folders_list.append(folder_elems)
       , 250)

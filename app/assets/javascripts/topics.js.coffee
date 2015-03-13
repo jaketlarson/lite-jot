@@ -206,11 +206,12 @@ class window.Topics extends LightJot
 
       @lj.app.topics.remove(topic_key)
       elem.remove()
+      @sortTopicsList false
 
       if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-        @sortTopicsList()
         @selectFirstTopic()
       else
+        @lj.jots.clearJotsList()
         @newTopic()
 
     , 350)

@@ -14,8 +14,11 @@ class window.Jots extends LightJot
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
     @jots_loading_icon = @jots_wrapper.find('i.loading')
 
-  buildJotsList: =>
+  clearJotsList: =>
     @jots_list.html('')
+
+  buildJotsList: =>
+    @clearJotsList()
     @jots_loading_icon.fadeOut()
 
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length > 0
