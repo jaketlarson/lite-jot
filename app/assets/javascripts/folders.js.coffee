@@ -3,10 +3,20 @@
 class window.Folders extends LightJot
   constructor: (@lj) ->
     @initVars()
+    @initDeleteFolderModalBinds()
 
   initVars: =>
     @folders_wrapper = $('#folders-wrapper')
     @folders_list = $('ul#folders-list')
+
+  initDeleteFolderModalBinds: =>
+    $('#delete-folder-modal').keydown (e) =>
+      if e.keyCode == @lj.key_controls.key_codes.esc
+        @cancelDeleteFolder id
+
+      else if e.keyCode == @lj.key_controls.key_codes.y
+        id = $("li[data-keyed-over='true']").data('folder')
+        @confirmDeleteFolder id
 
   buildFoldersList: =>
     @folders_list.html('')
@@ -83,27 +93,12 @@ class window.Folders extends LightJot
     @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
       return false
 
-    @folders_list.find("li[data-folder='#{folder_id}'] [data-delete]").click (e1) =>
-      $('#delete-folder-modal').foundation 'reveal', 'open'
-      $('#delete-folder-modal').html($('#delete-folder-modal-template').html())
-
-      $('#delete-folder-modal .cancel').click (e2) =>
-        $('#delete-folder-modal').foundation 'reveal', 'close'
-        @folders_wrapper.focus()
-
-      $('#delete-folder-modal .confirm').click (e2) =>
-        id = $(e1.currentTarget).closest('li').data('folder')
-
-        $('#delete-folder-modal').foundation 'reveal', 'close'
-        @folders_wrapper.focus()
-
-        setTimeout(() =>
-          @deleteFolder(id)
-        , 250)
+    @folders_list.find("li[data-folder='#{folder_id}'] [data-delete]").click (e) =>
+      @deleteFolderPrompt e.currentTarget
 
   initNewFolderListeners: =>
     $('.new-folder-icon').mousedown (e) =>
-      if !@folders_list.find('li.new-folders-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'true'
+      if !@folders_list.find('li.new-folder-form-wrap').is(':visible') && @folders_list.find('li.new-folder-form-wrap').attr('data-hidden') == 'true'
         e.preventDefault()
         @newFolder()
         @folders_list.find('input#folder_title').focus() # dont like how there are two #folder_titles (from template)
@@ -126,7 +121,7 @@ class window.Folders extends LightJot
   submitNewFolder: =>
     @lj.key_controls.clearKeyedOverData()
     folder_title = @folders_list.find('form#new_folder #folder_title')
-    
+
     unless folder_title.val().trim().length == 0
       folder_title.attr 'disabled', true
 
@@ -229,6 +224,30 @@ class window.Folders extends LightJot
           error: (data) =>
             console.log data
         )
+
+  deleteFolderPrompt: (target) =>
+    id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
+
+    $('#delete-folder-modal').foundation 'reveal', 'open'
+    $('#delete-folder-modal').html($('#delete-folder-modal-template').html()).attr('data-folder-id', id)
+
+    $('#delete-folder-modal .cancel').click =>
+      @cancelDeleteFolder()
+
+    $('#delete-folder-modal .confirm').click =>
+      @confirmDeleteFolder id
+
+  confirmDeleteFolder: (id) =>
+    $('#delete-folder-modal').foundation 'reveal', 'close'
+    @folders_wrapper.focus()
+
+    setTimeout(() =>
+      @deleteFolder id
+    , 250)
+
+  cancelDeleteFolder: =>
+    $('#delete-folder-modal').attr('data-folder-id', '').foundation 'reveal', 'close'
+    @folders_wrapper.focus()
 
   deleteFolder: (id) =>
     elem = $("li[data-folder='#{id}']")

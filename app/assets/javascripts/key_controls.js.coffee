@@ -13,10 +13,13 @@ class window.KeyControls extends LightJot
       up: 38
       right: 39
       down: 40
-      delete: 46
+      del: 46
+      backspace: 8
       e: 69
       h: 72
       n: 78
+      esc: 27
+      y: 89
 
     # virtual architecture user is navigating w/ keyboard
     @key_nav = {}
@@ -28,6 +31,7 @@ class window.KeyControls extends LightJot
       right: @keyToCurrentTopic
       e: @editFolderKeyedAt
       n: @keyToNewFolder
+      del: @lj.folders.deleteFolderPrompt
 
     @key_nav.topics =
       left: @keyToCurrentFolder
@@ -36,6 +40,7 @@ class window.KeyControls extends LightJot
       right: @keyToNewJot
       e: @editTopicKeyedAt
       n: @keyToNewTopic
+      del: @lj.topics.deleteTopicPrompt
 
     @key_nav.jots =
       left: @keyToCurrentTopic
@@ -45,6 +50,7 @@ class window.KeyControls extends LightJot
       e: @editJotKeyedAt
       h: @highlightJotKeyedAt
       n: @keyToNewJot
+      del: @lj.jots.deleteJot
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -92,6 +98,9 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.n
         @key_nav.jots.n()
 
+      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
+        @key_nav.jots.del()
+
     @lj.topics.topics_wrapper.keydown (e) =>
       new_field_has_focus = @lj.topics.topics_list.find('.new-topic-form-wrap input#topic_title').is(':focus')
 
@@ -127,6 +136,9 @@ class window.KeyControls extends LightJot
       if e.keyCode == @key_codes.n
         @key_nav.topics.n()
 
+      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
+        @key_nav.topics.del()
+
     @lj.folders.folders_wrapper.keydown (e) =>
       new_field_has_focus = @lj.folders.folders_list.find('.new-folder-form-wrap input#folder_title').is(':focus')
       is_editing = if @lj.folders.folders_wrapper.find("li[data-editing='true']").length > 0 then true else false
@@ -157,6 +169,10 @@ class window.KeyControls extends LightJot
 
       if e.keyCode == @key_codes.n
         @key_nav.folders.n()
+
+      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
+        @key_nav.folders.del()
+
 
     @lj.folders.folders_wrapper.focus (e) =>
       @curr_pos = 'folders'

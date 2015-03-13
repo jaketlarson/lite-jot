@@ -14,8 +14,8 @@ body id="#{body_id}"
   == yield
 
   - if user_signed_in?
-    .reveal-modal#delete-topic-modal data-reveal=true
-    .reveal-modal#delete-folder-modal data-reveal=true
+    .reveal-modal#delete-folder-modal data-reveal=true tabindex='4'
+    .reveal-modal#delete-topic-modal data-reveal=true tabindex='5'
     .reveal-modal#app-info-modal data-reveal=true
     .reveal-modal#user-settings-modal data-reveal=true
 
@@ -25,8 +25,8 @@ body id="#{body_id}"
       p All jots within this topic will also be deleted.
 
       .actions
-        button.primary.confirm Delete
-        button.secondary.cancel Cancel
+        button.primary.confirm Delete (Y)
+        button.secondary.cancel Cancel (ESC)
 
     .modal-template#delete-folder-modal-template
 
@@ -35,8 +35,8 @@ body id="#{body_id}"
       p All topics and jots within this folder will also be deleted.
 
       .actions
-        button.primary.confirm Delete
-        button.secondary.cancel Cancel
+        button.primary.confirm Delete (Y)
+        button.secondary.cancel Cancel (ESC)
 
     .modal-template#app-info-modal-template
       h3 Information

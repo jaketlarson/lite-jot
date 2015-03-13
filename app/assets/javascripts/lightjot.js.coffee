@@ -22,6 +22,7 @@ class window.LightJot
     @setUIInterval()
     @loadDataFromServer()
     @initAppInfoModalBind()
+    @initModalFocusBind()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -84,4 +85,10 @@ class window.LightJot
 
       $('#app-info-modal .confirm').click (e2) =>
         $('#app-info-modal').foundation 'reveal', 'close'
+
+  initModalFocusBind: =>
+    $(document).on('opened.fndtn.reveal', '[data-reveal]', () ->
+      $(this).focus()
+    )
+
         

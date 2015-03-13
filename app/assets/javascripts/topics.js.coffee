@@ -3,10 +3,20 @@
 class window.Topics extends LightJot
   constructor: (@lj) ->
     @initVars()
+    @initDeleteTopicModalBinds()
 
   initVars: =>
     @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
+
+  initDeleteTopicModalBinds: =>
+    $('#delete-topic-modal').keydown (e) =>
+      if e.keyCode == @lj.key_controls.key_codes.esc
+        @cancelDeleteTopic()
+
+      else if e.keyCode == @lj.key_controls.key_codes.y
+        id = $("li[data-keyed-over='true']").data('topic')
+        @confirmDeleteTopic id
 
   buildTopicsList: =>
     @topics_list.html('')
@@ -88,23 +98,8 @@ class window.Topics extends LightJot
     @topics_list.find("li[data-topic='#{topic_id}'] .input-edit").click (e) =>
       return false
 
-    @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e1) =>
-      $('#delete-topic-modal').foundation 'reveal', 'open'
-      $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
-
-      $('#delete-topic-modal .cancel').click (e2) =>
-        $('#delete-topic-modal').foundation 'reveal', 'close'
-        @topics_wrapper.focus()
-
-      $('#delete-topic-modal .confirm').click (e2) =>
-        id = $(e1.currentTarget).closest('li').data('topic')
-
-        $('#delete-topic-modal').foundation 'reveal', 'close'
-        @topics_wrapper.focus()
-
-        setTimeout(() =>
-          @deleteTopic(id)
-        , 250)
+    @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e) =>
+      @deleteTopicPrompt e.currentTarget
 
   selectTopic: (topic_id) =>
     if topic_id == @lj.app.current_topic
@@ -156,6 +151,31 @@ class window.Topics extends LightJot
           error: (data) =>
             console.log data
         )
+
+  deleteTopicPrompt: (target) =>
+    id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
+
+    $('#delete-topic-modal').foundation 'reveal', 'open'
+    $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
+
+    $('#delete-topic-modal .cancel').click =>
+      @cancelDeleteTopic()
+
+    $('#delete-topic-modal .confirm').click =>
+      @confirmDeleteTopic id
+
+  confirmDeleteTopic: (id) =>
+    $('#delete-topic-modal').foundation 'reveal', 'close'
+    @topics_wrapper.focus()
+
+    setTimeout(() =>
+      @deleteTopic id
+    , 250)
+
+  cancelDeleteTopic: =>
+    $('#delete-topic-modal').attr('data-topic-id', '').foundation 'reveal', 'close'
+    @topics_wrapper.focus()
+
 
   deleteTopic: (id) =>
     elem = $("li[data-topic='#{id}']")
