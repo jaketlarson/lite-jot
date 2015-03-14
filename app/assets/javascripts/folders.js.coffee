@@ -14,7 +14,7 @@ class window.Folders extends LightJot
   initDeleteFolderModalBinds: =>
     $('#delete-folder-modal').keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.esc
-        @cancelDeleteFolder id
+        @cancelDeleteFolder
 
       else if e.keyCode == @lj.key_controls.key_codes.y
         id = $("li[data-keyed-over='true']").data('folder')
