@@ -48,7 +48,7 @@ class window.KeyControls extends LightJot
       down: @keyToNextJotDown
       right: null
       e: @editJotKeyedAt
-      h: @highlightJotKeyedAt
+      h: @flagJotKeyedAt
       n: @keyToNewJot
       del: @lj.jots.deleteJot
 
@@ -315,9 +315,9 @@ class window.KeyControls extends LightJot
     @clearKeyedOverData()
     @lj.jots.new_jot_content.focus()
 
-  highlightJotKeyedAt: =>
+  flagJotKeyedAt: =>
     id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
-    @lj.jots.highlightJot parseInt(id)
+    @lj.jots.flagJot parseInt(id)
 
   editJotKeyedAt: =>
     id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
