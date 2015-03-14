@@ -54,11 +54,14 @@ class JotsController < ApplicationController
   def update
     jot = Jot.find(params[:id])
 
-    if jot.update(jot_params)
+    if jot.content != params[:content] && !params[:content].nil?
       topic = current_user.topics.find(jot.topic_id)
       topic.touch
       folder = current_user.folders.find(topic.folder_id)
       folder.touch
+    end
+
+    if jot.update(jot_params)
 
       render :text => 'success'
 
@@ -80,6 +83,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:id, :content, :topic_id, :folder_id, :is_highlighted)
+      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged)
     end
 end

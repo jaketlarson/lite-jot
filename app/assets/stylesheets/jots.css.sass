@@ -57,10 +57,10 @@ form#new_jot
       &:hover
         color: $palette-soft-red
         
-        i.highlight, i.delete
+        i.flag, i.delete
           display: block
 
-      i.highlight, i.delete
+      i.flag, i.delete
         position: absolute
         top: .25rem
         cursor: pointer
@@ -71,16 +71,15 @@ form#new_jot
         &:hover
           color: $palette-soft-red
 
-      i.highlight
+      i.flag
         right: 2.5rem
 
       i.delete
         right: .5rem
 
-      &.highlighted
+      &.flagged
         &:before
-          content: '\f138'
-          color: $palette-soft-red
+          content: '\f024'
           font-size: 1rem
           margin-top: -0.35rem
           margin-left: -1.35rem

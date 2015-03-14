@@ -94,7 +94,7 @@ class window.Jots extends LightJot
     elem = @jots_list.find("##{key}")
     elem.removeClass('temp').attr('data-jot', jot.id)
 
-    to_insert = "<i class='fa fa-tag highlight' />
+    to_insert = "<i class='fa fa-flag flag' />
                 <i class='fa fa-trash delete' />
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
@@ -105,11 +105,11 @@ class window.Jots extends LightJot
     @initJotBinds jot.id
 
   insertJotElem: (jot) =>
-    highlighted_class = if jot.is_highlighted then 'highlighted' else ''
+    flagged_class = if jot.is_flagged then 'flagged' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
 
-    @jots_list.append("<li data-jot='#{jot.id}' class='#{highlighted_class}'>
-                        <i class='fa fa-tag highlight' />
+    @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class}'>
+                        <i class='fa fa-flag flag' />
                         <i class='fa fa-trash delete' />
                         <div class='content'>
                           #{jot_content}
@@ -141,32 +141,32 @@ class window.Jots extends LightJot
       @editJot(jot_id)
       return false
 
-    @jots_list.find("li[data-jot='#{jot_id}'] i.highlight").click (e) =>
+    @jots_list.find("li[data-jot='#{jot_id}'] i.flag").click (e) =>
       e.stopPropagation()
-      @highlightJot jot_id
+      @flagJot jot_id
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
       e.stopPropagation()
       @deleteJot jot_id
 
-  highlightJot: (id) =>
+  flagJot: (id) =>
     elem = $("li[data-jot='#{id}']")
-    is_highlighted = elem.hasClass('highlighted') ? true : false
+    is_flagged = elem.hasClass('flagged') ? true : false
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
 
-    unless is_highlighted
-      jot_object.is_highlighted = true
-      elem.addClass('highlighted')
+    unless is_flagged
+      jot_object.is_flagged = true
+      elem.addClass('flagged')
 
     else
-      jot_object.is_highlighted = false
-      elem.removeClass('highlighted')
+      jot_object.is_flagged = false
+      elem.removeClass('flagged')
 
-    is_highlighted = !is_highlighted
+    is_flagged = !is_flagged
     $.ajax(
       type: 'PATCH'
       url: "/jots/#{id}"
-      data: "is_highlighted=#{is_highlighted}"
+      data: "is_flagged=#{is_flagged}"
 
       success: (data) =>
         console.log data
