@@ -68,15 +68,15 @@ class window.LightJot
         @app.topics = data.topics
         @app.jots = data.jots
 
-        @folders.buildFoldersList()
-
-        @topics.buildTopicsList()
-
-        #@jots.buildJotsList()
+        @buildUI()
 
       error: (data) =>
         console.log data
     )
+
+  buildUI: =>
+    @folders.buildFoldersList()
+    @topics.buildTopicsList()
 
   initAppInfoModalBind: =>
     $('nav a#app-info-modal-link').click (e) =>

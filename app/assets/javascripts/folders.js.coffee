@@ -134,6 +134,7 @@ class window.Folders extends LightJot
         url: '/folders'
         data: "title=#{folder_title.val()}"
         success: (data) =>
+          @lj.jots.endSearchState()
           @hideNewFolderForm()
           console.log data
           @pushFolderIntoData data.folder

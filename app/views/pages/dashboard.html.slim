@@ -27,7 +27,14 @@
     ul#topics-list
 
 .large-8.medium-6.columns
-  h2#jots-heading Jots
+  h2#jots-heading
+    |Jots
+
+    #search-wrapper
+      input#search-input placeholder="search for jots"
+      button#search-button
+        i.fa.fa-search.default-icon
+        i.fa.fa-times.active-icon
 
   #jots-wrapper tabindex='3'
     i.loading.fa.fa-cog.fa-spin

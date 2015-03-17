@@ -19,6 +19,7 @@ class window.KeyControls extends LightJot
       h: 72
       n: 78
       esc: 27
+      s: 83
       y: 89
 
     # virtual architecture user is navigating w/ keyboard
@@ -51,6 +52,7 @@ class window.KeyControls extends LightJot
       h: @flagJotKeyedAt
       n: @keyToNewJot
       del: @lj.jots.deleteJot
+      s: @lj.jots.focusSearchInput
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -99,6 +101,9 @@ class window.KeyControls extends LightJot
 
       if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
         @key_nav.jots.del()
+
+      if e.keyCode == @key_codes.s
+        @key_nav.jots.s()
 
     @lj.topics.topics_wrapper.keydown (e) =>
       new_field_has_focus = @lj.topics.new_topic_title.is(':focus')

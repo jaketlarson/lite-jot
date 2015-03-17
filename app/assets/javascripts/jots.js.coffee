@@ -4,6 +4,7 @@ class window.Jots extends LightJot
   constructor: (@lj) ->
     @initVars()
     @initJotFormListeners()
+    @initSearchListeners()
 
   initVars: =>
     @new_jot_form = $('form#new_jot')
@@ -13,6 +14,8 @@ class window.Jots extends LightJot
     @jot_temp_entry_template = $('#jot-temp-entry-template')
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
     @jots_loading_icon = @jots_wrapper.find('i.loading')
+    @search_input = $('input#search-input')
+    @search_button = $('#search-button')
 
   clearJotsList: =>
     @jots_list.html('')
@@ -44,6 +47,84 @@ class window.Jots extends LightJot
         e.preventDefault()
         @new_jot_form.submit()
 
+  initSearchListeners: =>
+    @search_input.focus (e) =>
+      @search_button.addClass('input-has-focus')
+
+    @search_input.blur (e) =>
+      @search_button.removeClass('input-has-focus')
+
+    @search_input.keyup (e) =>
+      @handleSearchKeyUp()
+
+    @search_button.click (e) =>
+      if @search_input.val().trim().length > 0
+        @endSearchState()
+        @focusSearchInput()
+      else
+        @focusSearchInput()
+
+  handleSearchKeyUp: => # needs optimization
+    @restoreMasterData()
+    if @search_input.val().trim().length > 0
+      @search_button.attr('data-searching', 'true')
+      keyword = @search_input.val().trim()
+      jot_results = @lj.app.jots.filter((jot) => jot.content.search(keyword) > -1)
+      folder_keys = []
+      topic_keys = []
+
+      $.each jot_results, (key, jot) =>
+        if jot.folder_id not in folder_keys
+          if jot.folder_id != null
+            folder_keys.push jot.folder_id
+
+        if jot.topic_id not in topic_keys
+          if jot.topic_id != null
+            topic_keys.push jot.topic_id
+
+
+      folder_results = []
+      $.each folder_keys, (index, folder_key) =>
+        folder_object = @lj.app.folders.filter((folder) => folder.id == folder_key)[0]
+        if folder_object
+          folder_results.push folder_object
+
+      topic_results = []
+      $.each topic_keys, (index, topic_key) =>
+        topic_object = @lj.app.topics.filter((topic) => topic.id == topic_key)[0]
+        if topic_object
+          topic_results.push topic_object
+
+      @lj.app.store_master_folders = $.extend [], @lj.app.folders
+      @lj.app.store_master_topics = $.extend [], @lj.app.topics
+      
+      @lj.app.folders = $.extend [], folder_results
+      @lj.app.topics = $.extend [], topic_results
+      @lj.buildUI()
+      @focusSearchInput()
+
+    else
+      @endSearchState()
+
+  endSearchState: =>
+    @search_button.attr('data-searching', 'false')
+    @search_input.val('')
+    @restoreMasterData()
+
+  restoreMasterData: => # for search functionality
+    if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
+      @lj.app.folders = $.extend [], @lj.app.store_master_folders
+      @lj.app.store_master_folders = null
+
+    if typeof @lj.app.store_master_topics != "undefined" && @lj.app.store_master_topics != null
+      @lj.app.topics = $.extend [], @lj.app.store_master_topics
+      @lj.app.store_master_topics = null
+      @lj.buildUI()
+
+  focusSearchInput: =>
+    @lj.key_controls.clearKeyedOverData()
+    @search_input.focus()
+
   submitNewJot: =>
     content = @new_jot_content.val()
     if content.trim().length > 0
@@ -58,6 +139,7 @@ class window.Jots extends LightJot
         data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
         success: (data) =>
           console.log data
+          @endSearchState()
           @lj.app.jots.push data.jot
           @integrateTempJot(data.jot, key)
 

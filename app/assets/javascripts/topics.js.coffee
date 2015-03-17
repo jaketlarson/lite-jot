@@ -257,6 +257,7 @@ class window.Topics extends LightJot
         url: '/topics'
         data: "title=#{topic_title.val()}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
+          @lj.jots.endSearchState()
           @hideNewTopicForm()
 
           @pushTopicIntoData data.topic
