@@ -23,7 +23,7 @@ class window.Topics extends LightJot
   buildTopicsList: =>
     @topics_list.html('')
 
-    if typeof @lj.app.current_topic == 'undefined' && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+    if (typeof @lj.app.current_topic == 'undefined' || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")

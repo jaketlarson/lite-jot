@@ -75,6 +75,8 @@ class window.LightJot
     )
 
   buildUI: =>
+    @app.current_folder == null
+    @app.current_topic == null
     @folders.buildFoldersList()
     @topics.buildTopicsList()
 

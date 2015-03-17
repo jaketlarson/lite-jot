@@ -23,7 +23,7 @@ class window.Folders extends LightJot
   buildFoldersList: =>
     @folders_list.html('')
 
-    if typeof @lj.app.current_folder == 'undefined' && @lj.app.folders.length > 0
+    if (typeof @lj.app.current_folder == 'undefined' || @lj.app.current_folder == null) && @lj.app.folders.length > 0
       @lj.app.current_folder = @lj.app.folders[0].id
 
     @folders_list.prepend("#{$('#new-folder-template').html()}")

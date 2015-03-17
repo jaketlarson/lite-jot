@@ -69,7 +69,7 @@ class window.Jots extends LightJot
     if @search_input.val().trim().length > 0
       @search_button.attr('data-searching', 'true')
       keyword = @search_input.val().trim()
-      jot_results = @lj.app.jots.filter((jot) => jot.content.search(keyword) > -1)
+      jot_results = @lj.app.jots.filter((jot) => jot.content.search(keyword) > -1).reverse()
       folder_keys = []
       topic_keys = []
 
@@ -100,6 +100,13 @@ class window.Jots extends LightJot
       
       @lj.app.folders = $.extend [], folder_results
       @lj.app.topics = $.extend [], topic_results
+
+      if folder_results.length > 0
+        @lj.app.current_folder = folder_results[0].id
+
+      if topic_results.length > 0
+        @lj.app.current_topic = topic_results[0].id
+
       @lj.buildUI()
       @focusSearchInput()
 
