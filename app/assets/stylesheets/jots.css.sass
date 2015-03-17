@@ -9,7 +9,8 @@
     width: 15rem
 
     #search-input
-      border: 1px solid $palette-black
+      //border: 1px solid $palette-black
+      border: 0px
       border-right: 0
       float: left
       width: 12.5rem
@@ -20,7 +21,8 @@
       font-size: .9rem
 
       &:focus
-        border: 1px solid $palette-dark-red
+        border: 0px
+        //border: 1px solid $palette-dark-red
 
     #search-button
       float: right
@@ -28,13 +30,13 @@
       width: 2.5rem
       line-height: 2.5rem
       text-align: center
-      background-color: $palette-black
+      background-color: $palette-dark-red
       color: $palette-white
       padding: 0
       margin: 0
 
       &:hover, &.input-has-focus
-        background-color: $palette-dark-red
+        background-color: $palette-black
         color: $palette-white
 
       i.default-icon
@@ -44,6 +46,8 @@
         display: none
 
       &[data-searching='true']
+        background-color: $palette-black
+        
         i.default-icon
           display: none
 
