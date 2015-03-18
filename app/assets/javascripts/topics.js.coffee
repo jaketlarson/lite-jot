@@ -233,7 +233,7 @@ class window.Topics extends LightJot
     @selectTopic($(next_topic_elem).data('topic')) 
 
   initNewTopicListeners: =>
-    $('.new-topic-icon').mousedown (e) =>
+    $('button.new-topic-button').mousedown (e) =>
       if !@new_topic_form_wrap.is(':visible')
         e.preventDefault()
         @newTopic()

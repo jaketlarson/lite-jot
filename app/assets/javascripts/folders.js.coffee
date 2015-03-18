@@ -101,7 +101,7 @@ class window.Folders extends LightJot
       @deleteFolderPrompt e.currentTarget
 
   initNewFolderListeners: =>
-    $('.new-folder-icon').mousedown (e) =>
+    $('button.new-folder-button').mousedown (e) =>
       if !@new_folder_form_wrap.is(':visible') && @new_folder_form_wrap.attr('data-hidden') == 'true'
         e.preventDefault()
         @newFolder()
