@@ -79,7 +79,7 @@ class window.Topics extends LightJot
     else
       @new_topic_form_wrap.after build_html
 
-  sortTopicsList: (sort_dom=true) =>
+  sortTopicsList: (sort_dom=true) => #optimize this
     offset_top = 0
 
     if @new_topic_form_wrap.is(':visible') && @new_topic_form_wrap.attr('data-hidden') == 'false'
@@ -288,10 +288,7 @@ class window.Topics extends LightJot
       @hideNewTopicForm
 
   pushTopicIntoData: (topic) =>
-    if @lj.app.topics.length == 0
-      @lj.app.topics.push topic
-    else
-      @lj.app.topics.unshift topic
+    @lj.app.topics.push topic
 
     @insertTopicElem topic, false
     @sortTopicsList()
@@ -303,7 +300,6 @@ class window.Topics extends LightJot
 
   hideNewTopicForm: =>
     @new_topic_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
-
     @sortTopicsList()
 
     setTimeout(() =>

@@ -150,7 +150,6 @@ class window.Jots extends LightJot
         url: @new_jot_form.attr('action')
         data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
         success: (data) =>
-          console.log data
           @lj.app.jots.push data.jot
           @integrateTempJot data.jot, key
 
@@ -162,6 +161,7 @@ class window.Jots extends LightJot
             @lj.topics.hideNewTopicForm()
             @lj.topics.pushTopicIntoData data.auto_topic
 
+
         error: (data) =>
           console.log data
       )
@@ -169,7 +169,7 @@ class window.Jots extends LightJot
       if @lj.app.folders.length > 1
         @lj.folders.moveCurrentFolderToTop()
 
-      if @lj.app.topics.length > 1
+      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 1
         @lj.topics.moveCurrentTopicToTop()
 
       # reset new jot form
