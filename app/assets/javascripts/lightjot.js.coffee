@@ -57,7 +57,6 @@ class window.LightJot
 
     , 500)
 
-
   loadDataFromServer: =>
     $.ajax(
       type: 'GET'
@@ -74,11 +73,9 @@ class window.LightJot
         console.log data
     )
 
-  buildUI: =>
-    @app.current_folder == null
-    @app.current_topic == null
+  buildUI: (organize_dom=true) =>
     @folders.buildFoldersList()
-    @topics.buildTopicsList()
+    @topics.buildTopicsList organize_dom
 
   initAppInfoModalBind: =>
     $('nav a#app-info-modal-link').click (e) =>
@@ -92,5 +89,3 @@ class window.LightJot
     $(document).on('opened.fndtn.reveal', '[data-reveal]', () ->
       $(this).focus()
     )
-
-        

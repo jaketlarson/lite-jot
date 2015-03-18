@@ -32,6 +32,7 @@ class JotsController < ApplicationController
     topic = current_user.topics.find(topic_id)
     topic.folder_id = folder_id
     topic.save
+    topic.touch # incase the update doesn't apply
 
     jot = current_user.jots.new(jot_params)
     jot.topic_id = topic_id

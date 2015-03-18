@@ -65,9 +65,10 @@ class window.Jots extends LightJot
         @focusSearchInput()
 
   handleSearchKeyUp: => # needs optimization
-    @restoreMasterData()
     if @search_input.val().trim().length > 0
+      @restoreMasterData()
       @search_button.attr('data-searching', 'true')
+
       keyword = @search_input.val().trim()
       jot_results = @lj.app.jots.filter((jot) => jot.content.search(keyword) > -1).reverse()
       folder_keys = []
@@ -113,12 +114,12 @@ class window.Jots extends LightJot
     else
       @endSearchState()
 
-  endSearchState: =>
-    @search_button.attr('data-searching', 'false')
+  endSearchState: (organize_dom=true) =>
+    @search_button.attr 'data-searching', 'false'
     @search_input.val('')
-    @restoreMasterData()
+    @restoreMasterData organize_dom
 
-  restoreMasterData: => # for search functionality
+  restoreMasterData: (organize_dom=true) => # for search functionality
     if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
       @lj.app.folders = $.extend [], @lj.app.store_master_folders
       @lj.app.store_master_folders = null
@@ -126,7 +127,8 @@ class window.Jots extends LightJot
     if typeof @lj.app.store_master_topics != "undefined" && @lj.app.store_master_topics != null
       @lj.app.topics = $.extend [], @lj.app.store_master_topics
       @lj.app.store_master_topics = null
-      @lj.buildUI()
+    
+    @lj.buildUI organize_dom
 
   focusSearchInput: =>
     @lj.key_controls.clearKeyedOverData()
@@ -135,8 +137,11 @@ class window.Jots extends LightJot
   submitNewJot: =>
     content = @new_jot_content.val()
     if content.trim().length > 0
+
+      @endSearchState false
+
       key = @randomKey()
-      @insertTempJotElem(content, key)
+      @insertTempJotElem content, key
       @jots_empty_message_elem.hide()
       @scrollJotsToBottom()
 
@@ -146,9 +151,8 @@ class window.Jots extends LightJot
         data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
         success: (data) =>
           console.log data
-          @endSearchState()
           @lj.app.jots.push data.jot
-          @integrateTempJot(data.jot, key)
+          @integrateTempJot data.jot, key
 
           if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
             @lj.folders.hideNewFolderForm()
@@ -177,7 +181,7 @@ class window.Jots extends LightJot
     @jot_temp_entry_template.find('li').attr('id', key).append("<div class='content'>#{content}</div>")
     build_entry = @jot_temp_entry_template.html()
 
-    @jots_list.append(build_entry)
+    @jots_list.append build_entry
 
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
@@ -189,7 +193,7 @@ class window.Jots extends LightJot
                   <input type='text' class='input-edit' />
                 </div>"
 
-    elem.append(to_insert)
+    elem.append to_insert
 
     @initJotBinds jot.id
 

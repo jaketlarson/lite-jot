@@ -20,7 +20,7 @@ class window.Topics extends LightJot
         id = $("li[data-keyed-over='true']").data('topic')
         @confirmDeleteTopic id
 
-  buildTopicsList: =>
+  buildTopicsList: (organize_dom=true) =>
     @topics_list.html('')
 
     if (typeof @lj.app.current_topic == 'undefined' || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
@@ -41,14 +41,27 @@ class window.Topics extends LightJot
       $.each @lj.app.topics, (index, topic) =>
         @initTopicBinds(topic.id)
 
-      @sortTopicsList()
-      @selectFirstTopic()
+      # organize_dom is an option because if a user submits a jot while in search mode
+      # the jot submission process would be redundantly calling the sortTopicsList()
+      # and selectFirstTopic() functions again and cause unexpected behavior in the UI.
+      # The organize_dom option can be carried from Jots.submitNewJot to Jots.endSearchState 
+      # to Jots.restoreMasterData to LightJot.buildUI to here.
+      # It has not yet been necessary to add the organize_dom logic to Folders.buildFoldersList
+      # since the Folders.buildFoldersList does not call anything leading to Folders.selectFolder
+      # which sets @lj.app.current_folder like topics did in Topics.selectTopic upon a new jot
+      # submission, which would set @lj.app.current_topic.
+
+      if organize_dom
+        @sortTopicsList()
+        @selectFirstTopic()
 
     else
       @lj.app.current_topic = undefined
       @showNewTopicForm()
 
-    @lj.jots.buildJotsList()
+    if organize_dom
+      @lj.jots.buildJotsList()
+
     @initNewTopicListeners()
 
   insertTopicElem: (topic, append = true) =>
@@ -113,7 +126,6 @@ class window.Topics extends LightJot
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
     elem.addClass('current')
-    #elem.attr('data-keyed-over', 'true')
 
     @lj.jots.buildJotsList()
 
