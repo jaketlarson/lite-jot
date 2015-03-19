@@ -116,7 +116,9 @@ class window.KeyControls extends LightJot
           @key_nav.topics.right()
 
       if is_editing || new_field_has_focus
-        if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
+        topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
+
+        if (e.keyCode == @key_codes.up || e.keyCode == @key_codes.down) && topics_count > 0
           @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
         else
@@ -157,7 +159,9 @@ class window.KeyControls extends LightJot
           @key_nav.folders.right()
 
       if is_editing || new_field_has_focus
-        if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
+        folders_count = @lj.app.folders.length
+
+        if (e.keyCode == @key_codes.up || e.keyCode == @key_codes.down) && folders_count > 0
           @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
 
         else
@@ -407,6 +411,7 @@ class window.KeyControls extends LightJot
 
   keyToCurrentFolder: =>
     if typeof @lj.app.current_folder == 'undefined'
+      @lj.folders.new_folder_title.focus()
       return
 
     @lj.folders.folders_wrapper.focus()

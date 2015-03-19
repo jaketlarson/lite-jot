@@ -146,7 +146,7 @@ class window.Folders extends LightJot
           console.log data
         )
 
-    else
+    else if @lj.app.folders.length > 0
       @hideNewFolderForm()
 
   pushFolderIntoData: (folder) =>
