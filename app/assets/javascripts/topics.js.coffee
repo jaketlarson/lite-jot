@@ -234,10 +234,12 @@ class window.Topics extends LightJot
 
   initNewTopicListeners: =>
     $('button.new-topic-button').mousedown (e) =>
-      if !@new_topic_form_wrap.is(':visible')
-        e.preventDefault()
+      e.preventDefault()
+      
+      unless @new_topic_form_wrap.is(':visible')
         @newTopic()
-        @new_topic_title.focus() # dont like how there are two #topic_titles (from template)
+
+      @new_topic_title.focus() # dont like how there are two #topic_titles (from template)
 
     @new_topic_title.blur (e) =>
       topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
@@ -262,6 +264,7 @@ class window.Topics extends LightJot
     topic_title = @new_topic_title
 
     unless topic_title.val().trim().length == 0
+      @lj.jots.new_jot_content.focus()
       topic_title.attr 'disabled', true
 
       $.ajax(
@@ -309,7 +312,6 @@ class window.Topics extends LightJot
 
       @new_topic_title.val('')
       @lj.key_controls.clearKeyedOverData()
-      @lj.jots.new_jot_content.focus()
     , 250)
 
   moveCurrentTopicToTop: =>

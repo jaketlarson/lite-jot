@@ -115,9 +115,10 @@ class window.Jots extends LightJot
       @endSearchState()
 
   endSearchState: (organize_dom=true) =>
-    @search_button.attr 'data-searching', 'false'
-    @search_input.val('')
-    @restoreMasterData organize_dom
+    if @search_button.attr('data-searching') == 'true'
+      @search_button.attr 'data-searching', 'false'
+      @search_input.val('')
+      @restoreMasterData organize_dom
 
   restoreMasterData: (organize_dom=true) => # for search functionality
     if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
@@ -136,8 +137,8 @@ class window.Jots extends LightJot
 
   submitNewJot: =>
     content = @new_jot_content.val()
-    if content.trim().length > 0
 
+    if content.trim().length > 0
       @endSearchState false
 
       key = @randomKey()
