@@ -75,13 +75,16 @@ class window.Jots extends LightJot
       topic_keys = []
 
       $.each jot_results, (key, jot) =>
-        if jot.folder_id not in folder_keys
-          if jot.folder_id != null
-            folder_keys.push jot.folder_id
-
         if jot.topic_id not in topic_keys
           if jot.topic_id != null
             topic_keys.push jot.topic_id
+
+            topic = @lj.app.topics.filter((topic) => topic.id == jot.topic_id)[0]
+            if topic
+              if topic.folder_id not in folder_keys
+                if topic.folder_id != null
+                  folder_keys.push topic.folder_id
+
 
 
       folder_results = []
