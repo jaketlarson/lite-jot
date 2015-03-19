@@ -235,7 +235,7 @@ class window.Topics extends LightJot
   initNewTopicListeners: =>
     $('button.new-topic-button').mousedown (e) =>
       e.preventDefault()
-      
+
       unless @new_topic_form_wrap.is(':visible')
         @newTopic()
 
@@ -291,7 +291,10 @@ class window.Topics extends LightJot
       @hideNewTopicForm
 
   pushTopicIntoData: (topic) =>
-    @lj.app.topics.push topic
+    if @lj.app.topics.length == 0
+      @lj.app.topics.push topic
+    else
+      @lj.app.topics.unshift topic
 
     @insertTopicElem topic, false
     @sortTopicsList()

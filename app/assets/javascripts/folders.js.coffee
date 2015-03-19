@@ -152,7 +152,10 @@ class window.Folders extends LightJot
       @hideNewFolderForm()
 
   pushFolderIntoData: (folder) =>
-    @lj.app.folders.push folder
+    if @lj.app.folders.length == 0
+      @lj.app.folders.push folder
+    else
+      @lj.app.folders.unshift folder
 
     @insertFolderElem folder, false
     @sortFoldersList()
