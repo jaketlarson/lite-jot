@@ -163,9 +163,19 @@ class window.Jots extends LightJot
             @lj.topics.hideNewTopicForm()
             @lj.topics.pushTopicIntoData data.auto_topic
 
+        error: (xhr, textStatus, errorThrown) =>
 
-        error: (data) =>
-          console.log data
+          if textStatus == 'timeout' # test this 
+            console.log 'retrying!'
+            $.ajax(this)
+            return
+
+          if xhr.status == 500
+            # add error handling
+
+          else
+            # add error handling
+
       )
 
       if @lj.app.folders.length > 1
