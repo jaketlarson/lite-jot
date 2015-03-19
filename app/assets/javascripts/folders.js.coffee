@@ -276,15 +276,19 @@ class window.Folders extends LightJot
 
       @lj.app.folders.remove(folder_key)
       elem.remove()
+      @lj.topics.removeTopicsInFolderFromData id
       @sortFoldersList false
 
       if @lj.app.folders.length > 0
         next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
         @selectFolder($(next_folder_elem).data('folder'))
-      else
+
+      else # they deleted the last folder
         @newFolder()
+        @lj.topics.buildTopicsList() # will render empty topics/jots
 
     , 350)
+
 
   moveCurrentFolderToTop: =>
     folder_key_to_move = null

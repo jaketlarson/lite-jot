@@ -366,3 +366,13 @@ class window.Jots extends LightJot
       'top': pos_top
       'left': pos_left
     )
+
+  removeJotsInTopicFromData: (topic_id) =>
+    # this function removes the jots of a specific topic from the JS data
+    jot_keys = []
+
+    $.each @lj.app.jots.filter((jot) => jot.topic_id == topic_id).reverse(), (key, jot) =>
+      jot_keys.push key
+
+    $.each jot_keys.reverse(), (array_key, topic_key) =>
+      @lj.app.jots.remove topic_key

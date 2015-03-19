@@ -331,3 +331,14 @@ class window.Topics extends LightJot
     @lj.app.topics = $.extend([], temp_list)
     @lj.app.topics[0] = topic_object_to_move
     @lj.topics.sortTopicsList()
+
+  removeTopicsInFolderFromData: (folder_id) =>
+    # this function removes the topics of a specific folder from the JS data
+    topic_keys = []
+
+    $.each @lj.app.topics.filter((topic) => topic.folder_id == folder_id), (key, topic) =>
+      @lj.jots.removeJotsInTopicFromData topic.id
+      topic_keys.push key
+
+    $.each topic_keys.reverse(), (array_key, topic_key) =>
+      @lj.app.topics.remove topic_key
