@@ -56,8 +56,12 @@
 
 form#new_jot
   textarea#jot_content
+    position: relative
     min-height: 6rem
     margin-top: 1rem
+
+    &[data-editing='true']
+      z-index: 3
 
 #jot-temp-entry-template
   display: none
@@ -157,8 +161,15 @@ form#new_jot
           border: 0
 
       &[data-editing='true']
+        z-index: 3
+        background-color: $palette-white
+
         .input-edit-wrap
-          display: block
+          display: none
+
+        &:hover
+          i
+            display: none
 
       &.temp
         color: $palette-gray
@@ -173,3 +184,12 @@ form#new_jot
         .content, i
           color: $palette-white
         
+#edit-overlay
+  background-color: $palette-black
+  opacity: 0.7
+  position: fixed
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  z-index: 2

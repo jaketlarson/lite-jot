@@ -40,7 +40,8 @@ class window.Jots extends LightJot
   initJotFormListeners: =>
     @new_jot_form.submit (e) =>
       e.preventDefault()
-      @submitNewJot()
+      if @new_jot_content.attr('data-editing') != 'true'
+        @submitNewJot()
 
     @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
@@ -212,13 +213,8 @@ class window.Jots extends LightJot
                   <input type='text' class='input-edit' />
                 </div>"
 
-    elem
-    .attr("data-before-content", "#{jot.created_at_short}")
-    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
-
-
     elem.append to_insert
-
+    @setTimestamp jot
     @initJotBinds jot.id
 
   insertJotElem: (jot) =>
@@ -236,11 +232,13 @@ class window.Jots extends LightJot
                         </div>
                       </li>")
 
-    @jots_list.find("li[data-jot='#{jot.id}']")
-    .attr("data-before-content", "#{jot.created_at_short}")
-    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
-
+    @setTimestamp jot
     @initJotBinds jot.id
+
+  setTimestamp: (jot) =>
+    elem = @jots_list.find("[data-jot='#{jot.id}']")[0]
+    $(elem).attr("data-before-content", "#{jot.created_at_short}")
+    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
 
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
@@ -299,47 +297,51 @@ class window.Jots extends LightJot
 
   editJot: (id) =>
     elem = $("li[data-jot='#{id}']")
-    input = elem.find('input.input-edit')
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
     raw_content = jot_object.content
-
-    input.val(raw_content)
-    elem.attr('data-editing', 'true')
-    input.focus()
-
     submitted_edit = false
 
-    input.blur (e) =>
-      finishEditing()
+    $('body').append("<div id='edit-overlay'></div>")
+    elem.attr('data-editing', 'true')
+    @new_jot_content.attr('data-editing', 'true').val(raw_content).focus()
 
-    input.keydown (e) =>
-      if e.keyCode == @lj.key_codes.enter
-        e.preventDefault()
+    @new_jot_form.submit =>
+      if @new_jot_content.attr('data-editing') == 'true'
         finishEditing()
+
+    @new_jot_content.blur =>
+      finishEditing()
 
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        jot_object.content = input.val()
+        updated_content = @new_jot_content.val()
+        jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
+        
+        $('#edit-overlay').remove()
+        @new_jot_content.val('').attr('data-editing', 'false')
         elem.attr('data-editing', 'false')
-        content_elem.html(input.val())
-
+        content_elem.html(updated_content)
         @jots_wrapper.focus()
 
         # only update folder/topic order & send server request if the user
         # changed the content field of the jot
-        if input.val() != raw_content
+        if updated_content != raw_content
           @lj.folders.moveCurrentFolderToTop()
           @lj.topics.moveCurrentTopicToTop()
 
           $.ajax(
             type: 'PATCH'
             url: "/jots/#{id}"
-            data: "content=#{input.val()}"
+            data: "content=#{updated_content}"
 
             success: (data) =>
-              console.log data
+              jot_object.content = data.content
+              jot_object.created_at_long = data.created_at_long
+              jot_object.created_at_short = data.created_at_short
+              jot_object.updated_at = data.updated_at
+              @setTimestamp jot_object
 
             error: (data) =>
               console.log data

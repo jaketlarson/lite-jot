@@ -83,8 +83,7 @@ class JotsController < ApplicationController
     end
 
     if jot.update(jot_params)
-
-      render :text => 'success'
+      render :json => jot, :root => false
 
     else
       render :text => 'error', :status => 409
