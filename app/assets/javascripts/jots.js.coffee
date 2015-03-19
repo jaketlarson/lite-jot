@@ -153,6 +153,7 @@ class window.Jots extends LightJot
         success: (data) =>
           @lj.app.jots.push data.jot
           @integrateTempJot data.jot, key
+          console.log data.jot
 
           if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
             @lj.folders.hideNewFolderForm()
@@ -179,7 +180,11 @@ class window.Jots extends LightJot
 
   insertTempJotElem: (content, key) =>
     content = @new_jot_content.val().replace /\n/g, '<br />'
-    @jot_temp_entry_template.find('li').attr('id', key).append("<div class='content'>#{content}</div>")
+    @jot_temp_entry_template.find('li')
+    .attr('id', key).append("<div class='content'>#{content}</div>")
+    .attr("data-before-content", "\uf141")
+    .attr("title", "submitting jot...")
+
     build_entry = @jot_temp_entry_template.html()
 
     @jots_list.append build_entry
@@ -193,6 +198,11 @@ class window.Jots extends LightJot
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
                 </div>"
+
+    elem
+    .attr("data-before-content", "#{jot.created_at_short}")
+    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
+
 
     elem.append to_insert
 
@@ -212,6 +222,10 @@ class window.Jots extends LightJot
                           <input type='text' class='input-edit' />
                         </div>
                       </li>")
+
+    @jots_list.find("li[data-jot='#{jot.id}']")
+    .attr("data-before-content", "#{jot.created_at_short}")
+    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
 
     @initJotBinds jot.id
 

@@ -45,4 +45,4 @@ gem 'sass-rails', '~>5.0.0'
 
 gem 'devise'
 
-gem 'active_model_serializers'
+gem 'active_model_serializers', '~> 0.8.0'

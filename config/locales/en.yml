@@ -20,7 +20,20 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  time:
+    formats:
+      default: "%b, %d, %Y at %l:%M%P"
+      short_default: "%b %d, %y"
+      short_this_year: "%b %d"
+      short_this_week: "%a"
+      short_today: "%l:%M%P"
+  # date:
+  #   formats:
+  #     default: "%B %e, %Y"
+  #     short: "%-m/%-e/%Y"
+  # datetime:
+  #   formats:
+  #     default: "%m/%e/%y at %I:%M%P"
 
   simple_form:
     placeholders:

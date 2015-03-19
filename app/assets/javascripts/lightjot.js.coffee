@@ -58,20 +58,75 @@ class window.LightJot
     , 500)
 
   loadDataFromServer: =>
-    $.ajax(
-      type: 'GET'
-      url: '/load-data'
-      success: (data) =>
-        console.log data
-        @app.folders = data.folders
-        @app.topics = data.topics
-        @app.jots = data.jots
+    folders_loaded = false
+    topics_loaded = false
+    jots_loaded = false
 
+    # $.ajax(
+    #   type: 'GET'
+    #   url: '/load-data'
+    #   success: (data) =>
+    #     console.log data
+    #     @app.folders = data.folders
+    #     @app.topics = data.topics
+    #     @app.jots = data.jots
+
+    #     @buildUI()
+
+    #   error: (data) =>
+    #     console.log data
+    # )
+
+    loadFolders = =>
+      $.ajax(
+        type: 'GET'
+        url: '/folders'
+        success: (data) =>
+          console.log data
+          @app.folders = data.folders
+          folders_loaded = true
+          checkLoadStatus()
+
+        error: (data) =>
+          console.log data
+      )
+
+    loadTopics = =>
+      $.ajax(
+        type: 'GET'
+        url: '/topics'
+        success: (data) =>
+          console.log data
+          @app.topics = data.topics
+          topics_loaded = true
+          checkLoadStatus()
+
+        error: (data) =>
+          console.log data
+      )
+
+    loadJots = =>
+      $.ajax(
+        type: 'GET'
+        url: '/jots'
+        success: (data) =>
+          console.log data
+          @app.jots = data.jots
+          jots_loaded = true
+          checkLoadStatus()
+
+        error: (data) =>
+          console.log data
+      )
+
+    checkLoadStatus = =>
+      if folders_loaded && topics_loaded && jots_loaded
+        console.log 'done'
         @buildUI()
 
-      error: (data) =>
-        console.log data
-    )
+    loadFolders()
+    loadTopics()
+    loadJots()
 
   buildUI: (organize_dom=true) =>
     @folders.buildFoldersList()

@@ -106,7 +106,7 @@ class window.Folders extends LightJot
       
       unless @new_folder_form_wrap.is(':visible') && @new_folder_form_wrap.attr('data-hidden') == 'true'
         @newFolder()
-        
+
       @new_folder_title.focus() # dont like how there are two #folder_titles (from template)
 
     @new_folder_title.blur (e) =>

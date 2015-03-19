@@ -1,12 +1,8 @@
 class FoldersController < ApplicationController
   def index
     folders = current_user.folders.order('updated_at desc')
-    topics = current_user.topics.order('updated_at desc')
-    jots = current_user.jots
 
-    json = {:folders => folders, :topics => topics, :jots => jots}
-    
-    render :json => json
+    render :json => folders, :each_serializer => FolderSerializer
   end
 
   def create

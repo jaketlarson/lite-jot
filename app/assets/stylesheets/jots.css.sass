@@ -95,9 +95,9 @@ form#new_jot
     list-style: none
 
     li:before
-      font-family: FontAwesome
-      content: '\f105'
-      margin: 0 .5rem 0 -1rem
+      font-family: FontAwesome, Open Sans
+      content: attr(data-before-content)
+      margin: 0 .5rem 0 -3rem
       position: absolute
       top: .4rem
       font-size: .3rem
@@ -108,6 +108,7 @@ form#new_jot
       transition: margin-left .25s, opacity .25s
       transition-timing-function: ease-out
       padding-left: .25rem
+      margin-left: 2rem
       cursor: pointer
       word-wrap: break-word
 
