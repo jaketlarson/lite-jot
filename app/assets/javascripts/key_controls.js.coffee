@@ -69,6 +69,13 @@ class window.KeyControls extends LightJot
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
+    @lj.jots.search_input.keydown (e) =>
+      if e.keyCode == @key_codes.down
+        @keyToFirstJot()
+
+      if e.keyCode == @key_codes.esc
+        @lj.jots.endSearchState()
+
     @lj.jots.jots_wrapper.keydown (e) =>
       is_editing = if @lj.jots.jots_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
@@ -207,6 +214,10 @@ class window.KeyControls extends LightJot
       @curr_pos = 'new_jot'
       @switchKeyboardShortcutsPane()
 
+    @lj.jots.search_input.focus (e) =>
+      @curr_pos = 'search_jots'
+      @switchKeyboardShortcutsPane()
+
     @lj.folders.folders_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
@@ -220,6 +231,10 @@ class window.KeyControls extends LightJot
       #@clearKeyedOverData()
 
     @lj.jots.new_jot_content.blur (e) =>
+      @clearKeyboardShortcutsPane()
+      #@clearKeyedOverData()
+
+    @lj.jots.search_input.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
@@ -255,6 +270,7 @@ class window.KeyControls extends LightJot
       topics: '#keyboard-shortcuts #topic-keys'
       jots: '#keyboard-shortcuts #jot-keys'
       new_jot: '#keyboard-shortcuts #new_jot-keys'
+      search_jots: '#keyboard-shortcuts #search_jots-keys'
 
     $('#keyboard-shortcuts .default').hide()
 
@@ -286,6 +302,7 @@ class window.KeyControls extends LightJot
 
   keyToFirstJot: =>
     @clearKeyedOverData()
+    @lj.jots.jots_wrapper.focus()
 
     if @lj.jots.jots_wrapper.find('li').length > 0
       $(@lj.jots.jots_wrapper.find('li')[0]).attr('data-keyed-over', 'true')
