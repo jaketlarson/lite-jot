@@ -302,7 +302,7 @@ class window.Jots extends LightJot
     raw_content = jot_object.content
     submitted_edit = false
 
-    $('body').append("<div id='edit-overlay'></div>")
+    $('body').append("<div id='edit-overlay'><h1>Editing Jot</h1></div>")
     elem.attr('data-editing', 'true')
     @new_jot_content.attr('data-editing', 'true').val(raw_content).focus()
 
