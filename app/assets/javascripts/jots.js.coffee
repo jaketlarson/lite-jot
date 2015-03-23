@@ -71,7 +71,7 @@ class window.Jots extends LightJot
       @search_button.attr('data-searching', 'true')
 
       keyword = @search_input.val().trim()
-      jot_results = @lj.app.jots.filter((jot) => jot.content.search(keyword) > -1).reverse()
+      jot_results = @lj.app.jots.filter((jot) => jot.content.toLowerCase().search(keyword.toLowerCase()) > -1).reverse()
       folder_keys = []
       topic_keys = []
 
