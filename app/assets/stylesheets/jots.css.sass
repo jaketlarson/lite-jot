@@ -139,6 +139,13 @@ form#new_jot
       i.delete
         right: .5rem
 
+      &.highlighted
+        font-weight: bold
+        color: $palette-dark-red
+
+        &:before
+          color: $palette-dark-red
+
       &.flagged
         &:before
           content: '\f024'

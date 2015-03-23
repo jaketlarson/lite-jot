@@ -16,6 +16,7 @@ class window.Jots extends LiteJot
     @jots_loading_icon = @jots_wrapper.find('i.loading')
     @search_input = $('input#search-input')
     @search_button = $('#search-button')
+    @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
 
   clearJotsList: =>
     @jots_list.html('')
@@ -67,6 +68,7 @@ class window.Jots extends LiteJot
 
   handleSearchKeyUp: => # needs optimization
     if @search_input.val().trim().length > 0
+      @jots_in_search_results = []
       @restoreMasterData()
       @search_button.attr('data-searching', 'true')
 
@@ -76,6 +78,8 @@ class window.Jots extends LiteJot
       topic_keys = []
 
       $.each jot_results, (key, jot) =>
+        @jots_in_search_results.push jot.id
+
         if jot.topic_id not in topic_keys
           if jot.topic_id != null
             topic_keys.push jot.topic_id
@@ -123,6 +127,9 @@ class window.Jots extends LiteJot
       @search_button.attr 'data-searching', 'false'
       @search_input.val('')
       @restoreMasterData organize_dom
+
+    @jots_in_search_results = []
+    $('li[data-jot].highlighted').removeClass('highlighted')
 
   restoreMasterData: (organize_dom=true) => # for search functionality
     if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
@@ -220,8 +227,9 @@ class window.Jots extends LiteJot
   insertJotElem: (jot) =>
     flagged_class = if jot.is_flagged then 'flagged' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
+    highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
-    @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class}'>
+    @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>
                         <i class='fa fa-flag flag' />
                         <i class='fa fa-trash delete' />
                         <div class='content'>
