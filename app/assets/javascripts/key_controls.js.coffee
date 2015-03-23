@@ -1,6 +1,6 @@
-#= require lightjot
+#= require litejot
 
-class window.KeyControls extends LightJot
+class window.KeyControls extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initKeyBinds()

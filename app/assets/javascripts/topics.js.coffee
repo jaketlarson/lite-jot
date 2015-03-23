@@ -1,6 +1,6 @@
-#= require lightjot
+#= require litejot
 
-class window.Topics extends LightJot
+class window.Topics extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initDeleteTopicModalBinds()
@@ -45,7 +45,7 @@ class window.Topics extends LightJot
       # the jot submission process would be redundantly calling the sortTopicsList()
       # and selectFirstTopic() functions again and cause unexpected behavior in the UI.
       # The organize_dom option can be carried from Jots.submitNewJot to Jots.endSearchState 
-      # to Jots.restoreMasterData to LightJot.buildUI to here.
+      # to Jots.restoreMasterData to LiteJot.buildUI to here.
       # It has not yet been necessary to add the organize_dom logic to Folders.buildFoldersList
       # since the Folders.buildFoldersList does not call anything leading to Folders.selectFolder
       # which sets @lj.app.current_folder like topics did in Topics.selectTopic upon a new jot

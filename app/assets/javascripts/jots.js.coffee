@@ -1,6 +1,6 @@
-#= require lightjot
+#= require litejot
 
-class window.Jots extends LightJot
+class window.Jots extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initJotFormListeners()

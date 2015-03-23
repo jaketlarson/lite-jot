@@ -1,6 +1,6 @@
-#= require lightjot
+#= require litejot
 
-class window.UserSettings extends LightJot
+class window.UserSettings extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initUserSettingsModalBind()

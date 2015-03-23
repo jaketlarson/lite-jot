@@ -6,10 +6,10 @@ Array::remove = (from, to) ->
 
 $ ->
   window.lj = {
-    lightjot: new window.LightJot()
+    litejot: new window.LiteJot()
   }
 
-class window.LightJot
+class window.LiteJot
   constructor: ->
     @fullscreen = new Fullscreen(@)
     @folders = new Folders(@)

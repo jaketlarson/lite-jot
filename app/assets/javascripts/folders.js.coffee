@@ -1,6 +1,6 @@
-#= require lightjot
+#= require litejot
 
-class window.Folders extends LightJot
+class window.Folders extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initDeleteFolderModalBinds()

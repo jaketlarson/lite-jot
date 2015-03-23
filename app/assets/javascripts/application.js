@@ -20,4 +20,4 @@
 //= require jots
 //= require key_controls
 //= require user_settings
-//= require lightjot
+//= require litejot
