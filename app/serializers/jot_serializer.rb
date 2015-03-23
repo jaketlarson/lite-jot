@@ -1,5 +1,5 @@
 class JotSerializer < ActiveModel::Serializer
-  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at
+  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged
 
   def created_at_short
     return nil if object.created_at.nil?
