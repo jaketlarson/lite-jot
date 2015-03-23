@@ -1,9 +1,7 @@
 h3 Settings
 
-== simple_form_for current_user, :url => user_registration_path(current_user) do |edit|
-
+== simple_form_for current_user, :url => registration_path(current_user), :html => { :method => :put } do |edit|
   == edit.input :email, :label => false
-
   == edit.input :password, :label => false
   == edit.input :password_confirmation, :label => false
   == edit.input :current_password, :label => false

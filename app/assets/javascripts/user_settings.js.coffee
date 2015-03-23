@@ -9,6 +9,7 @@ class window.UserSettings extends LightJot
     @user_settings_modal = $('#user-settings-modal')
     @user_settings_modal_link = $('nav a#user-settings-modal-link')
     @user_settings_modal_template = $('#user-settings-modal-template')
+    @user_settings_form = $('form.edit_user')
 
   initUserSettingsModalBind: =>
     @user_settings_modal_link.click (e) =>
@@ -17,5 +18,21 @@ class window.UserSettings extends LightJot
       @user_settings_modal.foundation 'reveal', 'open'
       @user_settings_modal.html(@user_settings_modal_template.html())
 
-      @user_settings_modal.find('.cancel').click (e2) =>
+      @user_settings_modal.find('.cancel').click =>
         @user_settings_modal.foundation 'reveal', 'close'
+
+      @user_settings_modal.find('.confirm').click =>
+        @saveSettings()
+
+  saveSettings: =>
+    $.ajax(
+      type: 'PATCH'
+      url: @user_settings_form.attr('action')
+      data: @user_settings_form.serialize()
+
+      success: (data) =>
+        console.log data
+
+      error: (data) =>
+        console.log data
+    )

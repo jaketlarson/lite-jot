@@ -10,6 +10,7 @@ class PagesController < ApplicationController
   end
 
   def panel
+    @user = current_user
     
   end
 end
