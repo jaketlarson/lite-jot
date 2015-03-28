@@ -119,21 +119,22 @@ form#new_jot
       &:hover
         color: $palette-soft-red
         
-        i.flag, i.delete
+        i.edit, i.delete
           display: block
 
-      i.flag, i.delete
+      i.edit, i.delete
         position: absolute
         top: .25rem
         cursor: pointer
         display: none
         font-size: 1.2rem
         color: $palette-black
+        background-color: $palette-lightest-gray
 
         &:hover
           color: $palette-soft-red
 
-      i.flag
+      i.edit
         right: 2.5rem
 
       i.delete
@@ -187,6 +188,12 @@ form#new_jot
 
       &[data-keyed-over='true']
         background-color: $keyover-color
+
+        i.edit, i.delete
+          background-color: $palette-dark-red
+
+          &:hover
+            color: $palette-lightest-gray
 
         .content, i
           color: $palette-white

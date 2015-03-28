@@ -214,7 +214,7 @@ class window.Jots extends LiteJot
     elem = @jots_list.find("##{key}")
     elem.removeClass('temp').attr('data-jot', jot.id)
 
-    to_insert = "<i class='fa fa-flag flag' />
+    to_insert = "<i class='fa fa-edit edit' />
                 <i class='fa fa-trash delete' />
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
@@ -230,7 +230,7 @@ class window.Jots extends LiteJot
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
     @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>
-                        <i class='fa fa-flag flag' />
+                        <i class='fa fa-edit edit' />
                         <i class='fa fa-trash delete' />
                         <div class='content'>
                           #{jot_content}
@@ -265,12 +265,12 @@ class window.Jots extends LiteJot
 
   initJotBinds: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}']").click (e) =>
-      @editJot(jot_id)
-      return false
-
-    @jots_list.find("li[data-jot='#{jot_id}'] i.flag").click (e) =>
       e.stopPropagation()
       @flagJot jot_id
+
+    @jots_list.find("li[data-jot='#{jot_id}'] i.edit").click (e) =>
+      @editJot(jot_id)
+      return false
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
       e.stopPropagation()
