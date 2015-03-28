@@ -127,14 +127,15 @@ class window.Folders extends LiteJot
   submitNewFolder: =>
     @lj.key_controls.clearKeyedOverData()
     folder_title = @new_folder_title
+    filtered_content = folder_title.val().replace(/(<([^>]+)>)/ig,'')
 
-    unless folder_title.val().trim().length == 0
+    unless filtered_content.trim().length == 0
       folder_title.attr 'disabled', true
 
       $.ajax(
         type: 'POST'
         url: '/folders'
-        data: "title=#{folder_title.val()}"
+        data: "title=#{filtered_content}"
         success: (data) =>
           @lj.jots.endSearchState()
           @hideNewFolderForm()
@@ -215,15 +216,16 @@ class window.Folders extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        folder_object.title = input.val()
+        filtered_input = input.val().replace(/(<([^>]+)>)/ig,'')
+        folder_object.title = filtered_input
         elem.attr('data-editing', 'false')
-        title.html(input.val())
+        title.html(filtered_input)
         @folders_wrapper.focus()
 
         $.ajax(
           type: 'PATCH'
           url: "/folders/#{id}"
-          data: "title=#{input.val()}"
+          data: "title=#{filtered_input}"
 
           success: (data) =>
             console.log data

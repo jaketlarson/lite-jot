@@ -151,15 +151,16 @@ class window.Topics extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        topic_object.title = input.val()
+        filtered_input = input.val().replace(/(<([^>]+)>)/ig,'')
+        topic_object.title = filtered_input
         elem.attr('data-editing', 'false')
-        title.html(input.val())
+        title.html(filtered_input)
         @topics_wrapper.focus()
 
         $.ajax(
           type: 'PATCH'
           url: "/topics/#{id}"
-          data: "title=#{input.val()}"
+          data: "title=#{filtered_input}"
 
           success: (data) =>
             console.log data
@@ -262,15 +263,16 @@ class window.Topics extends LiteJot
   submitNewTopic: =>
     @lj.key_controls.clearKeyedOverData()
     topic_title = @new_topic_title
+    filtered_content = topic_title.val().replace(/(<([^>]+)>)/ig,'')
 
-    unless topic_title.val().trim().length == 0
+    unless filtered_content.trim().length == 0
       @lj.jots.new_jot_content.focus()
       topic_title.attr 'disabled', true
 
       $.ajax(
         type: 'POST'
         url: '/topics'
-        data: "title=#{topic_title.val()}&folder_id=#{@lj.app.current_folder}"
+        data: "title=#{filtered_content}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
           @lj.jots.endSearchState()
           @hideNewTopicForm()
