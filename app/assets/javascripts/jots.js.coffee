@@ -330,7 +330,7 @@ class window.Jots extends LiteJot
         $('#edit-overlay').remove()
         @new_jot_content.val('').attr('data-editing', 'false')
         elem.attr('data-editing', 'false')
-        content_elem.html(updated_content)
+        content_elem.html(updated_content.replace(/\n/g, '<br />'))
         @jots_wrapper.focus()
 
         # only update folder/topic order & send server request if the user
