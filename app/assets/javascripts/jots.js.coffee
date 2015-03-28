@@ -245,7 +245,11 @@ class window.Jots extends LiteJot
 
   setTimestamp: (jot) =>
     elem = @jots_list.find("[data-jot='#{jot.id}']")[0]
-    $(elem).attr("data-before-content", "#{jot.created_at_short}")
+    data_before_content = jot.created_at_short
+    if $(elem).hasClass('flagged')
+      data_before_content = "\uf024 "+ data_before_content
+
+    $(elem).attr("data-before-content", data_before_content)
     .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
 
   scrollJotsToBottom: =>
@@ -288,6 +292,8 @@ class window.Jots extends LiteJot
     else
       jot_object.is_flagged = false
       elem.removeClass('flagged')
+
+    @setTimestamp (jot_object)
 
     is_flagged = !is_flagged
     $.ajax(

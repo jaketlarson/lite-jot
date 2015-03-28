@@ -98,15 +98,6 @@ form#new_jot
   ul#jots-list
     list-style: none
 
-    li:before
-      font-family: FontAwesome, Open Sans
-      content: attr(data-before-content)
-      margin: 0 .5rem 0 -3rem
-      position: absolute
-      top: .4rem
-      font-size: .3rem
-      color: $palette-gray
-
     li
       position: relative
       transition: margin-left .25s, opacity .25s
@@ -115,6 +106,15 @@ form#new_jot
       margin-left: 2rem
       cursor: pointer
       word-wrap: break-word
+
+      &:before  
+        font-family: FontAwesome, Open Sans
+        content: attr(data-before-content)
+        margin: 0 .5rem 0 -3.5rem
+        position: absolute
+        top: .4rem
+        font-size: .3rem
+        color: $palette-gray
 
       &:hover
         color: $palette-dark-gray
@@ -149,10 +149,7 @@ form#new_jot
 
       &.flagged
         &:before
-          content: '\f024'
-          font-size: 1rem
-          margin-top: -0.35rem
-          margin-left: -1.35rem
+          color: $palette-soft-red
 
       .input-edit-wrap
         position: absolute
