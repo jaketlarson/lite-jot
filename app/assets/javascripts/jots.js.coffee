@@ -147,7 +147,7 @@ class window.Jots extends LiteJot
     @search_input.focus()
 
   submitNewJot: =>
-    content = @new_jot_content.val()
+    content = @new_jot_content.val().replace(/(<([^>]+)>)/ig,'')
 
     if content.trim().length > 0
       @endSearchState false
@@ -200,7 +200,7 @@ class window.Jots extends LiteJot
       @new_jot_content.val('')
 
   insertTempJotElem: (content, key) =>
-    content = @new_jot_content.val().replace /\n/g, '<br />'
+    content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
     .attr('id', key).append("<div class='content'>#{content}</div>")
     .attr("data-before-content", "\uf141")
@@ -324,7 +324,7 @@ class window.Jots extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        updated_content = @new_jot_content.val()
+        updated_content = @new_jot_content.val().replace(/(<([^>]+)>)/ig,'')
         jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
         
         $('#edit-overlay').remove()
