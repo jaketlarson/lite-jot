@@ -16,7 +16,7 @@ class window.KeyControls extends LiteJot
       del: 46
       backspace: 8
       e: 69
-      h: 72
+      f: 70
       n: 78
       esc: 27
       s: 83
@@ -49,7 +49,7 @@ class window.KeyControls extends LiteJot
       down: @keyToNextJotDown
       right: null
       e: @editJotKeyedAt
-      h: @flagJotKeyedAt
+      f: @flagJotKeyedAt
       n: @keyToNewJot
       del: @deleteJotKeyedAt
       s: @lj.jots.focusSearchInput
@@ -100,8 +100,8 @@ class window.KeyControls extends LiteJot
       if e.keyCode == @key_codes.e
         @key_nav.jots.e()
 
-      if e.keyCode == @key_codes.h
-        @key_nav.jots.h()
+      if e.keyCode == @key_codes.f
+        @key_nav.jots.f()
 
       if e.keyCode == @key_codes.n
         @key_nav.jots.n()
