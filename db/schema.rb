@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150330154953) do
+ActiveRecord::Schema.define(version: 20150404175832) do
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -54,6 +54,8 @@ ActiveRecord::Schema.define(version: 20150330154953) do
     t.datetime "updated_at"
     t.string   "username"
     t.boolean  "is_viewing_key_controls", default: true
+    t.string   "provider"
+    t.string   "provider_uid"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true

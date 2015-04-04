@@ -48,3 +48,7 @@ gem 'devise'
 gem 'active_model_serializers', '~> 0.8.0'
 
 gem 'awesome_print'
+
+gem 'omniauth'
+gem 'omniauth-facebook'
+gem 'omniauth-google-oauth2', :git => 'https://github.com/zquestz/omniauth-google-oauth2.git'
