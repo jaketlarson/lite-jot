@@ -255,12 +255,42 @@ class window.KeyControls extends LiteJot
     help_is_visible = if keyboard_shortcuts_list.is(':visible') then true else false
 
     if help_is_visible
-      keyboard_shortcuts_list.hide()
+      keyboard_shortcuts_list.removeClass('active')
       keyboard_shortcuts_link.removeClass('active')
 
+      data = 
+        user: 
+          is_viewing_key_controls: 0
+
+      $.ajax(
+        type: 'PATCH'
+        url: "/users"
+        data: data
+        success: (data) =>
+          console.log data
+
+        error: (data) =>
+          console.log data
+      )
+
     else
-      keyboard_shortcuts_list.show()
+      keyboard_shortcuts_list.addClass('active')
       keyboard_shortcuts_link.addClass('active')
+
+      data = 
+        user: 
+          is_viewing_key_controls: 1
+
+      $.ajax(
+        type: 'PATCH'
+        url: "/users"
+        data: data
+        success: (data) =>
+          console.log data
+
+        error: (data) =>
+          console.log data
+      )
 
     @lj.sizeUI()
 

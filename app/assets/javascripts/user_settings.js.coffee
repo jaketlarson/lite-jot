@@ -9,7 +9,6 @@ class window.UserSettings extends LiteJot
     @user_settings_modal = $('#user-settings-modal')
     @user_settings_modal_link = $('nav a#user-settings-modal-link')
     @user_settings_modal_template = $('#user-settings-modal-template')
-    @user_settings_form = $('form.edit_user')
 
   initUserSettingsModalBind: =>
     @user_settings_modal_link.click (e) =>
@@ -25,6 +24,8 @@ class window.UserSettings extends LiteJot
         @saveSettings()
 
   saveSettings: =>
+    @user_settings_form = @user_settings_modal.find('form.edit_user')
+
     $.ajax(
       type: 'PATCH'
       url: @user_settings_form.attr('action')

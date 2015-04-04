@@ -28,10 +28,44 @@ class Users::RegistrationsController < Devise::RegistrationsController
         set_flash_message :error, error_messages
       end
 
-      
       @user_sign_up = resource
       @user_sign_in = User.new
       render :template => "/pages/welcome"
     end
+  end
+
+  def update
+    self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
+    prev_unconfirmed_email = resource.unconfirmed_email if resource.respond_to?(:unconfirmed_email)
+
+    if !params[:user].nil? && !params[:user][:password].nil? && params[:user][:password].length > 0 # needs further development
+      resource_updated = update_resource_with_password(resource, account_update_params)
+    else
+      resource_updated = update_resource_without_password(resource, account_update_params)
+    end
+
+    yield resource if block_given?
+    if resource_updated
+      if is_flashing_format?
+        flash_key = update_needs_confirmation?(resource, prev_unconfirmed_email) ?
+          :update_needs_confirmation : :updated
+        set_flash_message :success, flash_key
+      end
+      sign_in resource_name, resource, bypass: true
+      render :json => resource, :status => :ok
+    else
+      clean_up_passwords resource
+      render :json => resource, :status => :not_acceptable
+    end
+  end
+
+  protected
+
+  def update_resource_with_password(resource, params)
+    resource.update_with_password(params)
+  end
+
+  def update_resource_without_password(resource, params)
+    resource.update_without_password(params)
   end
 end

@@ -15,7 +15,7 @@ header
       a#app-info-modal-link.secondary
         i.fa.fa-lg.fa-info-circle
 
-      a#keyboard-shortcuts-link.secondary
+      a#keyboard-shortcuts-link.secondary class="#{current_user.is_viewing_key_controls ? 'active' : ''}"
         i.fa.fa-lg.fa-keyboard-o
 
       a#fullscreen-request.secondary

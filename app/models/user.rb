@@ -19,4 +19,5 @@ class User < ActiveRecord::Base
     },
     :uniqueness => true
   }
+  
 end

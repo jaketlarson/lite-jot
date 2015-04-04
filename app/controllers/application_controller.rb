@@ -10,7 +10,11 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:sign_up) << :username
     devise_parameter_sanitizer.for(:sign_up) << :email
+    
     devise_parameter_sanitizer.for(:sign_in) << :username
+
+    devise_parameter_sanitizer.for(:account_update) << :email
+    devise_parameter_sanitizer.for(:account_update) << :is_viewing_key_controls
   end
 
   def sign_up_params
@@ -19,5 +23,9 @@ class ApplicationController < ActionController::Base
 
   def sign_in_params
     devise_parameter_sanitizer.sanitize(:sign_in)
+  end
+
+  def account_update_params
+    devise_parameter_sanitizer.sanitize(:account_update)
   end
 end
