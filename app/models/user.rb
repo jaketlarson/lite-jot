@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
         user = User.create!(
           provider: access_token['provider'],
           provider_uid: access_token['uid'],
-          display_name: data['name'] +"a",
+          display_name: data['name'],
           email: data['email'],
           password: Devise.friendly_token[0,16]
         )
