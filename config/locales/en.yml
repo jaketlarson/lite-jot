@@ -27,13 +27,6 @@ en:
       short_this_year: "%b %d"
       short_this_week: "%a"
       short_today: "%l:%M%P"
-  # date:
-  #   formats:
-  #     default: "%B %e, %Y"
-  #     short: "%-m/%-e/%Y"
-  # datetime:
-  #   formats:
-  #     default: "%m/%e/%y at %I:%M%P"
 
   simple_form:
     placeholders:

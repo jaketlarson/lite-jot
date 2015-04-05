@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   has_many :topics
   has_many :jots
 
-  validates :username, {
+  validates :display_name, {
     :presence => true,
     :length => {
       :minimum => 3,
@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
         user = User.create!(
           provider: access_token['provider'],
           provider_uid: access_token['uid'],
-          username: data['name'] +"a",
+          display_name: data['name'] +"a",
           email: data['email'],
           password: Devise.friendly_token[0,16]
         )

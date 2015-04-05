@@ -7,7 +7,7 @@ header
   nav
     - if user_signed_in?
       == link_to edit_user_registration_path, :id => 'user-settings-modal-link', :class => 'secondary' do
-        == current_user.username
+        == current_user.display_name
 
       == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
         i.fa.fa-lg.fa-sign-out

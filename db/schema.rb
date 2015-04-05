@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150404175832) do
+ActiveRecord::Schema.define(version: 20150404230345) do
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20150404175832) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "username"
+    t.string   "display_name"
     t.boolean  "is_viewing_key_controls", default: true
     t.string   "provider"
     t.string   "provider_uid"

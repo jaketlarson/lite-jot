@@ -1,6 +1,6 @@
 class CustomFailure < Devise::FailureApp
   def redirect_url
-    flash[:alert] = "Username and password combination does not match."
+    flash[:alert] = "Email and password combination does not match."
     return "/"
   end
   def respond

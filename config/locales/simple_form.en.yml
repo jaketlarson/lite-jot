@@ -32,7 +32,7 @@ en:
 
     placeholders:
       user:
-        username: 'Username'
+        display_name: 'Display name'
         password: 'Password'
         password_confirmation: 'Confirm password'
         email: 'Email address'

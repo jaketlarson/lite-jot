@@ -5,7 +5,7 @@ class PagesController < ApplicationController
     @user_sign_in = User.new
     users = User.all
     users.each do |user|
-      puts user.username
+      puts user.display_name
     end
   end
 
