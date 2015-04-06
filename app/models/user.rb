@@ -20,8 +20,28 @@ class User < ActiveRecord::Base
     # },
     :uniqueness => true
   }
+  def self.find_for_google_oauth2(access_token)
+      data = access_token.info
+      user = User.where(:email => data['email']).first
 
-  def self.from_omniauth(access_token)
+      # Uncomment the section below if you want users to be created if they don't exist
+      unless user
+        user = User.create!(
+          provider: access_token['provider'],
+          provider_uid: access_token['uid'],
+          google_token: access_token['credentials']['token'],
+          display_name: data['name'],
+          email: data['email'],
+          password: Devise.friendly_token[0,16]
+        )
+      else
+        user.google_token = access_token['credentials']['token']
+        user.save
+      end
+      user
+  end
+
+  def self.find_for_facebook(access_token)
       data = access_token.info
       user = User.where(:email => data['email']).first
 

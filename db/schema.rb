@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150404230345) do
+ActiveRecord::Schema.define(version: 20150405023255) do
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 20150404230345) do
     t.boolean  "is_viewing_key_controls", default: true
     t.string   "provider"
     t.string   "provider_uid"
+    t.string   "google_token"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true

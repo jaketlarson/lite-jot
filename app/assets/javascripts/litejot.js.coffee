@@ -123,6 +123,7 @@ class window.LiteJot
       if folders_loaded && topics_loaded && jots_loaded
         console.log 'done'
         @buildUI()
+        @initNotifications()
 
     loadFolders()
     loadTopics()
@@ -144,3 +145,6 @@ class window.LiteJot
     $(document).on('opened.fndtn.reveal', '[data-reveal]', () ->
       $(this).focus()
     )
+
+  initNotifications: =>
+    @notifications = new Notifications(@)
