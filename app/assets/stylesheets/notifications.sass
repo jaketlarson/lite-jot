@@ -1,3 +1,42 @@
-// Place all the styles related to the notifications controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+.notification
+  background-color: $palette-black
+  color: $palette-white
+  width: 20rem
+  padding: .5rem .75rem
+  position: fixed
+  left: 1rem
+  bottom: 0
+  opacity: 0
+  margin-bottom: 1rem
+  box-shadow: 0 0 5px $palette-black
+  transition: all .25s linear
+  z-index: 3
+  font-family: Monda
+
+  h1
+    font-size: .9rem
+    color: $palette-white
+    margin: 0 0 .1rem 0
+    font-family: Monda
+
+  section.description
+    display: inline-block
+    font-size: .75rem
+
+  a.close
+    position: absolute
+    color: $palette-lightest-gray
+    top: .25rem
+    right: .5rem
+    opacity: 0
+    transition: all .15s linear
+
+    &:hover
+      color: $palette-soft-red
+
+  &:hover
+    a.close
+      opacity: 1
+
+#notification-template
+  display: none

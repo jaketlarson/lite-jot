@@ -37,8 +37,8 @@ class NotificationsController < ApplicationController
       end
     end
 
-    render :json => upcoming_events.to_json
+    ap upcoming_events.to_json
 
-
+    render :json => {:notifications => upcoming_events.to_json, :user_email => current_user.email}
   end
 end

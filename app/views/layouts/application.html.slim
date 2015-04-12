@@ -13,6 +13,8 @@ body id="#{body_id}"
 
   == yield
 
+  == render :partial => "layouts/status_bar"
+
   - if user_signed_in?
     .reveal-modal#delete-folder-modal data-reveal=true tabindex='4'
     .reveal-modal#delete-topic-modal data-reveal=true tabindex='5'
@@ -56,5 +58,11 @@ body id="#{body_id}"
 
     .modal-template#user-settings-modal-template
       == render :partial => "users/registrations/edit"
+
+    #notification-template
+      h1
+      section.description
+      a.close
+        i.fa.fa-close
 
   == javascript_include_tag 'application', 'data-turbolinks-track' => true

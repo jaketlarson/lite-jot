@@ -4,10 +4,20 @@ Array::remove = (from, to) ->
   @length = if from < 0 then @length + from else from
   @push.apply this, rest
 
+window.randomKey = =>
+  build_key = ""
+  possibilities = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+
+  for i in [0..50]
+    build_key += possibilities.charAt(Math.floor(Math.random() * possibilities.length))
+
+  return build_key;
+
 $ ->
-  window.lj = {
-    litejot: new window.LiteJot()
-  }
+  if $('body#pages-dashboard').length > 0
+    window.lj = {
+      litejot: new window.LiteJot()
+    }
 
 class window.LiteJot
   constructor: ->
@@ -17,6 +27,7 @@ class window.LiteJot
     @jots = new Jots(@)
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
+    @status_bar = new StatusBar(@)
     @initVars()
     @sizeUI()
     @setUIInterval()
