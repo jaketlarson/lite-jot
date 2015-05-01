@@ -1,5 +1,51 @@
 body#pages-welcome
-  h3
+  h2
     margin-top: 1rem
-    font-family: "Monda"
-    
+    margin-bottom: 1rem
+
+  .panel
+    border: 0
+    width: 100%
+    background-color: none
+    margin: 0
+    padding-top: 2rem
+
+    &#authenticate
+      h3
+        margin-top: 2rem
+        font-family: 'Monda'
+
+    &#features
+      background-color: $palette-dark-red
+      text-align: center
+
+      h2
+        color: $palette-white
+        font-size: 2rem
+        text-align: left
+        display: none
+
+      .feature
+        margin-top: 1.5rem
+        margin-bottom: 1.5rem
+        overflow: auto
+
+        i
+          font-size: 5rem
+          color: $palette-lightest-gray
+
+        h3
+          margin-top: 1rem
+          color: $palette-white
+          font-size: 1.25rem
+          font-family: 'Monda'
+
+        p
+          color: $palette-lightest-gray
+          font-family: 'Monda'
+          font-size: .9rem
+          line-height: 1.35rem
+          min-height: 4rem
+
+          @media #{$small-only}
+            min-height: 0

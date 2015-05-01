@@ -1,14 +1,58 @@
-.row
-  .large-12.columns
+.panel#authenticate
+  .row
+    .large-12.columns
 
-    h2
-      |light-weight note app
+        h2
+          |light-weight note app
 
-    == render :partial => "layouts/action_messages"
+        == render :partial => "layouts/action_messages"
 
-    .row
-      .medium-6.columns
-        = render :partial => 'users/sessions/new'
-        = render :partial => 'users/omniauth/new'
-      .medium-6.columns
-        = render :partial => 'users/registrations/new'
+        .row
+          .medium-6.columns
+            = render :partial => 'users/sessions/new'
+            = render :partial => 'users/omniauth/new'
+          .medium-6.columns
+            = render :partial => 'users/registrations/new'
+
+.panel#features
+  h2 Features
+
+  .row
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-keyboard-o
+        h3 Keyboard-Optimized
+        p Lite Jot is designed with intuitive keyboard shortcuts for navigation and controls for less mouse clicks and fluid note-taking
+
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-calendar-o
+        h3 Calendar Integration
+        p Pull in your Google Calendar to enable automatic meeting jot setup and schedule reminders
+
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-bolt
+        h3 Quick Note-taking
+        p Designed to make note-taking faster and smoother
+
+
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-share-alt
+        h3 Share Notes
+        p Share folders and topics with other users for projects, meetings, etc.
+
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-folder-open
+        h3 Organize Better
+        p Stay organized with our folder-topic-jot structure
+
+    .large-4.medium-6.columns
+      .feature
+        i.fa.fa-cloud
+        h3 Cloud-based Notes
+        p All of your jots are saved on Lite Jot for easy-access from anywhere
+
+== render 'layouts/footer'
