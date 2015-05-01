@@ -9,11 +9,11 @@ head
   link rel="shortcut icon" href="/favicon.ico"
 
 body id="#{body_id}"
-  == render :partial => "layouts/header"
+  == render :partial => "header"
 
   == yield
 
-  == render :partial => "layouts/status_bar"
+  == render :partial => "status_bar"
 
   - if user_signed_in?
     .reveal-modal#delete-folder-modal data-reveal=true tabindex='4'
