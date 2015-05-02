@@ -324,9 +324,14 @@ class window.KeyControls extends LiteJot
   keyToLastJot: =>
     @clearKeyedOverData()
     @lj.jots.jots_wrapper.focus()
+    # Using a delay due to issues with chrome not scrolling to bottom immediately
+    setTimeout(() =>
+      @lj.jots.scrollJotsToBottom()
+    , 1)
 
     if @lj.jots.jots_wrapper.find('li').length > 0
-      $(@lj.jots.jots_wrapper.find('li')[@lj.jots.jots_wrapper.find('li').length - 1]).attr('data-keyed-over', 'true')
+      elem = $(@lj.jots.jots_wrapper.find('li')[@lj.jots.jots_wrapper.find('li').length - 1])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @curr_pos_index = @lj.jots.jots_wrapper.find('li').length - 1
 
@@ -335,9 +340,11 @@ class window.KeyControls extends LiteJot
     @lj.jots.jots_wrapper.focus()
 
     if @lj.jots.jots_wrapper.find('li').length > 0
-      $(@lj.jots.jots_wrapper.find('li')[0]).attr('data-keyed-over', 'true')
+      elem = $(@lj.jots.jots_wrapper.find('li')[0])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @cur_pos_index = 0
+      @lj.moveElemIntoView elem, @lj.jots.jots_wrapper
 
   keyToNextJotUp: =>
     if @lj.jots.jots_wrapper.find("li[data-keyed-over='true']").length > 0
@@ -349,6 +356,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.prev()
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
 
       else
         @keyToLastJot()
@@ -363,6 +371,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
 
       else
         @keyToNewJot()

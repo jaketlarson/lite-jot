@@ -159,3 +159,26 @@ class window.LiteJot
 
   initNotifications: =>
     @notifications = new Notifications(@)
+
+  moveElemIntoView: (elem, wrap) =>
+    if elem.length == 1 && wrap.length == 1
+      wrap.stop()
+      wrap_height = wrap.height()
+      elem_height  = elem.height()
+      from_top_of_wrap = elem.offset().top - wrap.offset().top
+      padding = .15*wrap_height
+      if elem_height > wrap_height then padding = 0
+
+      if from_top_of_wrap - padding < 0 # need to scroll up
+        scroll_to = wrap.scrollTop() + elem.offset().top - wrap.offset().top - padding
+
+      else if from_top_of_wrap + padding > wrap.innerHeight() # scroll down
+
+        if from_top_of_wrap + elem_height > wrap_height # big elem
+          scroll_to = wrap.scrollTop() + (from_top_of_wrap + elem_height - wrap_height) + padding
+
+        else
+          scroll_to = wrap.scrollTop() + elem_height
+
+      if scroll_to != wrap.scrollTop()
+        wrap.animate({scrollTop: scroll_to+'px'}, 100)
