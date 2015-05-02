@@ -49,10 +49,10 @@ class window.LiteJot
       height: window.innerHeight
 
   sizeUI: =>
-    folders_height = window.innerHeight - $('header').outerHeight() - $('#folders-heading').outerHeight(true)
+    folders_height = window.innerHeight - $('header').outerHeight() - $('#folders-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
     @folders.folders_wrapper.css 'height', folders_height
 
-    topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true)
+    topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
     @topics.topics_wrapper.css 'height', topics_height
 
     jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)

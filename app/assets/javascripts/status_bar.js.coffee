@@ -8,6 +8,7 @@ class window.StatusBar extends LiteJot
   initVars: =>
     @clock_text = $('#clock-text')
     @update_interval = 2000 # 2 seconds
+    @status_bar = $('#status-bar')
 
   updateClock: =>
     date = new Date
