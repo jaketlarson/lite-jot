@@ -404,26 +404,31 @@ class window.KeyControls extends LiteJot
 
     elem = $(@lj.topics.topics_wrapper.find("li[data-topic='#{@lj.app.current_topic}']")[0])
     elem.attr('data-keyed-over', 'true')
+    @lj.moveElemIntoView elem, @lj.topics.topics_wrapper
 
   keyToLastTopic: =>
     @clearKeyedOverData()
     @lj.topics.topics_wrapper.focus()
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-      $(@lj.topics.topics_wrapper.find('li')[@lj.topics.topics_wrapper.find('li').length - 1]).attr('data-keyed-over', 'true')
+      elem = $(@lj.topics.topics_wrapper.find('li')[@lj.topics.topics_wrapper.find('li').length - 1])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @curr_pos_index = @lj.topics.topics_wrapper.find('li').length - 1
       @openTopicKeyedTo()
+      @lj.moveElemIntoView elem, @lj.topics.topics_wrapper
 
   keyToFirstTopic: =>
     @clearKeyedOverData()
     @lj.topics.topics_wrapper.focus()
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-      $(@lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)')[0]).attr('data-keyed-over', 'true')
+      elem = $(@lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)')[0])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'topic'
       @cur_pos_index = 0
       @openTopicKeyedTo()
+      @lj.moveElemIntoView elem, @lj.topics.topics_wrapper
 
     else
       @lj.topics.newTopic()
@@ -438,6 +443,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.prev()
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
         @openTopicKeyedTo()
 
       else
@@ -453,6 +459,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
         @openTopicKeyedTo()
 
       else
@@ -480,6 +487,7 @@ class window.KeyControls extends LiteJot
     @clearKeyedOverData()
     elem = $(@lj.folders.folders_wrapper.find("li[data-folder='#{@lj.app.current_folder}']")[0])
     elem.attr('data-keyed-over', 'true')
+    @lj.moveElemIntoView elem, @lj.folders.folders_wrapper
     @openFolderKeyedTo()
 
   keyToLastFolder: =>
@@ -487,9 +495,11 @@ class window.KeyControls extends LiteJot
     @lj.folders.folders_wrapper.focus()
 
     if @lj.folders.folders_wrapper.find('li').length > 0
-      $(@lj.folders.folders_wrapper.find('li')[@lj.folders.folders_wrapper.find('li').length - 1]).attr('data-keyed-over', 'true')
+      elem = $(@lj.folders.folders_wrapper.find('li')[@lj.folders.folders_wrapper.find('li').length - 1])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @curr_pos_index = @lj.folders.folders_wrapper.find('li').length - 1
+      @lj.moveElemIntoView elem, @lj.folders.folders_wrapper
       @openFolderKeyedTo()
 
   keyToFirstFolder: =>
@@ -497,9 +507,11 @@ class window.KeyControls extends LiteJot
     @lj.folders.folders_wrapper.focus()
 
     if @lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)').length > 0 #change this to use filter instead!
-      $(@lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)')[0]).attr('data-keyed-over', 'true')
+      elem = $(@lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)')[0])
+      elem.attr('data-keyed-over', 'true')
       @curr_pos = 'folder'
       @cur_pos_index = 0
+      @lj.moveElemIntoView elem, @lj.folders.folders_wrapper
       @openFolderKeyedTo()
 
   keyToNextFolderUp: =>
@@ -512,6 +524,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.prev('li:not(.new-folder-form-wrap)')
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.folders.folders_wrapper
         @openFolderKeyedTo()
 
       else
@@ -528,6 +541,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
+        @lj.moveElemIntoView nextElem, @lj.folders.folders_wrapper
         @openFolderKeyedTo()
 
       else

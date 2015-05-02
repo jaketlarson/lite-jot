@@ -181,4 +181,4 @@ class window.LiteJot
           scroll_to = wrap.scrollTop() + elem_height
 
       if scroll_to != wrap.scrollTop()
-        wrap.animate({scrollTop: scroll_to+'px'}, 100)
+        wrap.scrollTop(scroll_to)
