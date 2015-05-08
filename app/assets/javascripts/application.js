@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require vendor/modernizr
 //= require foundation
 //= require fullscreen
 //= require folders
@@ -23,3 +24,4 @@
 //= require notifications
 //= require status_bar
 //= require litejot
+$(document).foundation('tooltip', 'reflow');
