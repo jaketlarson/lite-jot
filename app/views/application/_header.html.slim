@@ -11,7 +11,7 @@ header
       == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
         i.fa.fa-lg.fa-sign-out
 
-      a#app-info-modal-link.secondary.has-tip.tip-bottom data-tooltip='true' aria-haspopup='true' title='Info'
+      a#app-info-modal-link.secondary
         i.fa.fa-lg.fa-info-circle
 
       a#keyboard-shortcuts-link.secondary class="#{current_user.is_viewing_key_controls ? 'active' : ''}"
