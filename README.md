@@ -1,5 +1,5 @@
 # Lite Jot
-Lite Jot is an intuitive note-taking system. It is currently optimizied for desktop use. It will be released with functionality for mobile web access with consideration for future native mobile development.
+Lite Jot is an intuitive note-taking system. It is currently optimized for desktop use. It will be released with functionality for mobile web access with consideration for future native mobile development.
 
 # Dependencies
 This application makes use of the following preprocessing languages:
