@@ -57,6 +57,23 @@ class window.KeyControls extends LiteJot
     @curr_pos = 'new_jot'
     @curr_pos_index = null
 
+  # Returns whether or not the given key code is valid within the
+  # controls scope by cross referencing the master keycodes object
+  # and using that key (if it exists) to check the controls_scope.
+  # The controls_scope would be the object of key names mapped to 
+  # functions. E.g., to check if key code 46 in @key_nav.jots then
+  # use isValidControl(46, @key_nav.jots)
+  isValidControl: (key_code, controls_scope) =>
+    key_name = null
+    $.each @key_codes, (key, code) =>
+      if code == key_code
+        key_name = key
+        return
+
+    if key_name == null || typeof(controls_scope[key_name]) == 'undefined'
+      return false
+    else
+      return true
 
   initKeyBinds: =>
     @lj.jots.new_jot_content.keydown (e) =>
@@ -77,6 +94,9 @@ class window.KeyControls extends LiteJot
         @lj.jots.endSearchState()
 
     @lj.jots.jots_wrapper.keydown (e) =>
+      if !@isValidControl(e.keyCode, @key_nav.jots)
+        return
+
       is_editing = if @lj.jots.jots_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
       if is_editing
@@ -112,7 +132,11 @@ class window.KeyControls extends LiteJot
       if e.keyCode == @key_codes.s
         @key_nav.jots.s()
 
+
     @lj.topics.topics_wrapper.keydown (e) =>
+      if !@isValidControl(e.keyCode, @key_nav.jots)
+        return
+
       new_field_has_focus = @lj.topics.new_topic_title.is(':focus')
       is_editing = if @lj.topics.topics_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
@@ -158,6 +182,9 @@ class window.KeyControls extends LiteJot
         @key_nav.topics.del()
 
     @lj.folders.folders_wrapper.keydown (e) =>
+      if !@isValidControl(e.keyCode, @key_nav.jots)
+        return
+        
       new_field_has_focus = @lj.folders.new_folder_title.is(':focus')
       is_editing = if @lj.folders.folders_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
@@ -213,6 +240,7 @@ class window.KeyControls extends LiteJot
     @lj.jots.new_jot_content.focus (e) =>
       @curr_pos = 'new_jot'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData() # may need a better way
 
     @lj.jots.search_input.focus (e) =>
       @curr_pos = 'search_jots'
