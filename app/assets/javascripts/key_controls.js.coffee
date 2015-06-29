@@ -33,6 +33,7 @@ class window.KeyControls extends LiteJot
       e: @editFolderKeyedAt
       n: @keyToNewFolder
       del: @lj.folders.deleteFolderPrompt
+      backspace: @lj.folders.deleteFolderPrompt
 
     @key_nav.topics =
       left: @keyToCurrentFolder
@@ -42,6 +43,7 @@ class window.KeyControls extends LiteJot
       e: @editTopicKeyedAt
       n: @keyToNewTopic
       del: @lj.topics.deleteTopicPrompt
+      backspace: @lj.topics.deleteTopicPrompt
 
     @key_nav.jots =
       left: @keyToCurrentTopic
@@ -52,6 +54,7 @@ class window.KeyControls extends LiteJot
       f: @flagJotKeyedAt
       n: @keyToNewJot
       del: @deleteJotKeyedAt
+      backspace: @deleteJotKeyedAt
       s: @lj.jots.focusSearchInput
 
     @curr_pos = 'new_jot'
@@ -74,6 +77,18 @@ class window.KeyControls extends LiteJot
       return false
     else
       return true
+
+  getControlFunctionByKeyCode: (key_code, controls_scope) =>
+    key_name = null
+    $.each @key_codes, (key, code) =>
+      if code == key_code
+        key_name = key
+        return
+
+    if key_name == null || typeof(controls_scope[key_name]) == 'undefined'
+      return false
+    else
+      return controls_scope[key_name]
 
   initKeyBinds: =>
     @lj.jots.new_jot_content.keydown (e) =>
@@ -108,30 +123,8 @@ class window.KeyControls extends LiteJot
       else
         e.preventDefault()
 
-      if e.keyCode == @key_codes.up
-        @key_nav.jots.up()
-
-      if e.keyCode == @key_codes.down
-        @key_nav.jots.down()
-
-      if e.keyCode == @key_codes.left
-        @key_nav.jots.left()
-
-      if e.keyCode == @key_codes.e
-        @key_nav.jots.e()
-
-      if e.keyCode == @key_codes.f
-        @key_nav.jots.f()
-
-      if e.keyCode == @key_codes.n
-        @key_nav.jots.n()
-
-      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
-        @key_nav.jots.del()
-
-      if e.keyCode == @key_codes.s
-        @key_nav.jots.s()
-
+      if @isValidControl e.keyCode, @key_nav.jots
+        @getControlFunctionByKeyCode(e.keyCode, @key_nav.jots).call()
 
     @lj.topics.topics_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
@@ -160,31 +153,13 @@ class window.KeyControls extends LiteJot
       if !@lj.topics.new_topic_title.is(':focus')
         e.preventDefault()
 
-      if e.keyCode == @key_codes.up
-        @key_nav.topics.up()
-
-      if e.keyCode == @key_codes.down
-        @key_nav.topics.down()
-
-      if e.keyCode == @key_codes.left
-        @key_nav.topics.left()
-
-      if e.keyCode == @key_codes.e
-        @key_nav.topics.e()
-        
-      if e.keyCode == @key_codes.right
-        @key_nav.topics.right()
-
-      if e.keyCode == @key_codes.n
-        @key_nav.topics.n()
-
-      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
-        @key_nav.topics.del()
+      if @isValidControl e.keyCode, @key_nav.topics
+        @getControlFunctionByKeyCode(e.keyCode, @key_nav.topics).call()
 
     @lj.folders.folders_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
-        
+
       new_field_has_focus = @lj.folders.new_folder_title.is(':focus')
       is_editing = if @lj.folders.folders_wrapper.find("li[data-editing='true']").length > 0 then true else false
 
@@ -206,24 +181,8 @@ class window.KeyControls extends LiteJot
       if !@lj.folders.new_folder_title.is(':focus')
         e.preventDefault()
 
-      if e.keyCode == @key_codes.up
-        @key_nav.folders.up()
-
-      if e.keyCode == @key_codes.down
-        @key_nav.folders.down()
-        
-      if e.keyCode == @key_codes.right
-        @key_nav.folders.right()
-
-      if e.keyCode == @key_codes.e
-        @key_nav.folders.e()
-
-      if e.keyCode == @key_codes.n
-        @key_nav.folders.n()
-
-      if e.keyCode == @key_codes.del || e.keyCode == @key_codes.backspace
-        @key_nav.folders.del()
-
+      if @isValidControl e.keyCode, @key_nav.folders
+        @getControlFunctionByKeyCode(e.keyCode, @key_nav.folders).call()
 
     @lj.folders.folders_wrapper.focus (e) =>
       @curr_pos = 'folders'
