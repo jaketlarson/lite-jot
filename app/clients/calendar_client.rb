@@ -27,15 +27,21 @@ class CalendarClient
                         :headers => {'Content-Type' => 'application/json'})
     items = @calendar_events.data.items
     upcoming_events = []
-    now = Time.now
-    two_days_from_now = Time.now + 2*24*60*60
+
+
+    one_day = 24*60*60
+    now = DateTime.now
+    today_begins_at = DateTime.now.beginning_of_day.to_i
+    two_days_later_begins_at = today_begins_at + one_day*2
+    min_start_time = DateTime.strptime(today_begins_at.to_s, '%s')
+    max_start_time = DateTime.strptime(two_days_later_begins_at.to_s, '%s')
 
     # Iterate through calendar items
     if items
       items.each do |item|
         if item.start
           # Choose events between now and two days later
-          if item.start.dateTime > now && item.start.dateTime < two_days_from_now
+          if item.start.dateTime >= min_start_time && item.start.dateTime < max_start_time
             dateTime_unix = item.start.dateTime.to_i
             if item.start.dateTime.today?
               day = 'Today'
@@ -77,6 +83,7 @@ class CalendarClient
       end
     end
 
+    upcoming_events.sort! { |a,b| a[:start][:dateTime_unix] <=> b[:start][:dateTime_unix] }
     return upcoming_events
   end
 

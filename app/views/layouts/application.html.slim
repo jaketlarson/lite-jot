@@ -17,48 +17,12 @@ body id="#{body_id}"
   == render :partial => "status_bar"
 
   - if user_signed_in?
-    .reveal-modal#delete-folder-modal data-reveal=true tabindex='4'
-    .reveal-modal#delete-topic-modal data-reveal=true tabindex='5'
-    .reveal-modal#app-info-modal data-reveal=true
-    .reveal-modal#user-settings-modal data-reveal=true
 
-    .modal-template#delete-topic-modal-template
-      h3 Really delete this topic?
-
-      p All jots within this topic will also be deleted.
-
-      .actions
-        button.primary.confirm Delete (Y)
-        button.secondary.cancel Cancel (ESC)
-
-    .modal-template#delete-folder-modal-template
-
-      h3 Really delete this folder?
-
-      p All topics and jots within this folder will also be deleted.
-
-      .actions
-        button.primary.confirm Delete (Y)
-        button.secondary.cancel Cancel (ESC)
-
-    .modal-template#app-info-modal-template
-      h3 Information
-
-      p
-        | For any feedback or issues with this application, please email&nbsp;
-        a href="mailto:codereloadrepeat@gmail.com" codereloadrepeat@gmail.com
-        |.
-
-      p
-        i.fa.fa-copyright
-        |2015&nbsp;
-        a href="http://www.codereloadrepeat.com/" Jake Larson
-
-      .actions
-        button.secondary.confirm Close
-
-    .modal-template#user-settings-modal-template
-      == render :partial => "users/registrations/edit"
+    == render :partial => "application/modals/app_info"
+    == render :partial => "application/modals/user_settings"
+    == render :partial => "application/modals/delete_folder"
+    == render :partial => "application/modals/delete_topic"
+    == render :partial => "application/modals/calendar_info"
 
     #notification-template
       h1

@@ -68,7 +68,7 @@ class User < ActiveRecord::Base
   def save_google_token(token, expiration)
     update(
       :auth_token => token,
-      :auth_token_expiration => DateTime.strptime(expiration.seconds.to_s, '%s'),
+      :auth_token_expiration => DateTime.now + expiration.seconds,
     )
   end
 end

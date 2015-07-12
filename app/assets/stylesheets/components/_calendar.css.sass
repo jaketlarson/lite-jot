@@ -1,0 +1,95 @@
+#cal-list-wrap
+  position: absolute
+  top: 0
+  right: 0
+  background-color: $palette-black
+  width: 20rem
+  z-index: 3
+  display: none
+  color: $palette-white
+
+  ul li, h2, h3, h4
+    color: $palette-white
+
+  h2#cal-title
+    margin-left: 1rem
+    margin-bottom: 0
+    font-size: 1.3rem
+
+  article
+    padding: 1rem
+      
+    &:not(:last-child)
+      padding-bottom: 0
+
+    h3
+      font-size: 1rem
+      border-bottom: 1px solid $palette-white
+      padding-bottom: .25rem
+      margin-bottom: .5rem
+
+      span.date
+        float: right
+
+    ul
+      list-style: none
+      margin-left: 0
+
+      li
+        margin-bottom: .5rem
+
+        h4
+          font-size: .9rem
+          line-height: 1.5rem
+          margin-bottom: 0
+
+        p
+          font-size: .75rem
+          margin-bottom: 0
+
+          i
+            margin-right: .4rem
+
+        section.time
+          float: right
+          line-height: 1.5rem
+          font-size: .8rem
+
+  a#google-calendar-link
+    line-height: 1.75rem
+    color: $palette-white
+    font-size: .9rem
+    margin-left: 1rem
+    display: inline-block
+
+    i
+      margin-right: .5rem
+      vertical-align: -7%
+
+    &:hover
+      color: $palette-google
+
+  a#calendar-info-modal-link
+    float: right
+    color: $palette-white
+    margin-right: 1rem
+
+    &:hover
+      color: $palette-gray
+
+  #cal-empty-message
+    display: none
+    font-size: .9rem
+    margin: 1rem 1rem 2rem 1rem
+
+
+  #cal-loading
+    display: none
+    width: 100%
+    padding: 3rem
+    text-align: center
+
+    i
+      font-size: 3rem
+
+

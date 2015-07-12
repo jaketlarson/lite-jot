@@ -226,7 +226,7 @@ class window.KeyControls extends LiteJot
       #@clearKeyedOverData()
 
   initKeyboardShortcutsHelpBind: =>
-    $('header a#keyboard-shortcuts-link').click =>
+    $('nav a#keyboard-shortcuts-link').click =>
       @toggleKeyboardShortcutsHelp()
 
     $('#keyboard-shortcuts .default').show()
@@ -238,7 +238,7 @@ class window.KeyControls extends LiteJot
 
   toggleKeyboardShortcutsHelp: =>
     keyboard_shortcuts_list = $('#keyboard-shortcuts')
-    keyboard_shortcuts_link = $('header a#keyboard-shortcuts-link')
+    keyboard_shortcuts_link = $('nav a#keyboard-shortcuts-link')
     help_is_visible = if keyboard_shortcuts_list.is(':visible') then true else false
 
     if help_is_visible

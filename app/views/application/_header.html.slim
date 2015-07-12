@@ -27,15 +27,28 @@ nav.top-bar data-topbar='true' role='navigation'
                 i.fa.fa-lg.fa-sign-out
                 |Sign out
 
+        li.show-for-large-up
+          a#keyboard-shortcuts-link class="#{current_user.is_viewing_key_controls ? 'active' : ''}" title='Toggle Key Controls'
+            i.fa.fa-lg.fa-keyboard-o
+
+        - if current_user.auth_provider == 'google_oauth2'
+          li.show-for-medium-up
+            a#calendar-link title='My Calendar'
+              i.fa.fa-lg.fa-calendar-o
+              #cal-icon-date
         li
-          a#app-info-modal-link.secondary title='Information'
+          a#app-info-modal-link title='Information'
             i.fa.fa-lg.fa-info-circle
             span.show-for-small-only Information
 
-        li.show-for-large-up
-          a#keyboard-shortcuts-link.secondary class="#{current_user.is_viewing_key_controls ? 'active' : ''}" title='Toggle key controls '
-            i.fa.fa-lg.fa-keyboard-o
-
       li.show-for-large-up
-        a#fullscreen-request.secondary title='Toggle Fullscreen'
+        a#fullscreen-request title='Toggle Fullscreen'
           i.fa.fa-lg.fa-expand
+
+
+- if user_signed_in?
+  == render :partial => "keyboard_shortcuts"
+
+  - if current_user.auth_provider == 'google_oauth2'
+    == render :partial => "calendar"
+

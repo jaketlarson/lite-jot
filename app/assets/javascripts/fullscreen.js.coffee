@@ -26,8 +26,10 @@ class window.Fullscreen extends LiteJot
   fullScreenHandler: =>
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement
       @showFullScreenCompressButton()
+      @lj.clock.showClock()
     else
       @showFullScreenExpandButton()
+      @lj.clock.hideClock()
 
   toggleFullScreen: =>
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement

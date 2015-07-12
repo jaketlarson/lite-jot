@@ -10,5 +10,6 @@
 //= require key_controls
 //= require user_settings
 //= require notifications
-//= require status_bar
+//= require clock
+//= require calendar
 //= require litejot

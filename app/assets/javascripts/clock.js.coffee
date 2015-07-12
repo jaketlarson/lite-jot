@@ -1,14 +1,14 @@
 #= require litejot
 
-class window.StatusBar extends LiteJot
+class window.Clock extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @updateClock()
 
   initVars: =>
+    @clock_hover_wrap = $('#clock-hover-wrap')
     @clock_text = $('#clock-text')
     @update_interval = 2000 # 2 seconds
-    @status_bar = $('#status-bar')
 
   updateClock: =>
     date = new Date
@@ -19,7 +19,17 @@ class window.StatusBar extends LiteJot
 
     $('#clock-text').html("#{hour}:#{minutes}")
 
+    calendar_icon_date = $('nav #cal-icon-date')
+    calendar_icon_date.html(date.getDate())
+
     setTimeout(() =>
       @updateClock()
     , @update_interval)
     
+
+  showClock: =>
+    @clock_hover_wrap.show()
+
+
+  hideClock: =>
+    @clock_hover_wrap.hide()

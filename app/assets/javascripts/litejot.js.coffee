@@ -21,14 +21,15 @@ $ ->
 
 class window.LiteJot
   constructor: ->
+    @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
+    @calendar = new Calendar(@)
     @initFoundation()
-    @status_bar = new StatusBar(@)
     @initVars()
     @sizeUI()
     @setUIInterval()
@@ -53,13 +54,14 @@ class window.LiteJot
       height: window.innerHeight
 
   sizeUI: =>
-    folders_height = window.innerHeight - $('nav').outerHeight() - $('#folders-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
+    keyboard_shortcuts_height = if $('#keyboard-shortcuts').is(':visible') then $('#keyboard-shortcuts').height() else 0
+    folders_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#folders-heading').outerHeight(true)
     @folders.folders_wrapper.css 'height', folders_height
 
-    topics_height = window.innerHeight - $('nav').outerHeight() - $('#topics-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
+    topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('nav').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()
@@ -186,3 +188,4 @@ class window.LiteJot
 
       if scroll_to != wrap.scrollTop()
         wrap.scrollTop(scroll_to)
+

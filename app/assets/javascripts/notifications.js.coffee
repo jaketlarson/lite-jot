@@ -3,7 +3,7 @@
 class window.Notifications extends LiteJot
   constructor: (@lj) ->
     @initVars()
-    @loadNotifications()
+    #@loadNotifications()
 
   initVars: =>
     #@notifications_wrap = $('#notifications-wrap')
@@ -80,7 +80,7 @@ class window.Notifications extends LiteJot
     @orderNotifications()
 
   orderNotifications: =>
-    offset_bottom = $('#status-bar').outerHeight(true)
+    offset_bottom = 0
 
     $.each $('.notification').get().reverse(), (key, this_elem) =>
       $(this_elem).css({
