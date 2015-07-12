@@ -141,7 +141,9 @@ class window.Calendar extends LiteJot
           minutes = date.getMinutes()
           minutes = if minutes == 0 then "00" else minutes
 
-          html += "<li>"
+          event_class = if cal_item.event_finished then 'event-finished' else ''
+
+          html += "<li class='#{event_class}'>"
           html += "<section class='time'>#{hour}:#{minutes}#{am_pm}</section>"
 
           html += "<h4>#{cal_item.summary}</h4>"
