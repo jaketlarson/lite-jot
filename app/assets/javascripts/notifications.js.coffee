@@ -14,7 +14,7 @@ class window.Notifications extends LiteJot
   loadNotifications: =>
     $.ajax(
       type: 'GET'
-      url: '/notifications'
+      url: '/notifications/calendar'
       success: (data) =>
         console.log data
         @user_email = data.user_email
@@ -61,15 +61,18 @@ class window.Notifications extends LiteJot
 
 
     if attendees_count > 0
-      attendees_text = "with "+ attendees_text
+      attendees_text = "<br />with "+ attendees_text
       elem.find('section.description').html(attendees_text)
 
+    day = notification.start.day
     date = new Date(notification.start.dateTime)
+    console.log date
+    am_pm = if date.getHours() >= 12 then "pm" else "am"
     hour = (date.getHours() % 12)
-    hour = hour ? hour : 0
+    hour = if hour == 0 then 12 else hour
     minutes = date.getMinutes()
-    minutes = if minutes == 0 then minutes =  "00" else minutes = minutes
-    elem.find('section.description').prepend("#{hour}:#{minutes}&nbsp;")
+    minutes = if minutes == 0 then "00" else minutes
+    elem.find('section.description').prepend("#{day} at #{hour}:#{minutes}#{am_pm}&nbsp;")
 
     elem.css({opacity: 1})
     @bindNotification id

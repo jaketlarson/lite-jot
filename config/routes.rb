@@ -22,10 +22,10 @@ Rails.application.routes.draw do
 
   resources :jots
 
+  get 'notifications/calendar' => 'notifications#calendar'
   resources :notifications
 
   get '/load-data' => 'folders#index'
-  #get '/check-google-calendar' => 'notifications#check_google_calendar'
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150405023255) do
+ActiveRecord::Schema.define(version: 20150705181419) do
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -54,9 +54,11 @@ ActiveRecord::Schema.define(version: 20150405023255) do
     t.datetime "updated_at"
     t.string   "display_name"
     t.boolean  "is_viewing_key_controls", default: true
-    t.string   "provider"
-    t.string   "provider_uid"
-    t.string   "google_token"
+    t.string   "auth_provider"
+    t.string   "auth_provider_uid"
+    t.string   "auth_token"
+    t.datetime "auth_token_expiration"
+    t.string   "auth_refresh_token"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true

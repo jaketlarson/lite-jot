@@ -15,29 +15,37 @@ class User < ActiveRecord::Base
       :minimum => 3,
       :maxmium => 16
     },
-    # :format => {
-    #   :with => /\A[a-zA-Z0-9]+\Z/
-    # },
     :uniqueness => true
   }
   def self.find_for_google_oauth2(access_token)
       data = access_token.info
       user = User.where(:email => data['email']).first
 
-      # Uncomment the section below if you want users to be created if they don't exist
       unless user
         user = User.create!(
-          provider: access_token['provider'],
-          provider_uid: access_token['uid'],
-          google_token: access_token['credentials']['token'],
-          display_name: data['name'],
-          email: data['email'],
-          password: Devise.friendly_token[0,16]
+          :auth_provider => access_token['provider'],
+          :auth_provider_uid => access_token['uid'],
+          :auth_token => access_token['credentials']['token'],
+          :auth_refresh_token => access_token['credentials']['refresh_token'],
+          :auth_token_expiration => DateTime.now + access_token['credentials']['expires_at'].seconds,
+          :display_name => data['name'],
+          :email => data['email'],
+          :password => Devise.friendly_token[0,16]
         )
       else
-        user.google_token = access_token['credentials']['token']
-        user.save
+        unless access_token['credentials']['token'].nil?
+          auth_refresh_token = access_token['credentials']['refresh_token']
+        else
+          auth_refresh_token = user.auth_refresh_token
+        end
+
+        user.update!(
+          :auth_token => access_token['credentials']['token'],
+          :auth_token_expiration => DateTime.now + access_token['credentials']['expires_at'].seconds,
+          :auth_refresh_token => auth_refresh_token
+        )
       end
+
       user
   end
 
@@ -48,13 +56,20 @@ class User < ActiveRecord::Base
       # Uncomment the section below if you want users to be created if they don't exist
       unless user
         user = User.create!(
-          provider: access_token['provider'],
-          provider_uid: access_token['uid'],
-          display_name: data['name'],
-          email: data['email'],
-          password: Devise.friendly_token[0,16]
+          :auth_provider => access_token['provider'],
+          :auth_provider_uid => access_token['uid'],
+          :display_name => data['name'],
+          :email => data['email'],
+          :password => Devise.friendly_token[0,16]
         )
       end
       user
+  end
+
+  def save_google_token(token, expiration)
+    update(
+      :auth_token => token,
+      :auth_token_expiration => DateTime.now + expiration.seconds
+    )
   end
 end
