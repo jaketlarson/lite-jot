@@ -1,24 +1,41 @@
-header
-  == link_to "/" do
-    h1
-      |Lite Jot
 
-  nav
-    - if user_signed_in?
-      == link_to edit_user_registration_path, :id => 'user-settings-modal-link', :class => 'secondary' do
-        == current_user.display_name
+nav.top-bar data-topbar='true' role='navigation'
+  ul.title-area
+    li.name
+      == link_to "/" do
+        h1
+          a href='/' Lite&nbsp;Jot
 
-      == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
-        i.fa.fa-lg.fa-sign-out
+    li.toggle-topbar.menu-icon
+      a href='#'
+        span
 
-      a#app-info-modal-link.secondary
-        i.fa.fa-lg.fa-info-circle
+  section.top-bar-section
+    ul.right
 
-      a#keyboard-shortcuts-link.secondary class="#{current_user.is_viewing_key_controls ? 'active' : ''}"
-        i.fa.fa-lg.fa-keyboard-o
+      - if user_signed_in?
+        li.has-dropdown
+          a href='#'
+            == current_user.display_name
+          ul.dropdown
+            li
+              == link_to edit_user_registration_path, :id => 'user-settings-modal-link', :class => 'secondary' do
+                i.fa.fa-cog
+                |Settings
+            li
+              == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
+                i.fa.fa-lg.fa-sign-out
+                |Sign out
 
-      a#fullscreen-request.secondary
-        i.fa.fa-lg.fa-expand
+        li
+          a#app-info-modal-link.secondary title='Information'
+            i.fa.fa-lg.fa-info-circle
+            span.show-for-small-only Information
 
-  - if user_signed_in?
-    == render :partial => "keyboard_shortcuts"
+        li.show-for-large-up
+          a#keyboard-shortcuts-link.secondary class="#{current_user.is_viewing_key_controls ? 'active' : ''}" title='Toggle key controls '
+            i.fa.fa-lg.fa-keyboard-o
+
+      li.show-for-large-up
+        a#fullscreen-request.secondary title='Toggle Fullscreen'
+          i.fa.fa-lg.fa-expand

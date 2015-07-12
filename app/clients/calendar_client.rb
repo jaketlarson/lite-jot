@@ -9,8 +9,9 @@ class CalendarClient
       :application_name => 'Lite Jot',
       :application_version => '1.0'
     )
-    @client.authorization.client_id = Rails.application.secrets.google_key
-    @client.authorization.client_secret = Rails.application.secrets.google_secret
+
+    @client.authorization.client_id = Rails.application.secrets.GOOGLE_CLIENT_ID
+    @client.authorization.client_secret = Rails.application.secrets.GOOGLE_CLIENT_SECRET
     @calendar = @client.discovered_api(API_NAME, API_VERSION)
   end
 

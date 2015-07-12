@@ -1,7 +1,8 @@
-header
-  background-color: $palette-dark-red
-  overflow: auto
+//header
+//  background-color: $palette-dark-red
+//  overflow: auto
 
+.top-bar
   h1
     color: $palette-lightest-gray
     font-size: 1.75rem
@@ -12,21 +13,18 @@ header
     float: left
     margin-left: 1rem
 
-  nav
-    float: right
-    line-height: 3rem
-    user-select: none
+  ul
+    li
+      @media #{$small-only}
+        i
+          margin-right: .5rem
 
-    a:not(#user-settings-modal-link)
-      text-align: center
-      width: 3rem
-      display: inline-block
+        span
+          display: inline-block!important
 
-    a#user-settings-modal-link
-      margin-right: .5rem
 
-    a#keyboard-shortcuts-link
-      height: 3rem
+    &.dropdown
+      i
+        font-size: .875rem
+        margin-right: .5rem
 
-      &.active
-        background-color: $palette-black

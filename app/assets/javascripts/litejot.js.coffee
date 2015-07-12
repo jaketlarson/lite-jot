@@ -27,6 +27,7 @@ class window.LiteJot
     @jots = new Jots(@)
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
+    @initFoundation()
     @status_bar = new StatusBar(@)
     @initVars()
     @sizeUI()
@@ -34,6 +35,9 @@ class window.LiteJot
     @loadDataFromServer()
     @initAppInfoModalBind()
     @initModalFocusBind()
+
+  initFoundation: =>
+    $(document).foundation()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -49,13 +53,13 @@ class window.LiteJot
       height: window.innerHeight
 
   sizeUI: =>
-    folders_height = window.innerHeight - $('header').outerHeight() - $('#folders-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
+    folders_height = window.innerHeight - $('nav').outerHeight() - $('#folders-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
     @folders.folders_wrapper.css 'height', folders_height
 
-    topics_height = window.innerHeight - $('header').outerHeight() - $('#topics-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
+    topics_height = window.innerHeight - $('nav').outerHeight() - $('#topics-heading').outerHeight(true) - @status_bar.status_bar.outerHeight()
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('header').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    jots_height = window.innerHeight - $('nav').outerHeight() - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()
