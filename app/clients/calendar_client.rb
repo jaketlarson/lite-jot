@@ -67,6 +67,7 @@ class CalendarClient
               }
             end
 
+            event_in_progress = item.start.dateTime < Time.now && item.end.dateTime > Time.now ? true : false
             event_finished = item.end.dateTime < Time.now ? true : false
 
             event = {
@@ -77,6 +78,7 @@ class CalendarClient
                 :dateTime => item.start.dateTime,
                 :dateTime_unix => dateTime_unix
               },
+              :event_in_progress => event_in_progress,
               :event_finished => event_finished
             }
             upcoming_events << event
