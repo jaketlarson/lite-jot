@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
           :auth_provider_uid => access_token['uid'],
           :auth_token => access_token['credentials']['token'],
           :auth_refresh_token => access_token['credentials']['refresh_token'],
-          :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s').seconds,
+          :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
           :display_name => data['name'],
           :email => data['email'],
           :password => Devise.friendly_token[0,16]
