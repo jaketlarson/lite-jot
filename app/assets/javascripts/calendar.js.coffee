@@ -147,15 +147,20 @@ class window.Calendar extends LiteJot
             event_class = 'event-in-progress'
           else
             event_class = ''
-              
+
           html += "<li class='#{event_class}'>"
           html += "<section class='time'>#{hour}:#{minutes}#{am_pm}</section>"
 
           html += "<h4>#{cal_item.summary}</h4>"
 
-          if attendees_count > 0
+          if cal_item.location
             html += "<p>"
-            attendees_text = "<i class='fa fa-group' />with "+ attendees_text
+            html += "<i class='fa fa-map-marker' />#{cal_item.location}"
+            html += "</p>"
+
+          if attendees_count > 0
+            attendees_text = "<i class='fa fa-group' />with #{attendees_text}"
+            html += "<p>"
             html += attendees_text
             html += "</p>"
 

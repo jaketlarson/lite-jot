@@ -73,6 +73,7 @@ class CalendarClient
             event = {
               :summary => item.summary,
               :attendees => attendees,
+              :location => item.location,
               :start => {
                 :day => day,
                 :dateTime => item.start.dateTime,
