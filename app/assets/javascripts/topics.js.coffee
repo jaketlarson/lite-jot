@@ -6,6 +6,7 @@ class window.Topics extends LiteJot
     @initDeleteTopicModalBinds()
 
   initVars: =>
+    @topics_column = $('#topics-column')
     @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
     @new_topic_form_wrap = null

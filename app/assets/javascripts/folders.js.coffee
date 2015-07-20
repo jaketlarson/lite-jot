@@ -6,6 +6,7 @@ class window.Folders extends LiteJot
     @initDeleteFolderModalBinds()
 
   initVars: =>
+    @folders_column = $('#folders-column')
     @folders_wrapper = $('#folders-wrapper')
     @folders_list = $('ul#folders-list')
     @new_folder_form_wrap = null

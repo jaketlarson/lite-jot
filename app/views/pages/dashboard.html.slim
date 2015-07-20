@@ -1,5 +1,5 @@
 .row
-.large-2.medium-3.columns
+.large-2.medium-3.columns#folders-column tabindex='1'
   h2#folders-heading
     |Folders
     
@@ -11,10 +11,10 @@
       = simple_form_for Folder.new do |form|
         = form.input :title, :label => false
 
-  #folders-wrapper tabindex='1'
+  #folders-wrapper
     ul#folders-list
 
-.large-2.medium-3.columns
+.large-2.medium-3.columns#topics-column tabindex='2'
   h2#topics-heading
     |Topics
 
@@ -26,12 +26,13 @@
       = simple_form_for Topic.new do |form|
         = form.input :title, :label => false
 
-  #topics-wrapper tabindex='2'
+  #topics-wrapper
     ul#topics-list
 
-.large-8.medium-6.columns
+.large-8.medium-6.columns#jots-column
   h2#jots-heading
-    |Jots
+    .heading-text
+      |Jots
 
     #search-wrapper
       input#search-input placeholder="search for jots"

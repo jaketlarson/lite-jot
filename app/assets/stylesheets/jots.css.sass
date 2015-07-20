@@ -1,5 +1,10 @@
+#jots-column
+  padding: 0
+
 #jots-heading
   position: relative
+  margin: 0 1rem
+  height: 3rem
 
   #search-wrapper
     position: absolute
@@ -30,7 +35,7 @@
       width: 2.5rem
       line-height: 2.5rem
       text-align: center
-      background-color: $palette-dark-red
+      background-color: $primary-color
       color: $palette-white
       padding: 0
       margin: 0
@@ -57,11 +62,17 @@
 form#new_jot
   textarea#jot_content
     position: relative
-    min-height: 6rem
-    margin-top: 1rem
+    min-height: 7rem
+    margin-bottom: 0
+    border: .4rem solid $palette-light-gray
+    transition: none
+    box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
 
     &[data-editing='true']
       z-index: 3
+
+    &:focus
+      border-color: $primary-color
 
 #jot-temp-entry-template
   display: none
@@ -70,6 +81,9 @@ form#new_jot
   overflow-y: auto
   position: relative
   padding-left: .5rem
+  padding-right: .5rem
+  margin: 0 0 0 1rem
+  outline: 0
 
   i.loading
     display: block
@@ -78,7 +92,7 @@ form#new_jot
     position: absolute
     top: 5rem
     left: calc(50% - 2.5rem)
-    color: $palette-dark-red
+    color: $primary-color
     z-index: 2
 
   .empty-message
@@ -132,7 +146,7 @@ form#new_jot
         background-color: $palette-lightest-gray
 
         &:hover
-          color: $palette-soft-red
+          color: $primary-color
 
       i.edit
         right: 2.5rem
@@ -142,14 +156,14 @@ form#new_jot
 
       &.highlighted
         font-weight: bold
-        color: $palette-dark-red
+        color: $primary-color
 
         &:before
-          color: $palette-dark-red
+          color: $primary-color
 
       &.flagged
         &:before
-          color: $palette-soft-red
+          color: $primary-color
 
       .input-edit-wrap
         position: absolute
@@ -187,7 +201,7 @@ form#new_jot
         background-color: $keyover-color
 
         i.edit, i.delete
-          background-color: $palette-dark-red
+          background-color: $primary-color
 
           &:hover
             color: $palette-lightest-gray
@@ -206,7 +220,7 @@ form#new_jot
 
   h1
     color: $palette-white
-    background-color: $palette-dark-red
+    background-color: $primary-color
     text-align: center
     border-bottom-right-radius: 2px
     border-bottom-left-radius: 2px

@@ -9,6 +9,7 @@ class window.Jots extends LiteJot
   initVars: =>
     @new_jot_form = $('form#new_jot')
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
+    @jots_heading = $('#jots-heading .heading-text')
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_temp_entry_template = $('#jot-temp-entry-template')
@@ -32,6 +33,10 @@ class window.Jots extends LiteJot
       $.each @lj.app.jots, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
           @insertJotElem(jot)
+
+
+      topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
+      @jots_heading.html("Jots: #{topic_title}")
 
     else
       @jots_empty_message_elem.show()

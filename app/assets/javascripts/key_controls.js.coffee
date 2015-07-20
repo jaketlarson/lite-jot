@@ -126,7 +126,7 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.jots
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.jots).call()
 
-    @lj.topics.topics_wrapper.keydown (e) =>
+    @lj.topics.topics_column.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 
@@ -156,7 +156,7 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.topics
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.topics).call()
 
-    @lj.folders.folders_wrapper.keydown (e) =>
+    @lj.folders.folders_column.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 
@@ -184,11 +184,11 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.folders
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.folders).call()
 
-    @lj.folders.folders_wrapper.focus (e) =>
+    @lj.folders.folders_column.focus (e) =>
       @curr_pos = 'folders'
       @switchKeyboardShortcutsPane()
 
-    @lj.topics.topics_wrapper.focus (e) =>
+    @lj.topics.topics_column.focus (e) =>
       @curr_pos = 'topics'
       @switchKeyboardShortcutsPane()
 
@@ -205,11 +205,11 @@ class window.KeyControls extends LiteJot
       @curr_pos = 'search_jots'
       @switchKeyboardShortcutsPane()
 
-    @lj.folders.folders_wrapper.blur (e) =>
+    @lj.folders.folders_column.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
-    @lj.topics.topics_wrapper.blur (e) =>
+    @lj.topics.topics_column.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
@@ -387,7 +387,7 @@ class window.KeyControls extends LiteJot
       @lj.topics.newTopic()
       return
 
-    @lj.topics.topics_wrapper.focus()
+    @lj.topics.topics_column.focus()
 
     elem = $(@lj.topics.topics_wrapper.find("li[data-topic='#{@lj.app.current_topic}']")[0])
     elem.attr('data-keyed-over', 'true')
@@ -395,7 +395,7 @@ class window.KeyControls extends LiteJot
 
   keyToLastTopic: =>
     @clearKeyedOverData()
-    @lj.topics.topics_wrapper.focus()
+    @lj.topics.topics_column.focus()
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       elem = $(@lj.topics.topics_wrapper.find('li')[@lj.topics.topics_wrapper.find('li').length - 1])
@@ -407,7 +407,7 @@ class window.KeyControls extends LiteJot
 
   keyToFirstTopic: =>
     @clearKeyedOverData()
-    @lj.topics.topics_wrapper.focus()
+    @lj.topics.topics_column.focus()
 
     if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       elem = $(@lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)')[0])
@@ -469,7 +469,7 @@ class window.KeyControls extends LiteJot
       @lj.folders.new_folder_title.focus()
       return
 
-    @lj.folders.folders_wrapper.focus()
+    @lj.folders.folders_column.focus()
 
     @clearKeyedOverData()
     elem = $(@lj.folders.folders_wrapper.find("li[data-folder='#{@lj.app.current_folder}']")[0])
@@ -479,7 +479,7 @@ class window.KeyControls extends LiteJot
 
   keyToLastFolder: =>
     @clearKeyedOverData()
-    @lj.folders.folders_wrapper.focus()
+    @lj.folders.folders_column.focus()
 
     if @lj.folders.folders_wrapper.find('li').length > 0
       elem = $(@lj.folders.folders_wrapper.find('li')[@lj.folders.folders_wrapper.find('li').length - 1])
@@ -491,7 +491,7 @@ class window.KeyControls extends LiteJot
 
   keyToFirstFolder: =>
     @clearKeyedOverData()
-    @lj.folders.folders_wrapper.focus()
+    @lj.folders.folders_column.focus()
 
     if @lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)').length > 0 #change this to use filter instead!
       elem = $(@lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)')[0])
