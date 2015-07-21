@@ -1,15 +1,19 @@
 #jots-column
   padding: 0
 
-#jots-heading
+#pages-dashboard h2#jots-heading
   position: relative
-  margin: 0 1rem
-  height: 3rem
+  padding: 1rem 1rem 0 1rem
+  height: 4rem
+  margin: 0
+
+  &.is-scrolled-from-top
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.5)
 
   #search-wrapper
     position: absolute
-    right: 0
-    top: 0
+    right: 1rem
+    top: .75rem
     bottom: 0
     width: 15rem
 
@@ -66,7 +70,9 @@ form#new_jot
     margin-bottom: 0
     border: .4rem solid $palette-light-gray
     transition: none
-    box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
+
+    &.is-scrolled-from-bottom
+      box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
 
     &[data-editing='true']
       z-index: 3

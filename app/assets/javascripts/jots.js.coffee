@@ -5,11 +5,13 @@ class window.Jots extends LiteJot
     @initVars()
     @initJotFormListeners()
     @initSearchListeners()
+    @initScrollListeners()
 
   initVars: =>
     @new_jot_form = $('form#new_jot')
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
-    @jots_heading = $('#jots-heading .heading-text')
+    @jots_heading = $('#jots-heading')
+    @jots_heading_text = $('#jots-heading .heading-text')
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_temp_entry_template = $('#jot-temp-entry-template')
@@ -36,7 +38,8 @@ class window.Jots extends LiteJot
 
 
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
-      @jots_heading.html("Jots: #{topic_title}")
+      @jots_heading_text.html("Jots: #{topic_title}")
+      @checkScrollPosition()
 
     else
       @jots_empty_message_elem.show()
@@ -135,6 +138,22 @@ class window.Jots extends LiteJot
 
     @jots_in_search_results = []
     $('li[data-jot].highlighted').removeClass('highlighted')
+
+  initScrollListeners: =>
+    @jots_wrapper.scroll () =>
+      @checkScrollPosition()
+
+  checkScrollPosition: =>
+    if @jots_wrapper.scrollTop() == 0
+      @jots_heading.removeClass('is-scrolled-from-top')
+    else
+      @jots_heading.addClass('is-scrolled-from-top')
+
+    if @jots_wrapper.scrollTop() + @jots_wrapper.height() == @jots_wrapper[0].scrollHeight
+      @new_jot_content.removeClass('is-scrolled-from-bottom')
+    else
+      @new_jot_content.addClass('is-scrolled-from-bottom')
+
 
   restoreMasterData: (organize_dom=true) => # for search functionality
     if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
