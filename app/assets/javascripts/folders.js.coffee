@@ -3,14 +3,26 @@
 class window.Folders extends LiteJot
   constructor: (@lj) ->
     @initVars()
+    @initScrollBind()
     @initDeleteFolderModalBinds()
 
   initVars: =>
+    @folders_heading = $('h2#folders-heading')
     @folders_column = $('#folders-column')
     @folders_wrapper = $('#folders-wrapper')
     @folders_list = $('ul#folders-list')
     @new_folder_form_wrap = null
     @new_folder_title = null
+
+  initScrollBind: =>
+    @folders_wrapper.scroll =>
+      @checkScrollPosition()
+
+  checkScrollPosition: =>
+    if @folders_wrapper.scrollTop() > 0
+      @folders_heading.addClass('is-scrolled-from-top')
+    else
+      @folders_heading.removeClass('is-scrolled-from-top')
 
   initDeleteFolderModalBinds: =>
     $('#delete-folder-modal').keydown (e) =>

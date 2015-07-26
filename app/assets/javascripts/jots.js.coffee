@@ -10,8 +10,8 @@ class window.Jots extends LiteJot
   initVars: =>
     @new_jot_form = $('form#new_jot')
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
-    @jots_heading = $('#jots-heading')
-    @jots_heading_text = $('#jots-heading .heading-text')
+    @jots_heading = $('h2#jots-heading')
+    @jots_heading_text = $('h2#jots-heading .heading-text')
     @jots_wrapper = $('#jots-wrapper')
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_temp_entry_template = $('#jot-temp-entry-template')

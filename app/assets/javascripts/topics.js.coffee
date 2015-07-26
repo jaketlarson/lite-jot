@@ -3,14 +3,28 @@
 class window.Topics extends LiteJot
   constructor: (@lj) ->
     @initVars()
+    @initScrollBind()
     @initDeleteTopicModalBinds()
 
   initVars: =>
+    @topics_heading = $('h2#topics-heading')
     @topics_column = $('#topics-column')
     @topics_wrapper = $('#topics-wrapper')
     @topics_list = $('ul#topics-list')
     @new_topic_form_wrap = null
     @new_topic_title = null
+
+  initScrollBind: =>
+    @topics_wrapper.scroll =>
+      @checkScrollPosition()
+
+  checkScrollPosition: =>
+    console.log 0
+    if @topics_wrapper.scrollTop() > 0
+      console.log 'wow'
+      @topics_heading.addClass('is-scrolled-from-top')
+    else
+      @topics_heading.removeClass('is-scrolled-from-top')
 
   initDeleteTopicModalBinds: =>
     $('#delete-topic-modal').keydown (e) =>
