@@ -1,12 +1,25 @@
-h3 Settings
+.user-edit-modal
+  h3 Settings
 
-== simple_form_for current_user, :url => registration_path(current_user), :html => { :method => :put } do |edit|
-  == edit.input :display_name, :label => false
-  == edit.input :email, :label => false
-  == edit.input :password, :label => false
-  == edit.input :password_confirmation, :label => false
-  == edit.input :current_password, :label => false
+  div class="alert-error"
+    i.fa.fa-exclamation-circle.fa-lg
+    span.error-text
 
-.actions
-  button.primary.confirm Save Changes
-  button.secondary.cancel Cancel
+  == simple_form_for current_user, :url => registration_path(current_user), :html => { :method => :put } do |edit|
+    == edit.input :display_name
+    == edit.input :email, :disabled => true
+
+    - if current_user.auth_provider.blank?
+      == edit.input :password
+      == edit.input :password_confirmation
+
+  .actions
+    button.primary.confirm
+      .default-text Save Changes
+      .loading-text
+        i.fa.fa-spinner.fa-spin
+      .success-text
+        i.fa.fa-check
+        |Saved
+
+    button.secondary.cancel Cancel

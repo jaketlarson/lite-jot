@@ -28,13 +28,3 @@ en:
       short_this_week: "%a"
       short_today: "%l:%M%P"
 
-  simple_form:
-    placeholders:
-      jot:
-        content: "Press Return to save. Shift + Return for new line."
-
-      topic:
-        title: "Enter a topic title"
-
-      folder:
-        title: "Enter a folder title"

@@ -23,7 +23,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       if !resource.errors.empty?
         error_messages = ""
         resource.errors.each do |key, value|
-          error_messages += "#{key.capitalize} #{value}<br />"
+          error_messages += "#{User.human_attribute_name(key)} #{value}<br />"
         end
         set_flash_message :error, error_messages
       end

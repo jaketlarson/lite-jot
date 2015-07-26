@@ -36,3 +36,14 @@ en:
         password: 'Password'
         password_confirmation: 'Confirm password'
         email: 'Email address'
+      jot:
+        content: "Press Return to save. Shift + Return for new line."
+      topic:
+        title: "Enter a topic title"
+      folder:
+        title: "Enter a folder title"
+
+    labels:
+      user:
+        display_name: Display Name
+        email: Email

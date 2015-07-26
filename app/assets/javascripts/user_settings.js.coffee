@@ -6,34 +6,68 @@ class window.UserSettings extends LiteJot
     @initUserSettingsModalBind()
 
   initVars: =>
-    @user_settings_modal = $('#user-settings-modal')
-    @user_settings_modal_link = $('nav a#user-settings-modal-link')
-    @user_settings_modal_template = $('#user-settings-modal-template')
+    @modal = $('#user-settings-modal')
+    @modal_link = $('nav a#user-settings-modal-link')
+    @modal_template = $('#user-settings-modal-template')
+    @waiting = false
+    @success_text_time = 2000
+
+  initModalInstanceVars: =>
+    @form = @modal.find('form.edit_user')
+    @submit_button = @modal.find('button.confirm')
+    @submit_text = @submit_button.find('.default-text')
+    @loading_text = @submit_button.find('.loading-text')
+    @success_text = @submit_button.find('.success-text')
+    @error_wrap = @modal.find('.alert-error')
+    @error_text = @modal.find('.error-text')
+
 
   initUserSettingsModalBind: =>
-    @user_settings_modal_link.click (e) =>
+    @modal_link.click (e) =>
       e.preventDefault()
 
-      @user_settings_modal.foundation 'reveal', 'open'
-      @user_settings_modal.html(@user_settings_modal_template.html())
+      @modal.foundation 'reveal', 'open'
+      @modal.html(@modal_template.html())
+      @initModalInstanceVars()
 
-      @user_settings_modal.find('.cancel').click =>
-        @user_settings_modal.foundation 'reveal', 'close'
+      @modal.find('.cancel').click =>
+        @modal.foundation 'reveal', 'close'
 
-      @user_settings_modal.find('.confirm').click =>
+      @modal.find('.confirm').click (e) =>
         @saveSettings()
 
   saveSettings: =>
-    @user_settings_form = @user_settings_modal.find('form.edit_user')
+    @submit_text.hide()
+    @success_text.hide()
+    @loading_text.show()
+    clearTimeout(@success_text_timeout)
 
     $.ajax(
       type: 'PATCH'
-      url: @user_settings_form.attr('action')
-      data: @user_settings_form.serialize()
+      url: @form.attr('action')
+      data: @form.serialize()
 
       success: (data) =>
-        console.log data
+        @handleSuccess(data)
 
       error: (data) =>
-        console.log data
+        @handleError(data)
     )
+
+  handleSuccess: (data) =>
+    #data.user
+    @success_text.show()
+    @loading_text.hide()
+    @submit_button.addClass 'success'
+
+    @success_text_timeout = setTimeout(() =>
+      @success_text.hide()
+      @submit_text.show()
+      @submit_button.removeClass 'success'
+    , @success_text_time)
+
+  handleError: (data) =>
+    @error_text.html(data.responseJSON.user.errors)
+    @error_wrap.show()
+    @submit_text.show()
+    @loading_text.hide()

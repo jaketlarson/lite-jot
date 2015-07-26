@@ -13,10 +13,17 @@ class User < ActiveRecord::Base
     :presence => true,
     :length => {
       :minimum => 3,
-      :maxmium => 16
+      :maximum => 16
     },
     :uniqueness => true
   }
+
+  validate :freeze_email, :on => :update
+
+  def freeze_email
+    errors.add(:email, 'cannot be changed') if self.email_changed?
+  end
+
   def self.find_for_google_oauth2(access_token)
       data = access_token.info
       user = User.where(:email => data['email']).first
