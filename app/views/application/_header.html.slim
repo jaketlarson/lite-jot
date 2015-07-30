@@ -4,7 +4,9 @@ nav.top-bar data-topbar='true' role='navigation'
     li.name
       == link_to "/" do
         h1
-          a href='/' Lite&nbsp;Jot
+          a href='/'
+            = image_tag('feather-white-small.png')
+            |Lite&nbsp;Jot
 
     li.toggle-topbar.menu-icon
       a href='#'
