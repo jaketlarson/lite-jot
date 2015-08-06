@@ -53,7 +53,7 @@ class window.Jots extends LiteJot
         @submitNewJot()
 
     @new_jot_content.keydown (e) =>
-      if e.keyCode == @lj.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
+      if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
         e.preventDefault()
         @new_jot_form.submit()
 

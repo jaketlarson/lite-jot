@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   get 'notifications/calendar' => 'notifications#calendar'
   resources :notifications
 
-  get '/load-data' => 'folders#index'
+  get '/load-data' => 'application#load_data'
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

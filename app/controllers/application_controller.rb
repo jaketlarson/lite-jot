@@ -5,6 +5,31 @@ class ApplicationController < ActionController::Base
 
   include ActionController::Serialization
 
+  def load_data
+    folders = current_user.folders.order('updated_at desc')
+    topics = current_user.topics.order('updated_at desc')
+    jots = current_user.jots
+    shares = current_user.shares
+
+    data = {
+      :folders => ActiveModel::ArraySerializer.new(folders, each_serializer: FolderSerializer),
+      :topics => ActiveModel::ArraySerializer.new(topics, each_serializer: TopicSerializer),
+      :jots => ActiveModel::ArraySerializer.new(jots, each_serializer: JotSerializer),
+      :shares => ActiveModel::ArraySerializer.new(shares, each_serializer: ShareSerializer)
+
+    }
+
+
+    render :json => data.to_json
+    # render :json => topics, :each_serializer => TopicSerializer
+
+    # render :json => folders, :each_serializer => FolderSerializer
+    
+    # render :json => jots, :each_serializer => JotSerializer
+
+    # render :json => shares, :each_serializer => ShareSerializer
+  end
+
   protected
 
   def configure_permitted_parameters

@@ -54,9 +54,6 @@ class window.LiteJot
   initVars: =>
     @app = {} # all loaded app data goes here
 
-    @key_codes =
-      enter: 13
-
     @setViewport()
 
   setViewport: =>
@@ -86,92 +83,22 @@ class window.LiteJot
     , 500)
 
   loadDataFromServer: =>
-    folders_loaded = false
-    topics_loaded = false
-    jots_loaded = false
-    shares_loaded = false
+    $.ajax(
+      type: 'GET'
+      url: '/load-data'
+      success: (data) =>
+        console.log data
+        @app.folders = data.folders
+        @app.topics = data.topics
+        @app.jots = data.jots
+        @app.shares = data.shares
 
-    # $.ajax(
-    #   type: 'GET'
-    #   url: '/load-data'
-    #   success: (data) =>
-    #     console.log data
-    #     @app.folders = data.folders
-    #     @app.topics = data.topics
-    #     @app.jots = data.jots
-
-    #     @buildUI()
-
-    #   error: (data) =>
-    #     console.log data
-    # )
-
-    loadFolders = =>
-      $.ajax(
-        type: 'GET'
-        url: '/folders'
-        success: (data) =>
-          console.log data
-          @app.folders = data.folders
-          folders_loaded = true
-          checkLoadStatus()
-
-        error: (data) =>
-          console.log data
-      )
-
-    loadTopics = =>
-      $.ajax(
-        type: 'GET'
-        url: '/topics'
-        success: (data) =>
-          console.log data
-          @app.topics = data.topics
-          topics_loaded = true
-          checkLoadStatus()
-
-        error: (data) =>
-          console.log data
-      )
-
-    loadJots = =>
-      $.ajax(
-        type: 'GET'
-        url: '/jots'
-        success: (data) =>
-          console.log data
-          @app.jots = data.jots
-          jots_loaded = true
-          checkLoadStatus()
-
-        error: (data) =>
-          console.log data
-      )
-
-    loadShares = =>
-      $.ajax(
-        type: 'GET'
-        url: '/shares'
-        success: (data) =>
-          console.log data
-          @app.shares = data.shares
-          shares_loaded = true
-          checkLoadStatus()
-
-        error: (data) =>
-          console.log data
-      )
-
-    checkLoadStatus = =>
-      if folders_loaded && topics_loaded && jots_loaded && shares_loaded
-        console.log 'done'
         @buildUI()
         @initNotifications()
 
-    loadFolders()
-    loadTopics()
-    loadJots()
-    loadShares()
+      error: (data) =>
+        console.log data
+    )
 
   buildUI: (organize_dom=true) =>
     @folders.buildFoldersList()
