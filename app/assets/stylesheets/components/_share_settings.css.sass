@@ -1,0 +1,166 @@
+#share-modal
+  user-select: none
+  -webkit-user-select: none
+
+  h4, h5, .label-text
+    font-size: .9rem
+    font-weight: bold
+    font-family: 'Monda'
+
+  h4
+    margin-bottom: .7rem
+    text-transform: uppercase
+
+    a.new-share-link
+      display: inline
+      float: right
+
+      i
+        margin-right: .4rem
+
+      &:hover
+        color: $palette-black
+
+  form.new-share-form
+    display: none
+    width: 100%
+
+    .recipient-email-wrap
+      display: table-cell
+      width: 100%
+      vertical-align: top
+
+      input.recipient-email
+        height: rem-calc(40)
+        line-height: rem-calc(40)
+
+    .button-wrap
+      float: right
+      width: auto
+      margin-left: -1px
+
+      button
+        line-height: rem-calc(40)
+        padding: 0 1rem
+
+        &:hover
+          background-color: $palette-black
+
+        .submit-text
+          display: block
+
+        .loading
+          display: none
+
+  .alert-error
+    display: none
+    margin: 0 0 1rem 0
+    font-size: .9rem
+
+  ul.user-list
+    list-style: none
+    margin: 0
+
+    li
+      border-left: rem-calc(3) solid $primary-color
+
+      h4
+        padding: 0 1rem 0 calc(1rem - 3px)
+        line-height: 2.75rem
+        margin-bottom: rem-calc(2)
+        background-color: $palette-light-gray
+        color: $palette-black
+        overflow: auto
+        text-transform: none
+        font-family: 'Open Sans'
+        font-weight: normal
+
+        &:hover
+          background-color: $primary-color
+          color: $palette-white
+          cursor: pointer
+
+        .manage-link
+          float: right
+          font-size: .8rem
+
+          i
+            margin-left: .25rem
+            font-size: 1rem
+            vertical-align: -8%
+
+      .share-info
+        display: none
+        padding: .5rem calc(1rem - 3px)
+
+        .label-text.toggle-topics-and-delete
+          line-height: 1.5rem
+          overflow: hidden
+
+          .share-all-switch
+            float: left
+            margin-right: .8rem
+
+          .delete-link
+            float: right
+            text-transform: lowercase
+            font-weight: bold
+
+            i
+              margin-right: .3rem
+
+        h5
+          margin-top: .75rem 0 .25rem 0
+
+
+        ul.topics
+          list-style: none
+          margin: 0
+
+          li
+            border: 0
+            overflow: auto
+            padding: .3rem 0
+            cursor: pointer
+            font-size: .9rem
+
+            .topic-check
+              float: right
+              width: rem-calc(21)
+
+              i
+                font-size: 1.4rem
+
+              &[data-checked='true']
+                i.is-checked
+                  display: block
+                i.not-checked
+                  display: none
+
+              &[data-checked='false']
+                i.is-checked
+                  display: none
+                i.not-checked
+                  display: block
+
+            &:hover
+              color: $primary-color
+
+
+      &.active
+        border-right: rem-calc(3) solid $primary-color
+        border-bottom: rem-calc(4) solid $primary-color
+
+        h4
+          background-color: $primary-color
+          color: $palette-white
+          padding-right: calc(1rem - 3px)
+
+          .manage-link i
+            transform: rotate(180deg)
+            vertical-align: -10%
+
+        .share-info
+          display: block
+
+

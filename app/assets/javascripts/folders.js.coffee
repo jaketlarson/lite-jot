@@ -66,8 +66,9 @@ class window.Folders extends LiteJot
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>
-                    <i class='fa fa-pencil edit' data-edit />
-                    <i class='fa fa-trash delete' data-delete />
+                    <i class='fa fa-share share' data-share title='Share folder' />
+                    <i class='fa fa-pencil edit' data-edit title='Edit folder' />
+                    <i class='fa fa-trash delete' data-delete title='Delete folder' />
                   </li>"
 
     if append
@@ -103,8 +104,12 @@ class window.Folders extends LiteJot
     @folders_list.find("li:not(.new-folder-form-wrap)[data-folder='#{folder_id}']").click (e) =>
       @selectFolder($(e.currentTarget).data('folder'))
 
+    @folders_list.find("li[data-folder='#{folder_id}'] [data-share]").click (e) =>
+      new ShareSettings @lj, folder_id
+      return false
+
     @folders_list.find("li[data-folder='#{folder_id}'] [data-edit]").click (e) =>
-      @editFolder(folder_id)
+      @editFolder folder_id 
       return false
 
     @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
@@ -140,7 +145,7 @@ class window.Folders extends LiteJot
   submitNewFolder: =>
     @lj.key_controls.clearKeyedOverData()
     folder_title = @new_folder_title
-    filtered_content = folder_title.val().replace(/(<([^>]+)>)/ig,'')
+    filtered_content = window.escapeHtml(folder_title.val())
 
     unless filtered_content.trim().length == 0
       folder_title.attr 'disabled', true
@@ -148,7 +153,7 @@ class window.Folders extends LiteJot
       $.ajax(
         type: 'POST'
         url: '/folders'
-        data: "title=#{filtered_content}"
+        data: "title=#{encodeURIComponent(filtered_content)}"
         success: (data) =>
           @lj.jots.endSearchState()
           @hideNewFolderForm()
@@ -212,7 +217,7 @@ class window.Folders extends LiteJot
     input = elem.find('input.input-edit')
     title = elem.find('.title')
     folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
-    input.val(title.html())
+    input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
     input.focus()
 
@@ -229,7 +234,7 @@ class window.Folders extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        filtered_input = input.val().replace(/(<([^>]+)>)/ig,'')
+        filtered_input = window.escapeHtml(input.val())
         folder_object.title = filtered_input
         elem.attr('data-editing', 'false')
         title.html(filtered_input)
@@ -238,7 +243,7 @@ class window.Folders extends LiteJot
         $.ajax(
           type: 'PATCH'
           url: "/folders/#{id}"
-          data: "title=#{filtered_input}"
+          data: "title=#{encodeURIComponent(filtered_input)}"
 
           success: (data) =>
             console.log data

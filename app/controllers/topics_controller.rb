@@ -35,7 +35,7 @@ class TopicsController < ApplicationController
   end
 
   def update
-    topic = Topic.find(params[:id])
+    topic = current_user.topics.find(params[:id])
 
     # temporarily turn off since updated_at controls order of topics in UI
     Topic.record_timestamps = false
@@ -50,7 +50,7 @@ class TopicsController < ApplicationController
   end
 
   def destroy
-    topic = Topic.find(params[:id])
+    topic = current_user.topics.find(params[:id])
     if topic.destroy
       render :json => {:success => true}
     else

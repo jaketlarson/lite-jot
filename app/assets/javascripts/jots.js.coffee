@@ -171,7 +171,7 @@ class window.Jots extends LiteJot
     @search_input.focus()
 
   submitNewJot: =>
-    content = @new_jot_content.val().replace(/(<([^>]+)>)/ig,'')
+    content = window.escapeHtml(@new_jot_content.val())
 
     if content.trim().length > 0
       @endSearchState false
@@ -184,7 +184,7 @@ class window.Jots extends LiteJot
       $.ajax(
         type: 'POST'
         url: @new_jot_form.attr('action')
-        data: "content=#{content}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
+        data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
         success: (data) =>
           @lj.app.jots.push data.jot
           @integrateTempJot data.jot, key
@@ -238,8 +238,8 @@ class window.Jots extends LiteJot
     elem = @jots_list.find("##{key}")
     elem.removeClass('temp').attr('data-jot', jot.id)
 
-    to_insert = "<i class='fa fa-edit edit' />
-                <i class='fa fa-trash delete' />
+    to_insert = "<i class='fa fa-edit edit' title='Edit jot' />
+                <i class='fa fa-trash delete' title='Delete jot' />
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
                 </div>"
@@ -254,8 +254,8 @@ class window.Jots extends LiteJot
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
     @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>
-                        <i class='fa fa-edit edit' />
-                        <i class='fa fa-trash delete' />
+                        <i class='fa fa-edit edit' title='Edit jot' />
+                        <i class='fa fa-trash delete' title='Delete jot' />
                         <div class='content'>
                           #{jot_content}
                         </div>
@@ -337,7 +337,7 @@ class window.Jots extends LiteJot
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
-    raw_content = jot_object.content
+    raw_content = window.unescapeHtml(jot_object.content)
     submitted_edit = false
 
     $('body').append("<div id='edit-overlay'><h1>Editing Jot</h1></div>")
@@ -354,7 +354,7 @@ class window.Jots extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        updated_content = @new_jot_content.val().replace(/(<([^>]+)>)/ig,'')
+        updated_content = window.escapeHtml(@new_jot_content.val())
         jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
         
         $('#edit-overlay').remove()
@@ -372,7 +372,7 @@ class window.Jots extends LiteJot
           $.ajax(
             type: 'PATCH'
             url: "/jots/#{id}"
-            data: "content=#{updated_content}"
+            data: "content=#{encodeURIComponent(updated_content)}"
 
             success: (data) =>
               jot_object.content = data.content

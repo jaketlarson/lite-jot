@@ -41,9 +41,12 @@ build/
 /log/*.log
 /tmp
 
-config/secrets.yml
-config/database.yml
-
 public/assets
 
 *DS_Store
+
+config/secrets.yml
+config/database.yml
+
+development.db
+

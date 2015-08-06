@@ -19,9 +19,7 @@ class window.Topics extends LiteJot
       @checkScrollPosition()
 
   checkScrollPosition: =>
-    console.log 0
     if @topics_wrapper.scrollTop() > 0
-      console.log 'wow'
       @topics_heading.addClass('is-scrolled-from-top')
     else
       @topics_heading.removeClass('is-scrolled-from-top')
@@ -85,8 +83,8 @@ class window.Topics extends LiteJot
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>
-                    <i class='fa fa-pencil edit' data-edit />
-                    <i class='fa fa-trash delete' data-delete />
+                    <i class='fa fa-pencil edit' data-edit title='Edit topic' />
+                    <i class='fa fa-trash delete' data-delete title='Delete topic' />
                   </li>"
 
     if append
@@ -149,7 +147,7 @@ class window.Topics extends LiteJot
     input = elem.find('input.input-edit')
     title = elem.find('.title')
     topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
-    input.val(title.html())
+    input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
     input.focus()
 
@@ -166,7 +164,7 @@ class window.Topics extends LiteJot
     finishEditing = =>
       if !submitted_edit
         submitted_edit = true
-        filtered_input = input.val().replace(/(<([^>]+)>)/ig,'')
+        filtered_input = window.escapeHtml(input.val())
         topic_object.title = filtered_input
         elem.attr('data-editing', 'false')
         title.html(filtered_input)
@@ -175,7 +173,7 @@ class window.Topics extends LiteJot
         $.ajax(
           type: 'PATCH'
           url: "/topics/#{id}"
-          data: "title=#{filtered_input}"
+          data: "title=#{encodeURIComponent(filtered_input)}"
 
           success: (data) =>
             console.log data
@@ -278,7 +276,7 @@ class window.Topics extends LiteJot
   submitNewTopic: =>
     @lj.key_controls.clearKeyedOverData()
     topic_title = @new_topic_title
-    filtered_content = topic_title.val().replace(/(<([^>]+)>)/ig,'')
+    filtered_content = window.escapeHtml(topic_title.val())
 
     unless filtered_content.trim().length == 0
       @lj.jots.new_jot_content.focus()
@@ -287,7 +285,7 @@ class window.Topics extends LiteJot
       $.ajax(
         type: 'POST'
         url: '/topics'
-        data: "title=#{filtered_content}&folder_id=#{@lj.app.current_folder}"
+        data: "title=#{encodeURIComponent(filtered_content)}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
           @lj.jots.endSearchState()
           @hideNewTopicForm()

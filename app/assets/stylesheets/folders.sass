@@ -82,7 +82,7 @@ ul#folders-list
         input#folder_title
           margin: 0
 
-    i.edit, i.delete
+    i.edit, i.delete, i.share
       font-size: .8rem
       position: absolute
       display: none
@@ -101,6 +101,9 @@ ul#folders-list
 
     i.edit
       right: 2.5rem
+
+    i.share
+      right: 4.6rem
 
     .input-edit-wrap
       position: absolute
@@ -127,7 +130,7 @@ ul#folders-list
       cursor: pointer
       color: $palette-white
 
-      i.edit, i.delete
+      i.edit, i.delete, i.share
         display: block
 
     &[data-editing='true']

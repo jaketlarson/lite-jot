@@ -8,14 +8,14 @@ class User < ActiveRecord::Base
   has_many :folders
   has_many :topics
   has_many :jots
+  has_many :shares, :foreign_key => 'owner_id'
 
   validates :display_name, {
     :presence => true,
     :length => {
       :minimum => 3,
       :maximum => 16
-    },
-    :uniqueness => true
+    }
   }
 
   validate :freeze_email, :on => :update

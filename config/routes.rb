@@ -22,6 +22,8 @@ Rails.application.routes.draw do
 
   resources :jots
 
+  resources :shares
+
   get 'notifications/calendar' => 'notifications#calendar'
   resources :notifications
 

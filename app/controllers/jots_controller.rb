@@ -73,7 +73,7 @@ class JotsController < ApplicationController
   end
 
   def update
-    jot = Jot.find(params[:id])
+    jot = current_user.jots.find(params[:id])
 
     if jot.content != params[:content] && !params[:content].nil?
       topic = current_user.topics.find(jot.topic_id)
@@ -91,7 +91,7 @@ class JotsController < ApplicationController
   end
 
   def destroy
-    jot = Jot.find(params[:id])
+    jot = current_user.jots.find(params[:id])
 
     if jot.destroy
       render :json => {:success => true}

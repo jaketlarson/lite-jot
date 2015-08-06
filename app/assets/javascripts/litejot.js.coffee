@@ -13,6 +13,17 @@ window.randomKey = =>
 
   return build_key;
 
+# escapeHtml/unescapeHtml: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+window.escapeHtml = (str) ->
+  div = document.createElement('div')
+  div.appendChild document.createTextNode(str)
+  div.innerHTML
+window.unescapeHtml = (escapedStr) ->
+  div = document.createElement('div')
+  div.innerHTML = escapedStr
+  child = div.childNodes[0]
+  if child then child.nodeValue else ''
+
 $ ->
   if $('body#pages-dashboard').length > 0
     window.lj = {
@@ -78,6 +89,7 @@ class window.LiteJot
     folders_loaded = false
     topics_loaded = false
     jots_loaded = false
+    shares_loaded = false
 
     # $.ajax(
     #   type: 'GET'
@@ -136,8 +148,22 @@ class window.LiteJot
           console.log data
       )
 
+    loadShares = =>
+      $.ajax(
+        type: 'GET'
+        url: '/shares'
+        success: (data) =>
+          console.log data
+          @app.shares = data.shares
+          shares_loaded = true
+          checkLoadStatus()
+
+        error: (data) =>
+          console.log data
+      )
+
     checkLoadStatus = =>
-      if folders_loaded && topics_loaded && jots_loaded
+      if folders_loaded && topics_loaded && jots_loaded && shares_loaded
         console.log 'done'
         @buildUI()
         @initNotifications()
@@ -145,6 +171,7 @@ class window.LiteJot
     loadFolders()
     loadTopics()
     loadJots()
+    loadShares()
 
   buildUI: (organize_dom=true) =>
     @folders.buildFoldersList()

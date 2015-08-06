@@ -12,4 +12,5 @@
 //= require notifications
 //= require clock
 //= require calendar
+//= require share_settings
 //= require litejot

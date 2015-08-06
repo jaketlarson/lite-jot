@@ -1,5 +1,19 @@
-.reveal-modal#delete-topic-modal, .reveal-modal#delete-folder-modal, .reveal-modal#user-settings-modal
+.reveal-modal#delete-topic-modal, .reveal-modal#delete-folder-modal, .reveal-modal#user-settings-modal, .reveal-modal#share-modal
   max-width: 40rem
 
 .modal-template
   display: none
+
+.reveal-modal
+  > h3:first-child
+    margin-top: rem-calc(-30)
+
+  h3
+    margin: rem-calc(-30) rem-calc(-30) 1.5rem rem-calc(-30)
+    padding: .75rem rem-calc(30)
+    background-color: $primary-color
+    color: $palette-white
+    font-size: 1.25rem
+
+  &:focus
+    outline: 0

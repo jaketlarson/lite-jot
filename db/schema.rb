@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150705181419) do
+ActiveRecord::Schema.define(version: 20150806020621) do
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -29,6 +29,16 @@ ActiveRecord::Schema.define(version: 20150705181419) do
     t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "shares", force: true do |t|
+    t.integer  "folder_id"
+    t.boolean  "is_all_topics"
+    t.text     "specific_topics"
+    t.integer  "recipient_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "owner_id"
   end
 
   create_table "topics", force: true do |t|
