@@ -78,4 +78,9 @@ class User < ActiveRecord::Base
       :auth_token_expiration => DateTime.now + expiration.seconds,
     )
   end
+
+  def owned_and_shared_folders
+    Folder.includes(:shares).where("user_id = ? OR shares.recipient_id = ?", self.id, self.id).order('folders.updated_at ASC').references(:shares)
+  end
+
 end

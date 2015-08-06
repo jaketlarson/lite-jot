@@ -6,9 +6,37 @@ class ApplicationController < ActionController::Base
   include ActionController::Serialization
 
   def load_data
-    folders = current_user.folders.order('updated_at desc')
-    topics = current_user.topics.order('updated_at desc')
-    jots = current_user.jots
+    folders = current_user.owned_and_shared_folders
+    topics = []
+    jots = []
+
+    #topics = current_user.topics.order('updated_at desc')
+    # collect topics & jots
+    folders.each do |folder|
+      folder.topics.each do |topic|
+        if current_user.id != topic.user_id
+          share = Share.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+          if !share.is_all_topics
+            if share.specific_topics
+              if !share.specific_topics.include?(topic.id.to_s)
+                next
+              end
+            end
+          end
+        end
+
+        topics << topic
+      end
+    end
+
+    # collect jots
+    topics.each do |topic|
+      topic.jots.each do |jot|
+        jots << jot
+      end
+
+    end
+
     shares = current_user.shares
 
     data = {
@@ -16,7 +44,6 @@ class ApplicationController < ActionController::Base
       :topics => ActiveModel::ArraySerializer.new(topics, each_serializer: TopicSerializer),
       :jots => ActiveModel::ArraySerializer.new(jots, each_serializer: JotSerializer),
       :shares => ActiveModel::ArraySerializer.new(shares, each_serializer: ShareSerializer)
-
     }
 
     render :json => data.to_json
