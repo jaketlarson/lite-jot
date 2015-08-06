@@ -19,15 +19,7 @@ class ApplicationController < ActionController::Base
 
     }
 
-
     render :json => data.to_json
-    # render :json => topics, :each_serializer => TopicSerializer
-
-    # render :json => folders, :each_serializer => FolderSerializer
-    
-    # render :json => jots, :each_serializer => JotSerializer
-
-    # render :json => shares, :each_serializer => ShareSerializer
   end
 
   protected
