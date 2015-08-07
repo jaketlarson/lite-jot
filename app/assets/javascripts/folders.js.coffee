@@ -65,11 +65,13 @@ class window.Folders extends LiteJot
                     <span class='title'>#{folder.title}</span>
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
-                    </div>
-                    <i class='fa fa-share share' data-share title='Share folder' />
+                    </div>"
+
+    if folder.has_manage_permissions
+      build_html += "<i class='fa fa-share share' data-share title='Share folder' />
                     <i class='fa fa-pencil edit' data-edit title='Edit folder' />
-                    <i class='fa fa-trash delete' data-delete title='Delete folder' />
-                  </li>"
+                    <i class='fa fa-trash delete' data-delete title='Delete folder' />"
+    build_html += "</li>"
 
     if append
       @folders_list.append build_html
@@ -217,6 +219,11 @@ class window.Folders extends LiteJot
     input = elem.find('input.input-edit')
     title = elem.find('.title')
     folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
+
+    if !folder_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to modify this folder.', 'error')
+      return
+    
     input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
     input.focus()
@@ -246,14 +253,22 @@ class window.Folders extends LiteJot
           data: "title=#{encodeURIComponent(filtered_input)}"
 
           success: (data) =>
-            console.log data
+            new HoverNotice(@lj, 'Folder updated.', 'success')
 
           error: (data) =>
-            console.log data
+            unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+              new HoverNotice(@lj, data.responseJSON.error, 'error')
+            else
+              new HoverNotice(@lj, 'Could not update folder.', 'error')
         )
 
   deleteFolderPrompt: (target) =>
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
+    folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
+
+    if !folder_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to delete this folder.', 'error')
+      return
 
     $('#delete-folder-modal').foundation 'reveal', 'open'
     $('#delete-folder-modal').html($('#delete-folder-modal-template').html()).attr('data-folder-id', id)

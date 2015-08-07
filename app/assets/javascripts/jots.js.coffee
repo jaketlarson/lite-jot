@@ -198,19 +198,12 @@ class window.Jots extends LiteJot
             @lj.topics.hideNewTopicForm()
             @lj.topics.pushTopicIntoData data.auto_topic
 
+          # reset new jot form
+          @new_jot_content.val('')
+
         error: (xhr, textStatus, errorThrown) =>
-
-          if textStatus == 'timeout' # test this 
-            console.log 'retrying!'
-            $.ajax(this)
-            return
-
-          if xhr.status == 500
-            # add error handling
-
-          else
-            # add error handling
-
+          new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
+          @rollbackTempJot()
       )
 
       if @lj.app.folders.length > 1
@@ -219,9 +212,10 @@ class window.Jots extends LiteJot
       if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 1
         @lj.topics.moveCurrentTopicToTop()
 
-      # reset new jot form
       @clearJotEntryTemplate()
-      @new_jot_content.val('')
+
+  rollbackTempJot: =>
+    @jots_list.find('li.temp').remove()
 
   insertTempJotElem: (content, key) =>
     content = content.replace /\n/g, '<br />'
@@ -253,17 +247,20 @@ class window.Jots extends LiteJot
     jot_content = jot.content.replace /\n/g, '<br />'
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
-    @jots_list.append("<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>
-                        <i class='fa fa-edit edit' title='Edit jot' />
-                        <i class='fa fa-trash delete' title='Delete jot' />
-                        <div class='content'>
-                          #{jot_content}
-                        </div>
-                        <div class='input-edit-wrap'>
-                          <input type='text' class='input-edit' />
-                        </div>
-                      </li>")
+    build_html = "<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>"
+    
+    if jot.has_manage_permissions
+      build_html += "<i class='fa fa-edit edit' title='Edit jot' />
+                    <i class='fa fa-trash delete' title='Delete jot' />
+                    <div class='input-edit-wrap'>
+                      <input type='text' class='input-edit' />
+                    </div>"
 
+    build_html += "<div class='content'>
+                    #{jot_content}
+                  </div>
+                </li>"
+    @jots_list.append(build_html)
     @setTimestamp jot
     @initJotBinds jot.id
 
@@ -309,13 +306,11 @@ class window.Jots extends LiteJot
     is_flagged = elem.hasClass('flagged') ? true : false
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
 
-    unless is_flagged
-      jot_object.is_flagged = true
-      elem.addClass('flagged')
+    if !jot_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to flag this jot.', 'error')
+      return
 
-    else
-      jot_object.is_flagged = false
-      elem.removeClass('flagged')
+    @toggleFlagClientSide(jot_object)
 
     @setTimestamp (jot_object)
 
@@ -329,14 +324,35 @@ class window.Jots extends LiteJot
         console.log data
 
       error: (data) =>
-        console.log data
+        @toggleFlagClientSide(jot_object)
+        unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not flag jot.', 'error')
     )
+
+  toggleFlagClientSide: (jot) =>
+    elem = $("li[data-jot='#{jot.id}']")
+    is_flagged = elem.hasClass('flagged') ? true : false
+
+    unless is_flagged
+      jot.is_flagged = true
+      elem.addClass('flagged')
+
+    else
+      jot.is_flagged = false
+      elem.removeClass('flagged')
 
 
   editJot: (id) =>
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+
+    if !jot_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to edit this jot.', 'error')
+      return
+
     raw_content = window.unescapeHtml(jot_object.content)
     submitted_edit = false
 
@@ -381,11 +397,18 @@ class window.Jots extends LiteJot
               jot_object.updated_at = data.updated_at
               @setTimestamp jot_object
 
+              new HoverNotice(@lj, 'Jot updated.', 'success')
+
             error: (data) =>
               console.log data
           )
 
   deleteJot: (id) =>
+    jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+    if !jot_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to delete this jot.', 'error')
+      return
+
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleting', 'true')
 

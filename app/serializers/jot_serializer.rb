@@ -1,5 +1,6 @@
 class JotSerializer < ActiveModel::Serializer
-  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged
+  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions
+  delegate :current_user, to: :scope
 
   def created_at_short
     return nil if object.created_at.nil?
@@ -30,5 +31,18 @@ class JotSerializer < ActiveModel::Serializer
 
   def updated_at
     return nil if object.updated_at.nil? else I18n.l(object.updated_at)
+  end
+
+  def has_manage_permissions
+    if object.user_id == scope.id
+      return true
+    else
+      folder = Folder.find(object.folder_id)
+      if folder.user_id == scope.id
+        return true
+      else
+        return false
+      end
+    end
   end
 end

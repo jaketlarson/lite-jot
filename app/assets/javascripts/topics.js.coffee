@@ -82,10 +82,12 @@ class window.Topics extends LiteJot
                     <span class='title'>#{topic.title}</span>
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
-                    </div>
-                    <i class='fa fa-pencil edit' data-edit title='Edit topic' />
-                    <i class='fa fa-trash delete' data-delete title='Delete topic' />
-                  </li>"
+                    </div>"
+    if topic.has_manage_permissions
+      build_html += "<i class='fa fa-pencil edit' data-edit title='Edit topic' />
+                    <i class='fa fa-trash delete' data-delete title='Delete topic' />"
+    
+    build_html += "</li>"
 
     if append
       @topics_list.append build_html
@@ -147,6 +149,11 @@ class window.Topics extends LiteJot
     input = elem.find('input.input-edit')
     title = elem.find('.title')
     topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
+
+    if !topic_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to modify this topic.', 'error')
+      return
+
     input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
     input.focus()
@@ -184,6 +191,11 @@ class window.Topics extends LiteJot
 
   deleteTopicPrompt: (target) =>
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
+    topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
+
+    if !topic_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to delete this topic.', 'error')
+      return
 
     $('#delete-topic-modal').foundation 'reveal', 'open'
     $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
@@ -230,7 +242,7 @@ class window.Topics extends LiteJot
 
     vanish = =>
       elem.attr('data-deleted', 'true')
-      console.log 'vanishing'
+
       setTimeout(() =>
         topic_key = null
         $.each @lj.app.topics, (index, topic) =>
@@ -298,6 +310,8 @@ class window.Topics extends LiteJot
           @lj.jots.endSearchState()
           @hideNewTopicForm()
 
+          console.log data
+
           @pushTopicIntoData data.topic
 
           if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
@@ -325,6 +339,11 @@ class window.Topics extends LiteJot
     @initTopicBinds topic.id
 
   showNewTopicForm: =>
+    folder_object = @lj.app.folders.filter((folder) => folder.id == @lj.app.current_folder)[0]
+    if !folder_object.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to create topics within this folder.', 'error')
+      return
+
     @new_topic_form_wrap.show().attr('data-hidden', 'false')
 
   hideNewTopicForm: =>

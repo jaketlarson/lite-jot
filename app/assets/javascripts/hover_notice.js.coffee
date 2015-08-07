@@ -3,10 +3,14 @@
 class window.HoverNotice extends LiteJot
   constructor: (@lj, @message, @type=null) ->
     @initVars()
+    @hideAllNotices()
     @buildNotice()
 
   initVars: =>
     @timer_seconds = 3000
+
+  hideAllNotices: =>
+    $('.hover-notice').hide()
 
   buildNotice: =>
     random_suffix = window.randomKey()

@@ -40,10 +40,10 @@ class ApplicationController < ActionController::Base
     shares = current_user.shares
 
     data = {
-      :folders => ActiveModel::ArraySerializer.new(folders, each_serializer: FolderSerializer),
-      :topics => ActiveModel::ArraySerializer.new(topics, each_serializer: TopicSerializer),
-      :jots => ActiveModel::ArraySerializer.new(jots, each_serializer: JotSerializer),
-      :shares => ActiveModel::ArraySerializer.new(shares, each_serializer: ShareSerializer)
+      :folders => ActiveModel::ArraySerializer.new(folders, :each_serializer => FolderSerializer, :scope => current_user),
+      :topics => ActiveModel::ArraySerializer.new(topics, :each_serializer => TopicSerializer, :scope => current_user),
+      :jots => ActiveModel::ArraySerializer.new(jots, :each_serializer => JotSerializer, :scope => current_user),
+      :shares => ActiveModel::ArraySerializer.new(shares, :each_serializer => ShareSerializer, :scope => current_user)
     }
 
     render :json => data.to_json

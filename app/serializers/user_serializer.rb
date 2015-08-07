@@ -1,6 +1,6 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :display_name, :email, :errors
-
+  attributes :id, :display_name, :email, :errors, :user_id
+  
   def errors
     error_text = ""
     object.errors.each do |key, errors|
