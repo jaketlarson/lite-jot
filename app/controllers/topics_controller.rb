@@ -50,11 +50,16 @@ class TopicsController < ApplicationController
   end
 
   def destroy
-    topic = current_user.topics.find(params[:id])
-    if topic.destroy
-      render :json => {:success => true}
+    topic = Topic.find(params[:id])
+
+    if topic.user_id == current_user.id
+      if topic.destroy
+        render :json => {:success => true, :message => "Topic and it's contents moved to trash."}
+      else
+        render :json => {:success => false, :error => "Could not delete topic."}, :status => :bad_request
+      end
     else
-      render :json => {:success => false}, :status => :bad_request
+      render :json => {:success => false, :error => "You do not have permission to delete this topic."}, :status => :bad_request
     end
   end
 

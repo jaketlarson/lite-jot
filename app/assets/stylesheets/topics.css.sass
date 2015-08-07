@@ -134,10 +134,13 @@ ul#topics-list
       .input-edit-wrap
         display: block
 
-    &[data-deleting='true']
+    &[data-keyed-over='true']
+      background-color: $keyover-color
+
+    &[data-deleted='true']
       margin-left: -200px
       opacity: 0
 
-    &[data-keyed-over='true']
-      background-color: $keyover-color
+    &[data-deleting='true']
+      opacity: .4
       

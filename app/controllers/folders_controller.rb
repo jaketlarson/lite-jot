@@ -31,11 +31,16 @@ class FoldersController < ApplicationController
   end
 
   def destroy
-    folder = current_user.folders.find(params[:id])
-    if folder.destroy
-      render :json => {:success => true}
+    folder = Folder.find(params[:id])
+
+    if folder.user_id == current_user.id
+      if folder.destroy
+        render :json => {:success => true, :message => "Folder and it's contents moved to trash."}
+      else
+        render :json => {:success => false, :error => "Could not delete jot."}, :status => :bad_request
+      end
     else
-      render :json => {:success => false}, :status => :bad_request
+      render :json => {:success => false, :error => "You do not have permission to delete this folder."}, :status => :bad_request
     end
   end
 

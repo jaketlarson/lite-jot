@@ -286,33 +286,40 @@ class window.Folders extends LiteJot
       data: {'_method': 'delete'}
 
       success: (data) =>
-        console.log data
+        new HoverNotice(@lj, data.message, 'success')
+        vanish()
 
       error: (data) =>
-        console.log data
+        elem.attr('data-deleting', false)
+        unless typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not delete folder.', 'error')
     )
 
-    setTimeout(() =>
-      folder_key = null
-      $.each @lj.app.folders, (index, folder) =>
-        if folder.id == id
-          folder_key = index
-          return false
+    vanish = =>
+      elem.attr('data-deleted', 'true')
+      setTimeout(() =>
+        folder_key = null
+        $.each @lj.app.folders, (index, folder) =>
+          if folder.id == id
+            folder_key = index
+            return false
 
-      @lj.app.folders.remove(folder_key)
-      elem.remove()
-      @lj.topics.removeTopicsInFolderFromData id
-      @sortFoldersList false
+        @lj.app.folders.remove(folder_key)
+        elem.remove()
+        @lj.topics.removeTopicsInFolderFromData id
+        @sortFoldersList false
 
-      if @lj.app.folders.length > 0
-        next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
-        @selectFolder($(next_folder_elem).data('folder'))
+        if @lj.app.folders.length > 0
+          next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
+          @selectFolder($(next_folder_elem).data('folder'))
 
-      else # they deleted the last folder
-        @newFolder()
-        @lj.topics.buildTopicsList() # will render empty topics/jots
+        else # they deleted the last folder
+          @newFolder()
+          @lj.topics.buildTopicsList() # will render empty topics/jots
 
-    , 350)
+      , 350)
 
 
   moveCurrentFolderToTop: =>

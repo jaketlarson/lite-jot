@@ -388,7 +388,6 @@ class window.Jots extends LiteJot
   deleteJot: (id) =>
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleting', 'true')
-    new HoverNotice(@lj, "Jot moved to trash.")
 
     $.ajax(
       type: 'POST'
@@ -396,25 +395,33 @@ class window.Jots extends LiteJot
       data: {'_method': 'delete'}
 
       success: (data) =>
-        console.log data
+        new HoverNotice(@lj, data.message, 'success')
+        vanish()
 
       error: (data) =>
-        console.log data
+        elem.attr('data-deleting', false)
+        unless typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not delete jot.', 'error')
+
     )
 
-    setTimeout(() =>
-      jot_key = null
-      $.each @lj.app.jots, (index, jot) =>
-        if jot.id == id
-          jot_key = index
-          return false
+    vanish = =>
+      setTimeout(() =>
+        elem.attr('data-deleted', 'true')
+        jot_key = null
+        $.each @lj.app.jots, (index, jot) =>
+          if jot.id == id
+            jot_key = index
+            return false
 
-      @lj.app.jots.remove(jot_key)
-      elem.remove()
+        @lj.app.jots.remove(jot_key)
+        elem.remove()
 
-      @checkIfJotsEmpty()
+        @checkIfJotsEmpty()
 
-    , 350)
+      , 350)
 
   checkIfJotsEmpty: =>
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0

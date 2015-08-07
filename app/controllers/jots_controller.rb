@@ -91,13 +91,18 @@ class JotsController < ApplicationController
   end
 
   def destroy
-    jot = current_user.jots.find(params[:id])
+    jot = Jot.find(params[:id])
 
-    if jot.destroy
-      render :json => {:success => true}
+    if jot.user_id == current_user.id
+      if jot.destroy
+        render :json => {:success => true, :message => "Jot moved to trash."}
+      else
+        render :json => {:success => false, :error => "Could not delete jot."}, :status => :bad_request
+      end
     else
-      render :json => {:success => false}, :status => :bad_request
+      render :json => {:success => false, :error => "You do not have permission to delete this jot."}, :status => :bad_request
     end
+
   end
 
   protected

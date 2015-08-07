@@ -199,10 +199,6 @@ form#new_jot
       &.temp
         color: $palette-gray
 
-      &[data-deleting='true']
-        margin-left: -200px
-        opacity: 0
-
       &[data-keyed-over='true']
         background-color: $keyover-color
 
@@ -214,6 +210,13 @@ form#new_jot
 
         .content, i
           color: $palette-white
+
+      &[data-deleted='true']
+        margin-left: -200px
+        opacity: 0
+
+      &[data-deleting='true']
+        opacity: .4
         
 #edit-overlay
   background-color: rgba(0, 0, 0, .70)

@@ -217,30 +217,38 @@ class window.Topics extends LiteJot
       data: {'_method': 'delete'}
 
       success: (data) =>
-        console.log data
+        new HoverNotice(@lj, data.message, 'success')
+        vanish()
 
       error: (data) =>
-        console.log data
+        elem.attr('data-deleting', false)
+        unless typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not delete topic.', 'error')
     )
 
-    setTimeout(() =>
-      topic_key = null
-      $.each @lj.app.topics, (index, topic) =>
-        if topic.id == id
-          topic_key = index
-          return false
+    vanish = =>
+      elem.attr('data-deleted', 'true')
+      console.log 'vanishing'
+      setTimeout(() =>
+        topic_key = null
+        $.each @lj.app.topics, (index, topic) =>
+          if topic.id == id
+            topic_key = index
+            return false
 
-      @lj.app.topics.remove(topic_key)
-      elem.remove()
-      @sortTopicsList false
+        @lj.app.topics.remove(topic_key)
+        elem.remove()
+        @sortTopicsList false
 
-      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-        @selectFirstTopic()
-      else
-        @lj.jots.clearJotsList()
-        @newTopic()
+        if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+          @selectFirstTopic()
+        else
+          @lj.jots.clearJotsList()
+          @newTopic()
 
-    , 350)
+      , 350)
 
   selectFirstTopic: =>
     next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]
