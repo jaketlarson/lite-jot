@@ -36,7 +36,7 @@ class window.Topics extends LiteJot
   buildTopicsList: (organize_dom=true) =>
     @topics_list.html('')
 
-    if (typeof @lj.app.current_topic == 'undefined' || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+    if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
@@ -257,6 +257,9 @@ class window.Topics extends LiteJot
         if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
           @selectFirstTopic()
         else
+          # deleted last topic
+          @lj.app.current_topic = null
+          @lj.jots.updateHeading()
           @lj.jots.clearJotsList()
           @newTopic()
 
@@ -340,8 +343,9 @@ class window.Topics extends LiteJot
 
   showNewTopicForm: =>
     folder_object = @lj.app.folders.filter((folder) => folder.id == @lj.app.current_folder)[0]
-    if !folder_object.has_manage_permissions
+    if @lj.app.currentFolder && !folder_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to create topics within this folder.', 'error')
+      @lj.key_controls.keyToCurrentFolder()
       return
 
     @new_topic_form_wrap.show().attr('data-hidden', 'false')

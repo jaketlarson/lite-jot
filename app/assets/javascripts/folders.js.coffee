@@ -36,7 +36,7 @@ class window.Folders extends LiteJot
   buildFoldersList: =>
     @folders_list.html('')
 
-    if (typeof @lj.app.current_folder == 'undefined' || @lj.app.current_folder == null) && @lj.app.folders.length > 0
+    if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder || @lj.app.current_folder == null) && @lj.app.folders.length > 0
       @lj.app.current_folder = @lj.app.folders[0].id
 
     @folders_list.prepend("#{$('#new-folder-template').html()}")
@@ -331,6 +331,7 @@ class window.Folders extends LiteJot
           @selectFolder($(next_folder_elem).data('folder'))
 
         else # they deleted the last folder
+          @lj.app.current_folder = null
           @newFolder()
           @lj.topics.buildTopicsList() # will render empty topics/jots
 

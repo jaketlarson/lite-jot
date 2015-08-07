@@ -23,9 +23,20 @@ class window.Jots extends LiteJot
 
   clearJotsList: =>
     @jots_list.html('')
+    @jots_empty_message_elem.show()
+
+  updateHeading: =>
+    console.log 'a'
+    console.log @lj.app.current_topic
+    if !@lj.app.current_topic
+      @jots_heading_text.html('Jots')
+    else
+      topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
+      @jots_heading_text.html("Jots: #{topic_title}")
 
   buildJotsList: =>
     @clearJotsList()
+    @updateHeading()
     @jots_loading_icon.fadeOut()
 
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length > 0
@@ -38,11 +49,7 @@ class window.Jots extends LiteJot
 
 
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
-      @jots_heading_text.html("Jots: #{topic_title}")
       @checkScrollPosition()
-
-    else
-      @jots_empty_message_elem.show()
 
     @scrollJotsToBottom()
 
@@ -190,19 +197,22 @@ class window.Jots extends LiteJot
           @integrateTempJot data.jot, key
           console.log data.jot
 
-          if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
+          if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.auto_folder != 'undefined'
             @lj.folders.hideNewFolderForm()
             @lj.folders.pushFolderIntoData data.auto_folder
 
-          if typeof @lj.app.current_topic == 'undefined' && typeof data.auto_topic != 'undefined'
+          if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic) && typeof data.auto_topic != 'undefined'
             @lj.topics.hideNewTopicForm()
             @lj.topics.pushTopicIntoData data.auto_topic
 
           # reset new jot form
           @new_jot_content.val('')
 
-        error: (xhr, textStatus, errorThrown) =>
-          new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
+        error: (data) =>
+          unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+            new HoverNotice(@lj, data.responseJSON.error, 'error')
+          else
+            new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
           @rollbackTempJot()
       )
 
