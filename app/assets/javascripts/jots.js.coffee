@@ -388,6 +388,7 @@ class window.Jots extends LiteJot
   deleteJot: (id) =>
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleting', 'true')
+    new HoverNotice(@lj, "Jot moved to trash.")
 
     $.ajax(
       type: 'POST'

@@ -157,7 +157,7 @@ class window.Topics extends LiteJot
       finishEditing()
 
     input.keydown (e) =>
-      if e.keyCode == @lj.key_codes.enter
+      if e.keyCode == @lj.key_controls.key_codes.enter
         e.preventDefault()
         finishEditing()
 
