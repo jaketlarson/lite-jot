@@ -100,7 +100,8 @@ class window.Search extends LiteJot
       @search_input.val('')
       @restoreMasterData organize_dom
 
-      @search_wrapper.removeClass('active')
+      if !@search_input.is(':focus')
+        @search_wrapper.removeClass('active')
 
     @jots_in_search_results = []
     $('li[data-jot].highlighted').removeClass('highlighted')
