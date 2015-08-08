@@ -16,22 +16,23 @@
     top: .75rem
     bottom: 0
     width: 15rem
+    transition: all .1s linear
 
     #search-input
-      //border: 1px solid $palette-black
       border: 0px
       border-right: 0
-      float: left
+      float: right
       width: 12.5rem
       display: inline
       line-height: 2.5rem
       height: 2.5rem
       padding: 0 .4rem
       font-size: .9rem
+      transition: all .1s linear
 
       &:focus
-        border: 0px
-        //border: 1px solid $palette-dark-red
+        border: 0
+        outline: 0
 
     #search-button
       float: right
@@ -44,7 +45,7 @@
       padding: 0
       margin: 0
 
-      &:hover, &.input-has-focus
+      &:hover
         background-color: $palette-black
         color: $palette-white
 
@@ -63,6 +64,21 @@
         i.active-icon
           display: inline-block
 
+    &.active
+      background-color: $primary-color
+      right: 0
+      padding-right: 1rem
+      top: 0
+      padding-top: .75rem
+      padding-left: 1rem
+      width: 29.5rem
+
+      #search-input
+        width: 25rem
+
+      #search-button
+        background-color: $palette-black
+
 form#new_jot
   textarea#jot_content
     position: relative
@@ -70,12 +86,13 @@ form#new_jot
     margin-bottom: 0
     border: .4rem solid $palette-light-gray
     transition: none
+    resize: none
 
     &.is-scrolled-from-bottom
       box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
 
     &[data-editing='true']
-      z-index: 3
+      z-index: 4
 
     &:focus
       border-color: $primary-color
@@ -137,7 +154,7 @@ form#new_jot
         color: $palette-gray
 
       &:hover
-        color: $palette-dark-gray
+        color: $primary-color
         
         i.edit, i.delete
           display: block
@@ -186,7 +203,7 @@ form#new_jot
           border: 0
 
       &[data-editing='true']
-        z-index: 3
+        z-index: 4
         background-color: $palette-white
 
         .input-edit-wrap
@@ -225,19 +242,23 @@ form#new_jot
   right: 0
   bottom: 0
   left: 0
-  z-index: 2
+  z-index: 3
+  display: none
+  font-family: 'Monda'
 
-  h1
+  #edit-notice
     color: $palette-white
-    background-color: $primary-color
     text-align: center
-    border-bottom-right-radius: 2px
-    border-bottom-left-radius: 2px
     display: block
-    width: 10rem
-    line-height: 2rem
     position: absolute
-    top: 0rem
-    left: calc(50% - 10rem / 2)
     font-size: 1.25rem
     margin: 0
+    z-index: 3
+    line-height: 3rem
+    cursor: default
+
+    i
+      font-size: 3rem
+      margin-left: 1rem
+      padding-right: 1rem
+      vertical-align: -11%

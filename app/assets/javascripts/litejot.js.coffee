@@ -37,6 +37,7 @@ class window.LiteJot
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
+    @search = new Search(@)
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
     @calendar = new Calendar(@)

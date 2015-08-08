@@ -140,7 +140,7 @@ class window.Topics extends LiteJot
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
-    elem.addClass('current')
+    elem.addClass('current').attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()
 
@@ -172,22 +172,30 @@ class window.Topics extends LiteJot
       if !submitted_edit
         submitted_edit = true
         filtered_input = window.escapeHtml(input.val())
-        topic_object.title = filtered_input
         elem.attr('data-editing', 'false')
-        title.html(filtered_input)
-        @topics_wrapper.focus()
 
-        $.ajax(
-          type: 'PATCH'
-          url: "/topics/#{id}"
-          data: "title=#{encodeURIComponent(filtered_input)}"
+        # return keyboard controls
+        @topics_column.focus()
 
-          success: (data) =>
-            console.log data
+        is_changed = if topic_object.title != filtered_input then true else false
+        if is_changed 
+          topic_object.title = filtered_input
+          title.html(filtered_input)
 
-          error: (data) =>
-            console.log data
-        )
+          $.ajax(
+            type: 'PATCH'
+            url: "/topics/#{id}"
+            data: "title=#{encodeURIComponent(filtered_input)}"
+
+            success: (data) =>
+              new HoverNotice(@lj, 'Topic updated.', 'success')
+
+            error: (data) =>
+              unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+                new HoverNotice(@lj, data.responseJSON.error, 'error')
+              else
+                new HoverNotice(@lj, 'Could not update topic.', 'error')
+          )
 
   deleteTopicPrompt: (target) =>
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
@@ -208,7 +216,9 @@ class window.Topics extends LiteJot
 
   confirmDeleteTopic: (id) =>
     $('#delete-topic-modal').foundation 'reveal', 'close'
-    @topics_wrapper.focus()
+
+    # return keyboard controls
+    @topics_column.focus()
 
     setTimeout(() =>
       @deleteTopic id
@@ -313,18 +323,20 @@ class window.Topics extends LiteJot
           @lj.jots.endSearchState()
           @hideNewTopicForm()
 
-          console.log data
-
           @pushTopicIntoData data.topic
+          new HoverNotice(@lj, 'Topic created.', 'success')
 
-          if typeof @lj.app.current_folder == 'undefined' && typeof data.auto_folder != 'undefined'
+          if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.currentFolder) && typeof data.auto_folder != 'undefined'
             @lj.folders.hideNewFolderForm()
             @lj.folders.pushFolderIntoData data.auto_folder
 
           topic_title.attr 'disabled', false
 
         error: (data) =>
-          console.log data
+          unless typeof data.responseJSON.error == 'undefined'
+            new HoverNotice(@lj, data.responseJSON.error, 'error')
+          else
+            new HoverNotice(@lj, 'Could not create topic.', 'error')
         )
 
     else

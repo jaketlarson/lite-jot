@@ -35,10 +35,10 @@
       |Jots
 
     #search-wrapper
-      input#search-input placeholder="search for jots"
       button#search-button
         i.fa.fa-search.default-icon
         i.fa.fa-times.active-icon
+      input#search-input placeholder="search for jots"
 
   #jots-wrapper tabindex='3'
     i.loading.fa.fa-cog.fa-spin
@@ -54,3 +54,8 @@
 
   = simple_form_for Jot.new do |form|
     = form.input :content, :label => false, :autofocus => true
+
+  #edit-overlay
+    #edit-notice
+      | Edit Jot
+      i.fa.fa-hand-o-right

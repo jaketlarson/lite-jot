@@ -26,7 +26,6 @@ class window.KeyControls extends LiteJot
     @key_nav = {}
 
     @key_nav.folders =
-      left: null
       up: @keyToNextFolderUp
       down: @keyToNextFolderDown
       right: @keyToCurrentTopic
@@ -49,13 +48,17 @@ class window.KeyControls extends LiteJot
       left: @keyToCurrentTopic
       up: @keyToNextJotUp
       down: @keyToNextJotDown
-      right: null
+      right: @lj.search.focusSearchInput
       e: @editJotKeyedAt
       f: @flagJotKeyedAt
       n: @keyToNewJot
       del: @deleteJotKeyedAt
       backspace: @deleteJotKeyedAt
-      s: @lj.jots.focusSearchInput
+      s: @lj.search.focusSearchInput
+
+    @key_nav.search_jots =
+      down: @keyToFirstJotOrNew
+      esc: @lj.search.endSearchState
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -101,12 +104,8 @@ class window.KeyControls extends LiteJot
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
-    @lj.jots.search_input.keydown (e) =>
-      if e.keyCode == @key_codes.down
-        @keyToFirstJot()
-
-      if e.keyCode == @key_codes.esc
-        @lj.jots.endSearchState()
+      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0
+        @lj.search.focusSearchInput()
 
     @lj.jots.jots_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
@@ -184,6 +183,10 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.folders
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.folders).call()
 
+    @lj.search.search_input.keydown (e) =>
+      if @isValidControl e.keyCode, @key_nav.search_jots
+        @getControlFunctionByKeyCode(e.keyCode, @key_nav.search_jots).call()
+
     @lj.folders.folders_column.focus (e) =>
       @curr_pos = 'folders'
       @switchKeyboardShortcutsPane()
@@ -201,7 +204,7 @@ class window.KeyControls extends LiteJot
       @switchKeyboardShortcutsPane()
       @clearKeyedOverData() # may need a better way
 
-    @lj.jots.search_input.focus (e) =>
+    @lj.search.search_input.focus (e) =>
       @curr_pos = 'search_jots'
       @switchKeyboardShortcutsPane()
 
@@ -221,7 +224,7 @@ class window.KeyControls extends LiteJot
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
-    @lj.jots.search_input.blur (e) =>
+    @lj.search.search_input.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
@@ -332,6 +335,13 @@ class window.KeyControls extends LiteJot
       @curr_pos = 'jot'
       @cur_pos_index = 0
       @lj.moveElemIntoView elem, @lj.jots.jots_wrapper
+
+  keyToFirstJotOrNew: =>
+    if @lj.jots.jots_wrapper.find('li').length > 0
+      @keyToFirstJot()
+
+    else
+      @keyToNewJot()
 
   keyToNextJotUp: =>
     if @lj.jots.jots_wrapper.find("li[data-keyed-over='true']").length > 0

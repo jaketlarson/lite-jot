@@ -159,14 +159,18 @@ class window.Folders extends LiteJot
         success: (data) =>
           @lj.jots.endSearchState()
           @hideNewFolderForm()
-          console.log data
-          @pushFolderIntoData data.folder
           folder_title.attr 'disabled', false
+
+          new HoverNotice(@lj, 'Folder created.', 'success')
+          @pushFolderIntoData data.folder
 
           @lj.topics.newTopic()
 
         error: (data) =>
-          console.log data
+          unless typeof data.responseJSON.error == 'undefined'
+            new HoverNotice(@lj, data.responseJSON.error, 'error')
+          else
+            new HoverNotice(@lj, 'Could not create folder.', 'error')
         )
 
     else if @lj.app.folders.length > 0
@@ -206,7 +210,7 @@ class window.Folders extends LiteJot
     $("li[data-folder='#{@lj.app.current_folder}']").removeClass('current')
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id
-    elem.addClass('current')
+    elem.addClass('current').attr('data-keyed-over', true)
     topics_count = @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length
 
     @lj.topics.buildTopicsList()
@@ -242,25 +246,30 @@ class window.Folders extends LiteJot
       if !submitted_edit
         submitted_edit = true
         filtered_input = window.escapeHtml(input.val())
-        folder_object.title = filtered_input
         elem.attr('data-editing', 'false')
-        title.html(filtered_input)
-        @folders_wrapper.focus()
 
-        $.ajax(
-          type: 'PATCH'
-          url: "/folders/#{id}"
-          data: "title=#{encodeURIComponent(filtered_input)}"
+        # return keyboard controls
+        @folders_column.focus()
 
-          success: (data) =>
-            new HoverNotice(@lj, 'Folder updated.', 'success')
+        is_changed = if folder_object.title != filtered_input then true else false
+        if is_changed
+          folder_object.title = filtered_input
+          title.html(filtered_input)
 
-          error: (data) =>
-            unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
-              new HoverNotice(@lj, data.responseJSON.error, 'error')
-            else
-              new HoverNotice(@lj, 'Could not update folder.', 'error')
-        )
+          $.ajax(
+            type: 'PATCH'
+            url: "/folders/#{id}"
+            data: "title=#{encodeURIComponent(filtered_input)}"
+
+            success: (data) =>
+              new HoverNotice(@lj, 'Folder updated.', 'success')
+
+            error: (data) =>
+              unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+                new HoverNotice(@lj, data.responseJSON.error, 'error')
+              else
+                new HoverNotice(@lj, 'Could not update folder.', 'error')
+          )
 
   deleteFolderPrompt: (target) =>
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
@@ -281,7 +290,9 @@ class window.Folders extends LiteJot
 
   confirmDeleteFolder: (id) =>
     $('#delete-folder-modal').foundation 'reveal', 'close'
-    @folders_wrapper.focus()
+
+    # return keyboard controls
+    @folders_column.focus()
 
     setTimeout(() =>
       @deleteFolder id

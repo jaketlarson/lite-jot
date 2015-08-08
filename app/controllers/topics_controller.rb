@@ -38,10 +38,15 @@ class TopicsController < ApplicationController
     # temporarily turn off since updated_at controls order of topics in UI
     Topic.record_timestamps = false
     
-    if topic.update(topic_params)
-      render :json => {:success => true}
+    if topic.user_id == current_user.id
+      if topic.update(topic_params)
+        ser_topic = TopicSerializer.new(topic, :root => false, :scope => current_user)
+        render :json => {:success => true, :topic => ser_topic}
+      else
+        render :json => {:success => false}, :status => :bad_request
+      end
     else
-      render :json => {:success => false}, :status => :bad_request
+      render :json => {:success => false, :error => "You do not have permission to modify this topic."}, :status => :bad_request
     end
 
     Topic.record_timestamps = true

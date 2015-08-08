@@ -7,6 +7,7 @@
 //= require folders
 //= require topics
 //= require jots
+//= require search
 //= require key_controls
 //= require user_settings
 //= require notifications

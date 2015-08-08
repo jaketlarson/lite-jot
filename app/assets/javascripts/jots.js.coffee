@@ -4,7 +4,6 @@ class window.Jots extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initJotFormListeners()
-    @initSearchListeners()
     @initScrollListeners()
 
   initVars: =>
@@ -17,8 +16,8 @@ class window.Jots extends LiteJot
     @jot_temp_entry_template = $('#jot-temp-entry-template')
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
     @jots_loading_icon = @jots_wrapper.find('i.loading')
-    @search_input = $('input#search-input')
-    @search_button = $('#search-button')
+    @edit_overlay = $('#edit-overlay')
+    @edit_notice = $('#edit-notice')
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
 
   clearJotsList: =>
@@ -26,8 +25,6 @@ class window.Jots extends LiteJot
     @jots_empty_message_elem.show()
 
   updateHeading: =>
-    console.log 'a'
-    console.log @lj.app.current_topic
     if !@lj.app.current_topic
       @jots_heading_text.html('Jots')
     else
@@ -64,88 +61,6 @@ class window.Jots extends LiteJot
         e.preventDefault()
         @new_jot_form.submit()
 
-  initSearchListeners: =>
-    @search_input.focus (e) =>
-      @search_button.addClass('input-has-focus')
-
-    @search_input.blur (e) =>
-      @search_button.removeClass('input-has-focus')
-
-    @search_input.keyup (e) =>
-      @handleSearchKeyUp()
-
-    @search_button.click (e) =>
-      if @search_input.val().trim().length > 0
-        @endSearchState()
-        @focusSearchInput()
-      else
-        @focusSearchInput()
-
-  handleSearchKeyUp: => # needs optimization
-    if @search_input.val().trim().length > 0
-      @jots_in_search_results = []
-      @restoreMasterData()
-      @search_button.attr('data-searching', 'true')
-
-      keyword = @search_input.val().trim()
-      jot_results = @lj.app.jots.filter((jot) => jot.content.toLowerCase().search(keyword.toLowerCase()) > -1).reverse()
-      folder_keys = []
-      topic_keys = []
-
-      $.each jot_results, (key, jot) =>
-        @jots_in_search_results.push jot.id
-
-        if jot.topic_id not in topic_keys
-          if jot.topic_id != null
-            topic_keys.push jot.topic_id
-
-            topic = @lj.app.topics.filter((topic) => topic.id == jot.topic_id)[0]
-            if topic
-              if topic.folder_id not in folder_keys
-                if topic.folder_id != null
-                  folder_keys.push topic.folder_id
-
-
-
-      folder_results = []
-      $.each folder_keys, (index, folder_key) =>
-        folder_object = @lj.app.folders.filter((folder) => folder.id == folder_key)[0]
-        if folder_object
-          folder_results.push folder_object
-
-      topic_results = []
-      $.each topic_keys, (index, topic_key) =>
-        topic_object = @lj.app.topics.filter((topic) => topic.id == topic_key)[0]
-        if topic_object
-          topic_results.push topic_object
-
-      @lj.app.store_master_folders = $.extend [], @lj.app.folders
-      @lj.app.store_master_topics = $.extend [], @lj.app.topics
-      
-      @lj.app.folders = $.extend [], folder_results
-      @lj.app.topics = $.extend [], topic_results
-
-      if folder_results.length > 0
-        @lj.app.current_folder = folder_results[0].id
-
-      if topic_results.length > 0
-        @lj.app.current_topic = topic_results[0].id
-
-      @lj.buildUI()
-      @focusSearchInput()
-
-    else
-      @endSearchState()
-
-  endSearchState: (organize_dom=true) =>
-    if @search_button.attr('data-searching') == 'true'
-      @search_button.attr 'data-searching', 'false'
-      @search_input.val('')
-      @restoreMasterData organize_dom
-
-    @jots_in_search_results = []
-    $('li[data-jot].highlighted').removeClass('highlighted')
-
   initScrollListeners: =>
     @jots_wrapper.scroll () =>
       @checkScrollPosition()
@@ -161,27 +76,11 @@ class window.Jots extends LiteJot
     else
       @new_jot_content.addClass('is-scrolled-from-bottom')
 
-
-  restoreMasterData: (organize_dom=true) => # for search functionality
-    if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null
-      @lj.app.folders = $.extend [], @lj.app.store_master_folders
-      @lj.app.store_master_folders = null
-
-    if typeof @lj.app.store_master_topics != "undefined" && @lj.app.store_master_topics != null
-      @lj.app.topics = $.extend [], @lj.app.store_master_topics
-      @lj.app.store_master_topics = null
-    
-    @lj.buildUI organize_dom
-
-  focusSearchInput: =>
-    @lj.key_controls.clearKeyedOverData()
-    @search_input.focus()
-
   submitNewJot: =>
     content = window.escapeHtml(@new_jot_content.val())
 
     if content.trim().length > 0
-      @endSearchState false
+      @lj.search.endSearchState false
 
       key = @randomKey()
       @insertTempJotElem content, key
@@ -195,7 +94,6 @@ class window.Jots extends LiteJot
         success: (data) =>
           @lj.app.jots.push data.jot
           @integrateTempJot data.jot, key
-          console.log data.jot
 
           if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.auto_folder != 'undefined'
             @lj.folders.hideNewFolderForm()
@@ -204,6 +102,12 @@ class window.Jots extends LiteJot
           if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic) && typeof data.auto_topic != 'undefined'
             @lj.topics.hideNewTopicForm()
             @lj.topics.pushTopicIntoData data.auto_topic
+
+          # inform user of an auto generated folder or topic
+          if typeof data.auto_folder != 'undefined' && typeof data.auto_topic != 'undefined'
+            new HoverNotice(@lj, 'Folder and topic auto-generated.', 'success')
+          if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
+            new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
           # reset new jot form
           @new_jot_content.val('')
@@ -331,7 +235,7 @@ class window.Jots extends LiteJot
       data: "is_flagged=#{is_flagged}"
 
       success: (data) =>
-        console.log data
+        # all actions carried out on correct assumption that action would pass
 
       error: (data) =>
         @toggleFlagClientSide(jot_object)
@@ -366,7 +270,11 @@ class window.Jots extends LiteJot
     raw_content = window.unescapeHtml(jot_object.content)
     submitted_edit = false
 
-    $('body').append("<div id='edit-overlay'><h1>Editing Jot</h1></div>")
+    @edit_overlay.show()
+    @edit_overlay.find('#edit-notice').css(
+      bottom: (@new_jot_content.height() - @edit_notice.height()/2)
+      left: @new_jot_content.offset().left - @edit_notice.width()
+    )
     elem.attr('data-editing', 'true')
     @new_jot_content.attr('data-editing', 'true').val(raw_content).focus()
 
@@ -383,11 +291,14 @@ class window.Jots extends LiteJot
         updated_content = window.escapeHtml(@new_jot_content.val())
         jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
         
-        $('#edit-overlay').remove()
+        @edit_overlay.hide()
         @new_jot_content.val('').attr('data-editing', 'false')
         elem.attr('data-editing', 'false')
         content_elem.html(updated_content.replace(/\n/g, '<br />'))
+        
+        # return keyboard controls
         @jots_wrapper.focus()
+        elem.attr('data-keyed-over', 'true')
 
         # only update folder/topic order & send server request if the user
         # changed the content field of the jot
@@ -410,7 +321,10 @@ class window.Jots extends LiteJot
               new HoverNotice(@lj, 'Jot updated.', 'success')
 
             error: (data) =>
-              console.log data
+              unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+                new HoverNotice(@lj, data.responseJSON.error, 'error')
+              else
+                new HoverNotice(@lj, 'Could not update jot.', 'error')
           )
 
   deleteJot: (id) =>
