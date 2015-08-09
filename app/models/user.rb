@@ -80,7 +80,7 @@ class User < ActiveRecord::Base
   end
 
   def owned_and_shared_folders
-    Folder.includes(:shares).where("user_id = ? OR shares.recipient_id = ?", self.id, self.id).order('folders.updated_at ASC').references(:shares)
+    Folder.includes(:shares).where("user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at ASC').references(:shares)
   end
 
 end

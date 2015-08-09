@@ -141,10 +141,18 @@ class window.Folders extends LiteJot
       @submitNewFolder()
 
   newFolder: =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+      
     @showNewFolderForm()
     @sortFoldersList false
 
   submitNewFolder: =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     @lj.key_controls.clearKeyedOverData()
     folder_title = @new_folder_title
     filtered_content = window.escapeHtml(folder_title.val())
@@ -157,7 +165,7 @@ class window.Folders extends LiteJot
         url: '/folders'
         data: "title=#{encodeURIComponent(filtered_content)}"
         success: (data) =>
-          @lj.jots.endSearchState()
+          @lj.search.endSearchState()
           @hideNewFolderForm()
           folder_title.attr 'disabled', false
 
@@ -219,6 +227,10 @@ class window.Folders extends LiteJot
       @lj.topics.newTopic false
 
   editFolder: (id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     elem = $("li[data-folder='#{id}']")
     input = elem.find('input.input-edit')
     title = elem.find('.title')
@@ -272,6 +284,10 @@ class window.Folders extends LiteJot
           )
 
   deleteFolderPrompt: (target) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
     folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
 

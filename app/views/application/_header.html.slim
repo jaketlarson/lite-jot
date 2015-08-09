@@ -50,6 +50,7 @@ nav.top-bar data-topbar='true' role='navigation'
 
 - if user_signed_in?
   == render :partial => "keyboard_shortcuts"
+  == render :partial => "emergency_mode_header_notice"
 
   - if current_user.auth_provider == 'google_oauth2'
     == render :partial => "calendar"

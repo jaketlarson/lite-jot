@@ -13,6 +13,10 @@ class window.ShareSettings extends LiteJot
     @modal_template = $('#share-modal-template')
 
   initModal: =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+      
     @modal.foundation 'reveal', 'open'
     @modal.focus()
     @modal.html(@modal_template.html())

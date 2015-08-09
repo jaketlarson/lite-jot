@@ -145,6 +145,10 @@ class window.Topics extends LiteJot
     @lj.jots.buildJotsList()
 
   editTopic: (id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     elem = $("li[data-topic='#{id}']")
     input = elem.find('input.input-edit')
     title = elem.find('.title')
@@ -198,6 +202,10 @@ class window.Topics extends LiteJot
           )
 
   deleteTopicPrompt: (target) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
     topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
 
@@ -300,6 +308,10 @@ class window.Topics extends LiteJot
       @submitNewTopic()
 
   newTopic: (focus_title=true) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+      
     @showNewTopicForm()
     @sortTopicsList false
 
@@ -320,7 +332,7 @@ class window.Topics extends LiteJot
         url: '/topics'
         data: "title=#{encodeURIComponent(filtered_content)}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
-          @lj.jots.endSearchState()
+          @lj.search.endSearchState()
           @hideNewTopicForm()
 
           @pushTopicIntoData data.topic

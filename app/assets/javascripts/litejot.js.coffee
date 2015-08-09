@@ -34,6 +34,7 @@ class window.LiteJot
   constructor: ->
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
+    @emergency_mode = new EmergencyMode(@)
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
@@ -41,6 +42,7 @@ class window.LiteJot
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
     @calendar = new Calendar(@)
+    @connection = new Connection(@)
     @initFoundation()
     @initVars()
     @sizeUI()
@@ -48,6 +50,7 @@ class window.LiteJot
     @loadDataFromServer()
     @initAppInfoModalBind()
     @initModalFocusBind()
+    @connection.startConnectionTestTimer()
 
   initFoundation: =>
     $(document).foundation()
@@ -64,13 +67,14 @@ class window.LiteJot
 
   sizeUI: =>
     keyboard_shortcuts_height = if $('#keyboard-shortcuts').is(':visible') then $('#keyboard-shortcuts').height() else 0
-    folders_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#folders-heading').outerHeight(true)
+    emergency_notice_height = if @emergency_mode.header_notice.is(':visible') then @emergency_mode.header_notice.height() else 0
+    folders_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#folders-heading').outerHeight(true)
     @folders.folders_wrapper.css 'height', folders_height
 
-    topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#topics-heading').outerHeight(true)
+    topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()
@@ -143,4 +147,5 @@ class window.LiteJot
 
       if scroll_to != wrap.scrollTop()
         wrap.scrollTop(scroll_to)
+
 

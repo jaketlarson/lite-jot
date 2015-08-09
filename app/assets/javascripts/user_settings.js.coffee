@@ -21,10 +21,13 @@ class window.UserSettings extends LiteJot
     @error_wrap = @modal.find('.alert-error')
     @error_text = @modal.find('.error-text')
 
-
   initUserSettingsModalBind: =>
     @modal_link.click (e) =>
       e.preventDefault()
+
+      if @lj.emergency_mode.active
+        @lj.emergency_mode.feature_unavailable_notice()
+        return 
 
       @modal.foundation 'reveal', 'open'
       @modal.html(@modal_template.html())

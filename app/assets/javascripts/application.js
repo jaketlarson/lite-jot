@@ -15,4 +15,6 @@
 //= require calendar
 //= require share_settings
 //= require hover_notice
+//= require emergency_mode
+//= require connection
 //= require litejot

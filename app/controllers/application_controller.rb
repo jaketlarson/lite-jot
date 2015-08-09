@@ -49,6 +49,10 @@ class ApplicationController < ActionController::Base
     render :json => data.to_json
   end
 
+  def connection_test
+    render :text => 'OK'
+  end
+
   protected
 
   def configure_permitted_parameters

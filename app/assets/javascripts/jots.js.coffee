@@ -77,6 +77,10 @@ class window.Jots extends LiteJot
       @new_jot_content.addClass('is-scrolled-from-bottom')
 
   submitNewJot: =>
+    if @lj.emergency_mode.active && !@lj.emergency_mode.terms_accepted_by_user
+      @lj.emergency_mode.showTerms()
+      return
+
     content = window.escapeHtml(@new_jot_content.val())
 
     if content.trim().length > 0
@@ -87,38 +91,44 @@ class window.Jots extends LiteJot
       @jots_empty_message_elem.hide()
       @scrollJotsToBottom()
 
-      $.ajax(
-        type: 'POST'
-        url: @new_jot_form.attr('action')
-        data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
-        success: (data) =>
-          @lj.app.jots.push data.jot
-          @integrateTempJot data.jot, key
+      # If emergency mode is on, then store the jot in local storage. Otherwise send to server
+      if @lj.emergency_mode.active
+        @lj.emergency_mode.storeJot content, key
+        # reset new jot form
+        @new_jot_content.val('')
+      else
+        $.ajax(
+          type: 'POST'
+          url: @new_jot_form.attr('action')
+          data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
+          success: (data) =>
+            @lj.app.jots.push data.jot
+            @integrateTempJot data.jot, key
 
-          if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.auto_folder != 'undefined'
-            @lj.folders.hideNewFolderForm()
-            @lj.folders.pushFolderIntoData data.auto_folder
+            if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.auto_folder != 'undefined'
+              @lj.folders.hideNewFolderForm()
+              @lj.folders.pushFolderIntoData data.auto_folder
 
-          if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic) && typeof data.auto_topic != 'undefined'
-            @lj.topics.hideNewTopicForm()
-            @lj.topics.pushTopicIntoData data.auto_topic
+            if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic) && typeof data.auto_topic != 'undefined'
+              @lj.topics.hideNewTopicForm()
+              @lj.topics.pushTopicIntoData data.auto_topic
 
-          # inform user of an auto generated folder or topic
-          if typeof data.auto_folder != 'undefined' && typeof data.auto_topic != 'undefined'
-            new HoverNotice(@lj, 'Folder and topic auto-generated.', 'success')
-          if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
-            new HoverNotice(@lj, 'Topic auto-generated.', 'success')
+            # inform user of an auto generated folder or topic
+            if typeof data.auto_folder != 'undefined' && typeof data.auto_topic != 'undefined'
+              new HoverNotice(@lj, 'Folder and topic auto-generated.', 'success')
+            if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
+              new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
-          # reset new jot form
-          @new_jot_content.val('')
+            # reset new jot form
+            @new_jot_content.val('')
 
-        error: (data) =>
-          unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
-            new HoverNotice(@lj, data.responseJSON.error, 'error')
-          else
-            new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
-          @rollbackTempJot()
-      )
+          error: (data) =>
+            unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+              new HoverNotice(@lj, data.responseJSON.error, 'error')
+            else
+              new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
+            @rollbackTempJot()
+        )
 
       if @lj.app.folders.length > 1
         @lj.folders.moveCurrentFolderToTop()
@@ -216,6 +226,10 @@ class window.Jots extends LiteJot
       @deleteJot jot_id
 
   flagJot: (id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     elem = $("li[data-jot='#{id}']")
     is_flagged = elem.hasClass('flagged') ? true : false
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
@@ -259,6 +273,10 @@ class window.Jots extends LiteJot
 
 
   editJot: (id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
@@ -328,6 +346,10 @@ class window.Jots extends LiteJot
           )
 
   deleteJot: (id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+      
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
     if !jot_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to delete this jot.', 'error')
