@@ -164,6 +164,9 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
+    seed_dump (3.2.2)
+      activerecord (~> 4)
+      activesupport (~> 4)
     signet (0.6.0)
       addressable (~> 2.3)
       extlib (~> 0.9)
@@ -221,6 +224,7 @@ DEPENDENCIES
   rails (= 4.1.4)
   sass-rails (~> 5.0.0)
   sdoc (~> 0.4.0)
+  seed_dump
   simple_form
   slim
   spring

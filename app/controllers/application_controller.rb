@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     #topics = current_user.topics.order('updated_at desc')
     # collect topics & jots
     folders.each do |folder|
-      folder.topics.each do |topic|
+      folder.topics.order('updated_at asc').each do |topic|
         if current_user.id != topic.user_id
           share = Share.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
           if !share.is_all_topics

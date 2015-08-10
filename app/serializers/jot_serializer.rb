@@ -37,11 +37,13 @@ class JotSerializer < ActiveModel::Serializer
     if object.user_id == scope.id
       return true
     else
-      folder = Folder.find(object.folder_id)
-      if folder.user_id == scope.id
-        return true
-      else
-        return false
+      folder = Folder.where('id = ?', object.folder_id)[0]
+      if !folder.nil?
+        if folder.user_id == scope.id
+          return true
+        else
+          return false
+        end
       end
     end
   end

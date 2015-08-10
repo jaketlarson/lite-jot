@@ -8,9 +8,10 @@ nav.top-bar data-topbar='true' role='navigation'
             = image_tag('feather-white-small.png')
             |Lite&nbsp;Jot
 
-    li.toggle-topbar.menu-icon
-      a href='#'
-        span
+    - if user_signed_in?
+      li.toggle-topbar.menu-icon
+        a href='#'
+          span
 
   section.top-bar-section
     ul.right
@@ -43,9 +44,9 @@ nav.top-bar data-topbar='true' role='navigation'
             i.fa.fa-lg.fa-info-circle
             span.show-for-small-only Information
 
-      li.show-for-large-up
-        a#fullscreen-request title='Toggle Fullscreen'
-          i.fa.fa-lg.fa-expand
+        li.show-for-large-up
+          a#fullscreen-request title='Toggle Fullscreen'
+            i.fa.fa-lg.fa-expand
 
 
 - if user_signed_in?

@@ -110,6 +110,7 @@ class JotsController < ApplicationController
         topic.touch
       end
 
+      jot.folder_id = folder_id
       jot.topic_id = topic_id
 
       if jot.save
