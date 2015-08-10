@@ -193,6 +193,7 @@ class window.Topics extends LiteJot
 
             success: (data) =>
               new HoverNotice(@lj, 'Topic updated.', 'success')
+              @lj.jots.updateHeading()
 
             error: (data) =>
               unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
