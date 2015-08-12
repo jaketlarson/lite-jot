@@ -6,17 +6,18 @@ class window.Jots extends LiteJot
     @initJotFormListeners()
     @initScrollListeners()
     @newJotWrapActive()
+    @cleanCheckListTab()
 
   initVars: =>
     @new_jot_wrap = $('#new-jot-wrap')
     @new_jot_toolbar = $('#new-jot-wrap #jot-toolbar')
     @new_jot_heading = @new_jot_wrap.find('input#jot_heading')
     @new_jot_content = @new_jot_wrap.find('textarea#jot_content')
+    @new_jot_checklist_tab = @new_jot_wrap.find('.tab-wrap#jot-checklist-tab')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
-    @new_jot_break_option_wrap = @new_jot_toolbar.find('#break-option')
+    @new_jot_break_option_wrap = @new_jotgit _toolbar.find('#break-option')
     @new_jot_break_value = false
-
 
     @jots_heading = $('h2#jots-heading')
     @jots_heading_text = $('h2#jots-heading .heading-text')
@@ -29,6 +30,12 @@ class window.Jots extends LiteJot
     @edit_notice = $('#edit-notice')
     @currently_editing_id = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
+    
+    # ignore_this_key_down is used when moving from the last jot to new jot area
+    # It's used because the keydown event from key controls
+    # doubles up with keyup event for the checklist item bind
+    # This is a quick fix
+    @ignore_this_key_down = false
 
   clearJotsList: =>
     @jots_list.html('')
@@ -107,9 +114,10 @@ class window.Jots extends LiteJot
   determineFocusForNewJot: =>
     if @new_jot_current_tab == 'standard'
       @new_jot_content.focus()
-      return false
     else if @new_jot_current_tab == 'heading'
       @new_jot_heading.focus()
+    else if @new_jot_current_tab == 'checklist'
+      @lj.key_controls.keyToLastNewJotListItem()
 
   newJotWrapActive: =>
     @new_jot_wrap.addClass('active')
@@ -126,11 +134,16 @@ class window.Jots extends LiteJot
       carry_over_value = @new_jot_content.val()
     else if @new_jot_current_tab == 'heading'
       carry_over_value = @new_jot_heading.val()
+    else if @new_jot_current_tab == 'checklist'
+      carry_over_value = @parseCheckListToText @getJotContent()
 
     if tab == 'standard'
       @new_jot_content.val(carry_over_value)
     else if tab == 'heading'
-      @new_jot_heading.val(carry_over_value)
+      @new_jot_heading.val(carry_over_value.replace(/\n/g, ' '))
+    else if tab == 'checklist'
+      @cleanCheckListTab()
+      @populateCheckList JSON.stringify(@parseTextToCheckList(@getJotContent()))
 
     @new_jot_current_tab = tab
 
@@ -140,6 +153,8 @@ class window.Jots extends LiteJot
       @jotBreakOff()
     else if tab == 'heading'
       @jotBreakOn()
+    else if tab == 'checklist'
+      @jotBreakOff()
 
     @new_jot_wrap.find('li.tab.active').removeClass('active')
     @new_jot_wrap.find('.tab-wrap.active').removeClass('active')
@@ -172,13 +187,91 @@ class window.Jots extends LiteJot
       return @new_jot_heading.val()
     else if @new_jot_current_tab == 'standard'
       return @new_jot_content.val()
+    else if @new_jot_current_tab == 'checklist'
+      return JSON.stringify(@serializeNewJotCheckList())
     else
       return ""
 
   clearJotInputs: =>
     @new_jot_heading.val('')
     @new_jot_content.val('')
+    @cleanCheckListTab()
 
+  cleanCheckListTab: =>
+    if @new_jot_checklist_tab.find('li:not(.template)').length > 0
+      @new_jot_checklist_tab.find('li:not(.template)').remove()
+
+    @addNewCheckListItem()
+    if @lj.init_data_loaded
+      @lj.sizeUI()
+
+    if @new_jot_current_tab == 'checklist'
+      @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').focus()
+
+  # addNewCheckListItem does some binding that woudl normally
+  # be done in key_controls.js, but since they are created in JS
+  # the binds were just added here.
+  addNewCheckListItem: =>
+    html = @new_jot_checklist_tab.find('li.template').html()
+    id = "checklist-item-#{@randomKey()}"
+    @new_jot_checklist_tab.find('ul.jot-checklist').append("<li id='#{id}'>#{html}</li>")
+   
+    elem = $("li##{id}")
+
+    @initCheckListItemBinds elem
+    @scrollJotsToBottom()
+
+  initCheckListItemBinds: (elem) =>
+    elem.keyup (e) =>
+      if e.keyCode == @lj.key_controls.key_codes.enter
+        if @currently_editing_id
+          @finishEditing()
+        else
+          @submitNewJot()
+        return
+
+      if e.keyCode == @lj.key_controls.key_codes.up
+        @lj.key_controls.keyToNextNewJotListItemUp()
+        return
+
+      if e.keyCode == @lj.key_controls.key_codes.down
+        if @ignore_this_key_down
+          @ignore_this_key_down = false
+        else
+          @lj.key_controls.keyToNextNewJotListItemDown()
+        return
+
+      this_checklist_value = elem.find('input.checklist-value').val()
+      if this_checklist_value.trim().length > 0
+        elem.find('input.checklist-value').attr 'data-blank', 'false'
+
+        num_empty_checkboxes = @new_jot_checklist_tab.find("li:not(.template) input.checklist-value[data-blank='true']").length
+        if num_empty_checkboxes == 0
+          @addNewCheckListItem()
+          @lj.sizeUI()
+      else
+        elem.find('input.checklist-value').attr 'data-blank', 'true'
+
+        if e.keyCode == @lj.key_controls.key_codes.left
+          @lj.key_controls.keyToCurrentTopic()
+
+      @removeExcessiveBlankCheckListItems()
+
+    elem.find('input.checklist-value').focus (e) =>
+      $(e.currentTarget).attr('data-keyed-over', 'true')
+
+    elem.find('input.checklist-value').blur (e) =>
+      $(e.currentTarget).attr('data-keyed-over', 'false')
+      @removeExcessiveBlankCheckListItems()
+
+  removeExcessiveBlankCheckListItems: =>
+    num = 0
+    $.each @new_jot_checklist_tab.find('li:not(.template)'), (index, item) =>
+      if $(item).find("input.checklist-value[data-blank='true']").length
+        num++
+      if num > 1
+        $(item).remove()
+      @lj.sizeUI()
 
   initScrollListeners: =>
     @jots_wrapper.scroll () =>
@@ -195,6 +288,92 @@ class window.Jots extends LiteJot
     else
       @new_jot_wrap.addClass('is-scrolled-from-bottom')
 
+  serializeNewJotCheckList: =>
+    items = []
+    $.each @new_jot_checklist_tab.find('li:not(.template)'), (index, item) =>
+      is_checked = $(item).find("input[type='checkbox'].checklist-checkbox").is(':checked')
+      value = $(item).find('input.checklist-value').val()
+
+      if value.trim().length > 0
+        item_hash =
+          checked: is_checked
+          value: value
+        items.push item_hash
+
+    return items
+
+  parseCheckListToHTML: (items) =>
+    items = JSON.parse(items)
+    html = "<ul class='checklist-jot'>"
+    $.each items, (index, item) =>
+      html += "<li>"
+      html += "<input type='checkbox' checked=#{item.checked}>"
+      html += "#{item.value}"
+      html += "</li>"
+
+    html += "</ul>"
+
+    return html
+
+  parseCheckListToText: (items) =>
+    items = JSON.parse(items)
+    text = ""
+    $.each items, (index, item) =>
+      text += "#{item.value}\n"
+
+    return text
+
+  parseTextToCheckList: (text) =>
+    items = []
+    if text.length > 0
+      text_to_items = text.split('\n')
+      items = []
+      if text_to_items.length > 0
+        $.each text_to_items, (index, value) =>
+          if value.trim().length > 0
+            item_hash =
+              checked: false
+              value: value
+            items.push item_hash
+
+    return items
+
+
+  populateCheckList: (content) =>
+    items = JSON.parse(content)
+    template = @new_jot_checklist_tab.find('li.template')
+    template_html = template.html()
+
+    $.each items, (index, item) =>
+      id = "checklist-item-#{randomKey()}"
+      html = "<li id='#{id}'>#{template_html}</li>"
+      @new_jot_checklist_tab.find('ul').append(html)
+
+      elem = $("li##{id}")
+      elem.find('input.checklist-checkbox').prop('checked', item.checked)
+      elem.find('input.checklist-value').val(item.value).attr('data-blank', false)
+
+      @initCheckListItemBinds elem
+
+    move_elem = @new_jot_checklist_tab.find("li:not(.template) input[data-blank='true']").closest('li')
+    move_elem.remove()
+    @new_jot_checklist_tab.find('ul').append(move_elem)
+    @initCheckListItemBinds move_elem
+    @lj.sizeUI()
+
+  focusLastCheckListItem: =>
+    @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').last().focus()
+
+  newJotLength: =>
+    if @new_jot_current_tab == 'heading'
+      return @new_jot_heading.val().trim().length
+    else if @new_jot_current_tab == 'standard'
+      return @new_jot_content.val().trim().length
+    else if @new_jot_current_tab == 'checklist'
+      return @serializeNewJotCheckList().length
+    else
+      return 0
+
   submitNewJot: =>
     if @lj.emergency_mode.active && !@lj.emergency_mode.terms_accepted_by_user
       @lj.emergency_mode.showTerms()
@@ -203,7 +382,7 @@ class window.Jots extends LiteJot
     content = window.escapeHtml @getJotContent()
     jot_type = @new_jot_current_tab
 
-    if content.trim().length > 0
+    if @newJotLength() > 0
       @lj.search.endSearchState false
 
       key = @randomKey()
@@ -215,8 +394,8 @@ class window.Jots extends LiteJot
       if @lj.emergency_mode.active
         @lj.emergency_mode.storeJot content, key
         # reset new jot inputs
-        @new_jot_heading.val('')
-        @new_jot_content.val('')
+        @clearJotInputs()
+
       else
         $.ajax(
           type: 'POST'
@@ -241,8 +420,7 @@ class window.Jots extends LiteJot
               new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
             # reset new jot inputs
-            @new_jot_content.val('')
-            @new_jot_heading.val('')
+            @clearJotInputs()
 
           error: (data) =>
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
@@ -266,9 +444,14 @@ class window.Jots extends LiteJot
   insertTempJotElem: (content, key, jot_type, break_from_top) =>
     content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
-    .attr('id', key).append("<div class='content'>#{content}</div>")
+    .attr('id', key)
     .attr("data-before-content", "\uf141")
     .attr("title", "submitting jot...")
+
+    if jot_type == 'checklist'
+      @jot_temp_entry_template.find('li').append "<div class='content'>#{@parseCheckListToHTML(content)}</div>"
+    else
+      @jot_temp_entry_template.find('li').append "<div class='content'>#{content}</div>"
 
     if jot_type == 'heading'
       @jot_temp_entry_template.find('li').addClass('heading')
@@ -305,7 +488,7 @@ class window.Jots extends LiteJot
     jot_content = jot.content.replace /\n/g, '<br />'
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
-    build_html = "<li data-jot='#{jot.id}' class='#{flagged_class} #{heading_class} #{highlighted_class} #{break_class}'>"
+    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{highlighted_class} #{break_class}'>"
     
     if jot.has_manage_permissions
       build_html += "<i class='fa fa-edit edit' title='Edit jot' />
@@ -314,10 +497,15 @@ class window.Jots extends LiteJot
                       <input type='text' class='input-edit' />
                     </div>"
 
-    build_html += "<div class='content'>
-                    #{jot_content}
-                  </div>
-                </li>"
+    build_html += "<div class='content'>"
+
+    if jot.jot_type == 'checklist'
+      build_html += @parseCheckListToHTML jot.content
+    else
+      build_html += jot_content
+
+    build_html += "</div>
+                  </li>"
     @jots_list.append(build_html)
     @setTimestamp jot
     @initJotBinds jot.id
@@ -358,6 +546,10 @@ class window.Jots extends LiteJot
     @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
       e.stopPropagation()
       @deleteJot jot_id
+
+    @jots_list.find("li[data-jot='#{jot_id}'] input[type='checkbox']").click (e) =>
+      e.stopImmediatePropagation()
+
 
   flagJot: (id) =>
     if @lj.emergency_mode.active
@@ -424,6 +616,10 @@ class window.Jots extends LiteJot
     if jot_object.jot_type == 'heading'
       @switchTab 'heading'
       @new_jot_heading.val(raw_content).focus()
+    else if jot_object.jot_type == 'checklist'
+      @switchTab 'checklist'
+      @populateCheckList(raw_content)
+      @focusLastCheckListItem()
     else
       @switchTab 'standard'
       @new_jot_content.val(raw_content).focus()
@@ -455,9 +651,14 @@ class window.Jots extends LiteJot
       
       @edit_overlay.hide()
       @new_jot_wrap.attr('data-editing', 'false')
+      jot_length = @newJotLength()
       @clearJotInputs()
       elem.attr('data-editing', 'false')
-      content_elem.html(updated_content.replace(/\n/g, '<br />'))
+
+      if jot_object.jot_type == 'checklist'
+        content_elem.html @parseCheckListToHTML(updated_content)
+      else
+        content_elem.html updated_content.replace(/\n/g, '<br />')
       
       # return keyboard controls
       @jots_wrapper.focus()
@@ -466,7 +667,7 @@ class window.Jots extends LiteJot
 
       # only update folder/topic order & send server request if the user
       # changed the content field of the jot
-      if updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type
+      if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type)
         @lj.folders.moveCurrentFolderToTop()
         @lj.topics.moveCurrentTopicToTop()
 

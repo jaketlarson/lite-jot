@@ -6,7 +6,11 @@
     textarea#jot_content placeholder='Press Return to save. Shift + Return for new line.'
 
   div#jot-checklist-tab.tab-wrap data-tab='checklist'
-    |checklists go here
+    ul.jot-checklist
+      li.template
+        input type='checkbox' class='checklist-checkbox'
+
+        input type='text' class='checklist-value' placeholder='New checklist item' data-blank='true'
 
   ul#jot-toolbar tabindex='7'
     li.tab data-tab='heading'

@@ -88,6 +88,34 @@
         box-shadow: none
         padding: .5rem .75rem
 
+    &#jot-checklist-tab
+      background-color: $palette-white
+      padding: 1rem
+      max-height: 20rem
+      overflow: auto
+
+      ul.jot-checklist
+        list-style: none
+        margin-bottom: 0
+
+        li.template
+          display: none
+
+        input[type='checkbox'].checklist-checkbox
+          vertical-align: middle
+          margin: 0 1rem 0 0
+
+        input[type='text'].checklist-value
+          max-width: 87%
+          border: 0
+          border-bottom: 1px solid $palette-gray
+          box-shadow: none
+          display: inline-block
+          transition: none
+
+          &:focus
+            border-bottom-color: $primary-color
+
   &.is-scrolled-from-bottom
     box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
 

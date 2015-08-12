@@ -32,6 +32,8 @@ $ ->
 
 class window.LiteJot
   constructor: ->
+    @init_data_loaded = false
+    
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
     @emergency_mode = new EmergencyMode(@)
@@ -100,6 +102,8 @@ class window.LiteJot
 
         @buildUI()
         @initNotifications()
+
+        @init_data_loaded = true
 
       error: (data) =>
         console.log data

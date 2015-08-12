@@ -135,6 +135,9 @@ class window.KeyControls extends LiteJot
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
         @keyToNewJotsTabs()
 
+
+
+
     @lj.jots.jots_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
@@ -215,8 +218,9 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.search_jots
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.search_jots).call()
 
-    @lj.jots.new_jot_toolbar.keydown (e) =>
+    @lj.jots.new_jot_toolbar.keyup (e) =>
       if @isValidControl e.keyCode, @key_nav.jot_toolbar
+        e.stopImmediatePropagation()
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.jot_toolbar).call()
 
     @lj.folders.folders_column.focus (e) =>
@@ -346,7 +350,7 @@ class window.KeyControls extends LiteJot
     $("[data-keyed-over='true']").attr('data-keyed-over', 'false')
 
   getKeyedOverElem: =>
-    return $($('html').find("li[data-keyed-over='true']")[0])
+    return $($('html').find("[data-keyed-over='true']")[0])
 
   switchKeyedOverElem: (new_elem) =>
     @clearKeyedOverData()
@@ -360,8 +364,8 @@ class window.KeyControls extends LiteJot
       @lj.jots.scrollJotsToBottom()
     , 1)
 
-    if @lj.jots.jots_wrapper.find('li').length > 0
-      elem = $(@lj.jots.jots_wrapper.find('li')[@lj.jots.jots_wrapper.find('li').length - 1])
+    if @lj.jots.jots_wrapper.find('li.jot-item').length > 0
+      elem = $(@lj.jots.jots_wrapper.find('li.jot-item')[@lj.jots.jots_wrapper.find('li.jot-item').length - 1])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @curr_pos_index = @lj.jots.jots_wrapper.find('li').length - 1
@@ -400,10 +404,10 @@ class window.KeyControls extends LiteJot
         @keyToLastJot()
 
   keyToNextJotDown: =>
-    if @lj.jots.jots_wrapper.find("li[data-keyed-over='true']").length > 0
+    if @lj.jots.jots_wrapper.find("li.jot-item[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-     if elem.index() < @lj.jots.jots_wrapper.find('li').length - 1
+     if elem.index() < @lj.jots.jots_wrapper.find('li.jot-item').length - 1
         @cur_pos = 'jot'
         @cur_pos_index = elem.index()
         @clearKeyedOverData()
@@ -412,6 +416,7 @@ class window.KeyControls extends LiteJot
         @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
 
       else
+        @lj.jots.ignore_this_key_down = true
         @keyToNewJot()
 
   keyToNewJot: =>
@@ -573,7 +578,7 @@ class window.KeyControls extends LiteJot
     if @lj.folders.folders_wrapper.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-     if elem.index() < @lj.folders.folders_wrapper.find('li').length - 1
+      if elem.index() < @lj.folders.folders_wrapper.find('li').length - 1
         @cur_pos = 'folder'
         @cur_pos_index = elem.index()
         @clearKeyedOverData()
@@ -655,5 +660,39 @@ class window.KeyControls extends LiteJot
     @cur_pos_index = 0
     @lj.jots.switchTab elem.data('tab')
 
+  keyToNextNewJotListItemDown: =>
+    checklist_value_input = @getKeyedOverElem()
+    if checklist_value_input.length > 0
+      li_elem = checklist_value_input.closest('li')
+      checklist_value_input.attr('data-keyed-over', false)
+      @cur_pos = 'jot_toolbar'
+      @cur_pos_index = li_elem.index
 
+      if li_elem.index() < @lj.jots.new_jot_checklist_tab.find('li:not(.template) input.checklist-value').length
+        nextElem = li_elem.next().find('input.checklist-value')
+        nextElem.attr('data-keyed-over', 'true').focus()
+        @lj.moveElemIntoView nextElem, @lj.jots.new_jot_checklist_tab
+      else
+        @keyToNewJotsTabs()
+
+  keyToNextNewJotListItemUp: =>
+    checklist_value_input = @getKeyedOverElem()
+    if checklist_value_input.length > 0
+      li_elem = checklist_value_input.closest('li')
+
+      if li_elem.index() > 1
+        @cur_pos = 'jot_toolbar'
+        @cur_pos_index = li_elem.index
+        checklist_value_input.attr('data-keyed-over', false)
+        nextElem = li_elem.prev().find('input.checklist-value')
+        nextElem.attr('data-keyed-over', 'true').focus()
+        @lj.moveElemIntoView nextElem, @lj.jots.new_jot_checklist_tab
+
+      else
+        @keyToLastJot()
+
+  keyToLastNewJotListItem: =>
+    elem = @lj.jots.new_jot_checklist_tab.find('li:not(.template)')
+    elem.find('input.checklist-value').attr('data-keyed-over', 'true').focus()
+    @lj.moveElemIntoView elem, @lj.jots.new_jot_checklist_tab
     
