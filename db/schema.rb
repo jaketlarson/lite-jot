@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150812000731) do
+ActiveRecord::Schema.define(version: 20150812001717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 20150812000731) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "break_from_top", default: false
-    t.string   "type",           default: "standard"
+    t.string   "jot_type",       default: "standard"
   end
 
   create_table "shares", force: true do |t|

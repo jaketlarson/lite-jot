@@ -135,9 +135,6 @@ class window.KeyControls extends LiteJot
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
         @keyToNewJotsTabs()
 
-
-
-
     @lj.jots.jots_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return

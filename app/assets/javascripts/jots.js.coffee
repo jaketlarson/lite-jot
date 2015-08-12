@@ -10,9 +10,8 @@ class window.Jots extends LiteJot
   initVars: =>
     @new_jot_wrap = $('#new-jot-wrap')
     @new_jot_toolbar = $('#new-jot-wrap #jot-toolbar')
-    @new_jot_form = $('form#new_jot')
     @new_jot_heading = @new_jot_wrap.find('input#jot_heading')
-    @new_jot_content = @new_jot_form.find('textarea#jot_content')
+    @new_jot_content = @new_jot_wrap.find('textarea#jot_content')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
     @new_jot_break_option_wrap = @new_jot_toolbar.find('#break-option')
@@ -28,6 +27,7 @@ class window.Jots extends LiteJot
     @jots_loading_icon = @jots_wrapper.find('i.loading')
     @edit_overlay = $('#edit-overlay')
     @edit_notice = $('#edit-notice')
+    @currently_editing_id = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
 
   clearJotsList: =>
@@ -60,17 +60,24 @@ class window.Jots extends LiteJot
 
     @scrollJotsToBottom()
 
-  initJotFormListeners: =>
-    @new_jot_form.submit (e) =>
-      e.preventDefault()
-      if @new_jot_content.attr('data-editing') != 'true'
-        @submitNewJot()
+  newJotSubmit: =>
+    if @new_jot_content.attr('data-editing') != 'true'
+      @submitNewJot()
 
+  initJotFormListeners: =>
     @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
-        e.preventDefault()
-        @new_jot_form.submit()
+        if @currently_editing_id # if this is set, we're editing
+          @finishEditing()
+        else
+          @newJotSubmit()
 
+    @new_jot_heading.keydown (e) =>
+      if e.keyCode == @lj.key_controls.key_codes.enter
+        if @currently_editing_id # if this is set, we're editing
+          @finishEditing()
+        else
+          @newJotSubmit()
 
     @new_jot_content.blur (e) =>
       @newJotWrapInactive()
@@ -94,6 +101,9 @@ class window.Jots extends LiteJot
     @new_jot_break_option_wrap.click =>
       @toggleJotBreak()
 
+    @edit_overlay.click =>
+      @finishEditing()
+
   determineFocusForNewJot: =>
     if @new_jot_current_tab == 'standard'
       @new_jot_content.focus()
@@ -102,7 +112,6 @@ class window.Jots extends LiteJot
       @new_jot_heading.focus()
 
   newJotWrapActive: =>
-    console.log 'active'
     @new_jot_wrap.addClass('active')
 
   newJotWrapInactive: =>
@@ -111,10 +120,16 @@ class window.Jots extends LiteJot
   switchTab: (tab) =>
     console.log tab
     if tab == @new_jot_current_tab
-      console.log 'lol no not switching'
       return
 
     @new_jot_current_tab = tab
+
+    # Toggle jot break automatically
+    # For instance, headings are probably better off being broken from top.
+    if tab == 'standard'
+      @jotBreakOff()
+    else if tab == 'heading'
+      @jotBreakOn()
 
     @new_jot_wrap.find('li.tab.active').removeClass('active')
     @new_jot_wrap.find('.tab-wrap.active').removeClass('active')
@@ -127,18 +142,32 @@ class window.Jots extends LiteJot
     @new_jot_wrap.focus()
 
   toggleJotBreak: =>
-    @new_jot_break_value = !@new_jot_break_value
     if @new_jot_break_value
-      @new_jot_break_option_wrap.find('.is-checked').hide()
-      @new_jot_break_option_wrap.find('.not-checked').css('display', 'inline-block')
+      @jotBreakOff()
     else
-      @new_jot_break_option_wrap.find('.not-checked').hide()
-      @new_jot_break_option_wrap.find('.is-checked').css('display', 'inline-block')
+      @jotBreakOn()
 
+  jotBreakOn: =>
+    @new_jot_break_value = true
+    @new_jot_break_option_wrap.find('.not-checked').hide()
+    @new_jot_break_option_wrap.find('.is-checked').css('display', 'inline-block')
 
+  jotBreakOff: =>
+    @new_jot_break_value = false
+    @new_jot_break_option_wrap.find('.is-checked').hide()
+    @new_jot_break_option_wrap.find('.not-checked').css('display', 'inline-block')
 
+  getJotContent: =>
+    if @new_jot_current_tab == 'heading'
+      return @new_jot_heading.val()
+    else if @new_jot_current_tab == 'standard'
+      return @new_jot_content.val()
+    else
+      return ""
 
-
+  clearJotInputs: =>
+    @new_jot_heading.val('')
+    @new_jot_content.val('')
 
 
   initScrollListeners: =>
@@ -161,26 +190,28 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.showTerms()
       return
 
-    content = window.escapeHtml(@new_jot_content.val())
+    content = window.escapeHtml @getJotContent()
+    jot_type = @new_jot_current_tab
 
     if content.trim().length > 0
       @lj.search.endSearchState false
 
       key = @randomKey()
-      @insertTempJotElem content, key
+      @insertTempJotElem content, key, jot_type, @new_jot_break_value
       @jots_empty_message_elem.hide()
       @scrollJotsToBottom()
 
       # If emergency mode is on, then store the jot in local storage. Otherwise send to server
       if @lj.emergency_mode.active
         @lj.emergency_mode.storeJot content, key
-        # reset new jot form
+        # reset new jot inputs
+        @new_jot_heading.val('')
         @new_jot_content.val('')
       else
         $.ajax(
           type: 'POST'
-          url: @new_jot_form.attr('action')
-          data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}"
+          url: "/jots/"
+          data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}&jot_type=#{jot_type}&break_from_top=#{@new_jot_break_value}"
           success: (data) =>
             @lj.app.jots.push data.jot
             @integrateTempJot data.jot, key
@@ -199,8 +230,9 @@ class window.Jots extends LiteJot
             if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
               new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
-            # reset new jot form
+            # reset new jot inputs
             @new_jot_content.val('')
+            @new_jot_heading.val('')
 
           error: (data) =>
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
@@ -221,16 +253,26 @@ class window.Jots extends LiteJot
   rollbackTempJot: =>
     @jots_list.find('li.temp').remove()
 
-  insertTempJotElem: (content, key) =>
+  insertTempJotElem: (content, key, jot_type, break_from_top) =>
     content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
     .attr('id', key).append("<div class='content'>#{content}</div>")
     .attr("data-before-content", "\uf141")
     .attr("title", "submitting jot...")
 
+    if jot_type == 'heading'
+      @jot_temp_entry_template.find('li').addClass('heading')
+
+    if break_from_top
+      @jot_temp_entry_template.find('li').addClass('break-from-top')
+
     build_entry = @jot_temp_entry_template.html()
 
     @jots_list.append build_entry
+    @resetTemplateClasses()
+
+  resetTemplateClasses: =>
+    @jot_temp_entry_template.find('li').removeClass('heading').removeClass('break-from-top')
 
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
@@ -248,10 +290,12 @@ class window.Jots extends LiteJot
 
   insertJotElem: (jot) =>
     flagged_class = if jot.is_flagged then 'flagged' else ''
+    heading_class = if jot.jot_type == 'heading' then 'heading' else ''
+    break_class = if jot.break_from_top then 'break-from-top' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
-    build_html = "<li data-jot='#{jot.id}' class='#{flagged_class} #{highlighted_class}'>"
+    build_html = "<li data-jot='#{jot.id}' class='#{flagged_class} #{heading_class} #{highlighted_class} #{break_class}'>"
     
     if jot.has_manage_permissions
       build_html += "<i class='fa fa-edit edit' title='Edit jot' />
@@ -357,16 +401,15 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
+    @currently_editing_id = id
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+    raw_content = window.unescapeHtml(jot_object.content)
 
     if !jot_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to edit this jot.', 'error')
       return
-
-    raw_content = window.unescapeHtml(jot_object.content)
-    submitted_edit = false
 
     @edit_overlay.show()
     @edit_overlay.find('#edit-notice').css(
@@ -374,56 +417,75 @@ class window.Jots extends LiteJot
       left: @new_jot_content.offset().left - @edit_notice.width()
     )
     elem.attr('data-editing', 'true')
-    @new_jot_content.attr('data-editing', 'true').val(raw_content).focus()
 
-    @new_jot_form.submit =>
-      if @new_jot_content.attr('data-editing') == 'true'
-        finishEditing()
+    @new_jot_wrap.attr('data-editing', 'true')
 
-    @new_jot_content.blur =>
-      finishEditing()
+    if jot_object.jot_type == 'heading'
+      @switchTab 'heading'
+      @new_jot_heading.val(raw_content).focus()
+    else
+      @switchTab 'standard'
+      @new_jot_content.val(raw_content).focus()
 
-    finishEditing = =>
-      if !submitted_edit
-        submitted_edit = true
-        updated_content = window.escapeHtml(@new_jot_content.val())
-        jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
-        
-        @edit_overlay.hide()
-        @new_jot_content.val('').attr('data-editing', 'false')
-        elem.attr('data-editing', 'false')
-        content_elem.html(updated_content.replace(/\n/g, '<br />'))
-        
-        # return keyboard controls
-        @jots_wrapper.focus()
-        elem.attr('data-keyed-over', 'true')
+    if jot_object.break_from_top
+      @jotBreakOn()
+    else
+      @jotBreakOff()
 
-        # only update folder/topic order & send server request if the user
-        # changed the content field of the jot
-        if updated_content != raw_content
-          @lj.folders.moveCurrentFolderToTop()
-          @lj.topics.moveCurrentTopicToTop()
+  finishEditing: =>
+    if @currently_editing_id
+      id = @currently_editing_id
+      @currently_editing_id = null
+      elem = $("li[data-jot='#{id}']")
+      content_elem = elem.find('.content')
+      jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+      raw_content = window.unescapeHtml(jot_object.content)
 
-          $.ajax(
-            type: 'PATCH'
-            url: "/jots/#{id}"
-            data: "content=#{encodeURIComponent(updated_content)}"
+      updated_content = window.escapeHtml @getJotContent()
+      jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
+      
+      @edit_overlay.hide()
+      @new_jot_wrap.attr('data-editing', 'false')
+      @clearJotInputs()
+      elem.attr('data-editing', 'false')
+      content_elem.html(updated_content.replace(/\n/g, '<br />'))
+      
+      # return keyboard controls
+      @jots_wrapper.focus()
+      @lj.key_controls.clearKeyedOverData()
+      elem.attr('data-keyed-over', 'true')
 
-            success: (data) =>
-              jot_object.content = data.content
-              jot_object.created_at_long = data.created_at_long
-              jot_object.created_at_short = data.created_at_short
-              jot_object.updated_at = data.updated_at
-              @setTimestamp jot_object
+      # only update folder/topic order & send server request if the user
+      # changed the content field of the jot
+      if updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top
+        @lj.folders.moveCurrentFolderToTop()
+        @lj.topics.moveCurrentTopicToTop()
 
-              new HoverNotice(@lj, 'Jot updated.', 'success')
+        if @new_jot_break_value
+          elem.addClass 'break-from-top'
+        else
+          elem.removeClass 'break-from-top'
 
-            error: (data) =>
-              unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
-                new HoverNotice(@lj, data.responseJSON.error, 'error')
-              else
-                new HoverNotice(@lj, 'Could not update jot.', 'error')
-          )
+        $.ajax(
+          type: 'PATCH'
+          url: "/jots/#{id}"
+          data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}"
+
+          success: (data) =>
+            jot_object.content = data.jot.content
+            jot_object.created_at_long = data.jot.created_at_long
+            jot_object.created_at_short = data.jot.created_at_short
+            jot_object.updated_at = data.jot.updated_at
+            @setTimestamp jot_object
+
+            new HoverNotice(@lj, 'Jot updated.', 'success')
+
+          error: (data) =>
+            unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+              new HoverNotice(@lj, data.responseJSON.error, 'error')
+            else
+              new HoverNotice(@lj, 'Could not update jot.', 'error')
+        )
 
   deleteJot: (id) =>
     if @lj.emergency_mode.active

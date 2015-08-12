@@ -4,6 +4,7 @@
   -webkit-user-select: none
   user-select: none
   outline: 0
+  position: relative
 
   ul#jot-toolbar
     width: 100%
@@ -44,10 +45,10 @@
         display: inline-block
 
         .is-checked
-          display: inline-block
+          display: none
 
         .not-checked
-          display: none
+          display: inline-block
 
         i
           font-size: 1rem
@@ -67,27 +68,25 @@
       input#jot_heading
         width: 100%
         border: 0
-        font-size: 1.1rem
+        font-size: 1.3rem
         font-weight: 600
         background-color: $palette-white
         box-shadow: none
         margin-bottom: 0
         padding: 0 1rem
-        line-height: 3rem
-        height: 3rem
+        line-height: 4rem
+        height: 4rem
 
     &#jot-standard-tab
-      form#new_jot
-        textarea#jot_content
-          position: relative
-          min-height: 7rem
-          margin-bottom: 0
-          border: 0
-          transition: none
-          resize: none
-          background-color: $palette-white
-          box-shadow: none
-          padding: .5rem .75rem
+      textarea#jot_content
+        min-height: 7rem
+        margin-bottom: 0
+        border: 0
+        transition: none
+        resize: none
+        background-color: $palette-white
+        box-shadow: none
+        padding: .5rem .75rem
 
   &.is-scrolled-from-bottom
     box-shadow: 0px -1px 4px rgba(0,0,0,0.5)

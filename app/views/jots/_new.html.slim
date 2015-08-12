@@ -1,10 +1,9 @@
 #new-jot-wrap
   div#jot-heading-tab.tab-wrap data-tab='heading'
-    input type='text' id='jot_heading' placeholder='Enter a heading jot here. Press Return to save.'
+    input#jot_heading type='text' placeholder='Enter a heading jot here. Press Return to save.'
 
   div#jot-standard-tab.tab-wrap.active data-tab='standard'
-    = simple_form_for Jot.new do |form|
-      = form.input :content, :label => false, :autofocus => true 
+    textarea#jot_content placeholder='Press Return to save. Shift + Return for new line.'
 
   div#jot-checklist-tab.tab-wrap data-tab='checklist'
     |checklists go here
