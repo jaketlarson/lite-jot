@@ -307,7 +307,7 @@ class window.Jots extends LiteJot
     html = "<ul class='checklist-jot'>"
     $.each items, (index, item) =>
       html += "<li>"
-      html += "<input type='checkbox' checked=#{item.checked}>"
+      html += "<input type='checkbox'#{if item.checked then "checked" else ""}>"
       html += "#{item.value}"
       html += "</li>"
 
@@ -550,6 +550,40 @@ class window.Jots extends LiteJot
     @jots_list.find("li[data-jot='#{jot_id}'] input[type='checkbox']").click (e) =>
       e.stopImmediatePropagation()
 
+      # toggle checkbox
+      parent_ul = $(e.currentTarget).closest('ul')
+      index = parent_ul.find("input[type='checkbox']").index $(e.currentTarget)
+      jot_object = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
+      content = JSON.parse(jot_object.content)
+      content[index].checked = !content[index].checked
+      jot_object.content = JSON.stringify content
+
+      @toggleCheckJotItem jot_object
+
+
+  toggleCheckJotItem: (jot) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
+    if !jot.has_manage_permissions
+      new HoverNotice(@lj, 'You do not have permission to flag this jot.', 'error')
+      return
+
+    $.ajax(
+      type: 'PATCH'
+      url: "/jots/#{jot.id}"
+      data: "content=#{jot.content}"
+
+      success: (data) =>
+        # all actions carried out on correct assumption that action would pass
+
+      error: (data) =>
+        unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not toggle checkbox.', 'error')
+    )
 
   flagJot: (id) =>
     if @lj.emergency_mode.active
