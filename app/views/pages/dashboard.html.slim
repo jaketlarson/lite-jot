@@ -52,8 +52,7 @@
   #jot-temp-entry-template
     li.temp
 
-  = simple_form_for Jot.new do |form|
-    = form.input :content, :label => false, :autofocus => true
+  = render :partial => 'jots/new'
 
   #edit-overlay
     #edit-notice

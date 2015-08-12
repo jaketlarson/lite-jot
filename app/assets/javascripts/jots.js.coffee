@@ -5,10 +5,20 @@ class window.Jots extends LiteJot
     @initVars()
     @initJotFormListeners()
     @initScrollListeners()
+    @newJotWrapActive()
 
   initVars: =>
+    @new_jot_wrap = $('#new-jot-wrap')
+    @new_jot_toolbar = $('#new-jot-wrap #jot-toolbar')
     @new_jot_form = $('form#new_jot')
+    @new_jot_heading = @new_jot_wrap.find('input#jot_heading')
     @new_jot_content = @new_jot_form.find('textarea#jot_content')
+    @new_jot_wrap_clicking = false
+    @new_jot_current_tab = 'standard'
+    @new_jot_break_option_wrap = @new_jot_toolbar.find('#break-option')
+    @new_jot_break_value = false
+
+
     @jots_heading = $('h2#jots-heading')
     @jots_heading_text = $('h2#jots-heading .heading-text')
     @jots_wrapper = $('#jots-wrapper')
@@ -61,6 +71,76 @@ class window.Jots extends LiteJot
         e.preventDefault()
         @new_jot_form.submit()
 
+
+    @new_jot_content.blur (e) =>
+      @newJotWrapInactive()
+
+    @new_jot_heading.blur (e) =>
+      @newJotWrapInactive()
+
+    # @new_jot_wrap.blur (e) =>
+    #   @newJotWrapInactive()
+
+    @new_jot_content.focus (e) =>
+      @newJotWrapActive()
+
+    @new_jot_heading.focus (e) =>
+      @newJotWrapActive()
+
+    @new_jot_wrap.find('li.tab').click (e) =>
+      # maybe cancel other events
+      @switchTab $(e.currentTarget).data('tab')
+
+    @new_jot_break_option_wrap.click =>
+      @toggleJotBreak()
+
+  determineFocusForNewJot: =>
+    if @new_jot_current_tab == 'standard'
+      @new_jot_content.focus()
+      return false
+    else if @new_jot_current_tab == 'heading'
+      @new_jot_heading.focus()
+
+  newJotWrapActive: =>
+    console.log 'active'
+    @new_jot_wrap.addClass('active')
+
+  newJotWrapInactive: =>
+    @new_jot_wrap.removeClass('active')
+
+  switchTab: (tab) =>
+    console.log tab
+    if tab == @new_jot_current_tab
+      console.log 'lol no not switching'
+      return
+
+    @new_jot_current_tab = tab
+
+    @new_jot_wrap.find('li.tab.active').removeClass('active')
+    @new_jot_wrap.find('.tab-wrap.active').removeClass('active')
+
+    @new_jot_wrap.find("li.tab[data-tab='#{tab}']").addClass('active')
+    @new_jot_wrap.find(".tab-wrap[data-tab='#{tab}']").addClass('active')
+
+    @lj.sizeUI()
+    @scrollJotsToBottom()
+    @new_jot_wrap.focus()
+
+  toggleJotBreak: =>
+    @new_jot_break_value = !@new_jot_break_value
+    if @new_jot_break_value
+      @new_jot_break_option_wrap.find('.is-checked').hide()
+      @new_jot_break_option_wrap.find('.not-checked').css('display', 'inline-block')
+    else
+      @new_jot_break_option_wrap.find('.not-checked').hide()
+      @new_jot_break_option_wrap.find('.is-checked').css('display', 'inline-block')
+
+
+
+
+
+
+
   initScrollListeners: =>
     @jots_wrapper.scroll () =>
       @checkScrollPosition()
@@ -72,9 +152,9 @@ class window.Jots extends LiteJot
       @jots_heading.addClass('is-scrolled-from-top')
 
     if @jots_wrapper.scrollTop() + @jots_wrapper.height() == @jots_wrapper[0].scrollHeight
-      @new_jot_content.removeClass('is-scrolled-from-bottom')
+      @new_jot_wrap.removeClass('is-scrolled-from-bottom')
     else
-      @new_jot_content.addClass('is-scrolled-from-bottom')
+      @new_jot_wrap.addClass('is-scrolled-from-bottom')
 
   submitNewJot: =>
     if @lj.emergency_mode.active && !@lj.emergency_mode.terms_accepted_by_user

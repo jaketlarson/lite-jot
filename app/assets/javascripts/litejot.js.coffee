@@ -74,7 +74,7 @@ class window.LiteJot
     topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_content.outerHeight(true)
+    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()

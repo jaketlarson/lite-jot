@@ -21,6 +21,7 @@ class window.KeyControls extends LiteJot
       esc: 27
       s: 83
       y: 89
+      b: 66
 
     # virtual architecture user is navigating w/ keyboard
     @key_nav = {}
@@ -55,6 +56,12 @@ class window.KeyControls extends LiteJot
       del: @deleteJotKeyedAt
       backspace: @deleteJotKeyedAt
       s: @lj.search.focusSearchInput
+
+    @key_nav.jot_toolbar =
+      left: @keyToLeftJotToolbarTab
+      right: @keyToRightJotToolbarTab
+      up: @keyToNewJot
+      b: @lj.jots.toggleJotBreak
 
     @key_nav.search_jots =
       down: @keyToFirstJotOrNew
@@ -94,6 +101,7 @@ class window.KeyControls extends LiteJot
       return controls_scope[key_name]
 
   initKeyBinds: =>
+    # New Jot, standard content type
     @lj.jots.new_jot_content.keydown (e) =>
       jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
       if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0
@@ -106,6 +114,29 @@ class window.KeyControls extends LiteJot
 
       if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0
         @lj.search.focusSearchInput()
+
+      if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
+        @keyToNewJotsTabs()
+
+    # New Jot, heading type
+    @lj.jots.new_jot_heading.keydown (e) =>
+      jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
+      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0
+        $(e.currentTarget).blur()
+        @keyToLastJot()
+
+      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0
+        $(e.currentTarget).blur()
+        @keyToCurrentTopic()
+
+      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0
+        @lj.search.focusSearchInput()
+
+      if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
+        @keyToNewJotsTabs()
+
+
+
 
     @lj.jots.jots_wrapper.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
@@ -187,6 +218,10 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.search_jots
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.search_jots).call()
 
+    @lj.jots.new_jot_toolbar.keydown (e) =>
+      if @isValidControl e.keyCode, @key_nav.jot_toolbar
+        @getControlFunctionByKeyCode(e.keyCode, @key_nav.jot_toolbar).call()
+
     @lj.folders.folders_column.focus (e) =>
       @curr_pos = 'folders'
       @switchKeyboardShortcutsPane()
@@ -208,6 +243,10 @@ class window.KeyControls extends LiteJot
       @curr_pos = 'search_jots'
       @switchKeyboardShortcutsPane()
 
+    @lj.jots.new_jot_toolbar.focus (e) =>
+      @curr_pos = 'jot_toolbar'
+      @switchKeyboardShortcutsPane()
+
     @lj.folders.folders_column.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
@@ -225,6 +264,10 @@ class window.KeyControls extends LiteJot
       #@clearKeyedOverData()
 
     @lj.search.search_input.blur (e) =>
+      @clearKeyboardShortcutsPane()
+      #@clearKeyedOverData()
+
+    @lj.jots.new_jot_toolbar.blur (e) =>
       @clearKeyboardShortcutsPane()
       #@clearKeyedOverData()
 
@@ -290,6 +333,7 @@ class window.KeyControls extends LiteJot
       topics: '#keyboard-shortcuts #topic-keys'
       jots: '#keyboard-shortcuts #jot-keys'
       new_jot: '#keyboard-shortcuts #new_jot-keys'
+      jot_toolbar: '#keyboard-shortcuts #jot_toolbar-keys'
       search_jots: '#keyboard-shortcuts #search_jots-keys'
 
     $('#keyboard-shortcuts .default').hide()
@@ -375,7 +419,7 @@ class window.KeyControls extends LiteJot
 
   keyToNewJot: =>
     @clearKeyedOverData()
-    @lj.jots.new_jot_content.focus()
+    @lj.jots.determineFocusForNewJot()
 
   flagJotKeyedAt: =>
     id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
@@ -555,3 +599,64 @@ class window.KeyControls extends LiteJot
   editFolderKeyedAt: =>
     id = $(@lj.folders.folders_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-folder')
     @lj.folders.editFolder parseInt(id)
+
+  keyToNewJotsTabs: =>
+    @clearKeyedOverData()
+    @lj.jots.new_jot_toolbar.focus()
+
+    @lj.jots.new_jot_toolbar.find('li.active').attr('data-keyed-over', 'true')
+
+  keyToLeftJotToolbarTab: =>
+    if @lj.jots.new_jot_toolbar.find("li[data-keyed-over='true']").length > 0
+      elem = @getKeyedOverElem()
+
+      @cur_pos = 'jot_toolbar'
+      @cur_pos_index = elem.index()
+      @clearKeyedOverData()
+      console.log elem.index()
+      if elem.index() > 0
+        nextElem = elem.prev()
+      else
+        @keyToLastJotToolbarTab()
+        return
+
+      nextElem.attr('data-keyed-over', 'true')
+      @lj.jots.switchTab nextElem.data('tab')
+
+  keyToRightJotToolbarTab: =>
+    if @lj.jots.new_jot_toolbar.find("li[data-keyed-over='true']").length > 0
+      elem = @getKeyedOverElem()
+
+      @cur_pos = 'jot_toolbar'
+      @cur_pos_index = elem.index()
+      @clearKeyedOverData()
+
+      if elem.index() < @lj.jots.new_jot_toolbar.find('li.tab').length - 1
+        nextElem = elem.next()
+      else
+        @keyToFirstJotToolbarTab()
+        return
+
+      nextElem.attr('data-keyed-over', 'true')
+      @lj.jots.switchTab nextElem.data('tab')
+
+  keyToFirstJotToolbarTab: =>
+    @clearKeyedOverData()
+
+    elem = $(@lj.jots.new_jot_toolbar.find('li.tab').first())
+    elem.attr('data-keyed-over', 'true')
+    @curr_pos = 'jot_toolbar'
+    @cur_pos_index = 0
+    @lj.jots.switchTab elem.data('tab')
+
+  keyToLastJotToolbarTab: =>
+    @clearKeyedOverData()
+
+    elem = $(@lj.jots.new_jot_toolbar.find('li.tab').last())
+    elem.attr('data-keyed-over', 'true')
+    @curr_pos = 'jot_toolbar'
+    @cur_pos_index = 0
+    @lj.jots.switchTab elem.data('tab')
+
+
+    

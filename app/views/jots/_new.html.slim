@@ -1,0 +1,31 @@
+#new-jot-wrap
+  div#jot-heading-tab.tab-wrap data-tab='heading'
+    input type='text' id='jot_heading' placeholder='Enter a heading jot here. Press Return to save.'
+
+  div#jot-standard-tab.tab-wrap.active data-tab='standard'
+    = simple_form_for Jot.new do |form|
+      = form.input :content, :label => false, :autofocus => true 
+
+  div#jot-checklist-tab.tab-wrap data-tab='checklist'
+    |checklists go here
+
+  ul#jot-toolbar tabindex='7'
+    li.tab data-tab='heading'
+      i.fa.fa-header
+      |Heading
+
+    li.tab.active data-tab='standard'
+      i.fa.fa-sticky-note
+      |Standard
+
+    li.tab data-tab='checklist'
+      i.fa.fa-th-list
+      |Checklist
+
+    li#break-option.right
+      .is-checked
+        i.fa.fa-check-square-o
+      .not-checked
+        i.fa.fa-square-o
+
+      |Space buffer from previous jot

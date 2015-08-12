@@ -1,0 +1,99 @@
+#new-jot-wrap
+  background-color: $palette-light-gray
+  padding: .3rem .1rem .1rem .1rem
+  -webkit-user-select: none
+  user-select: none
+  outline: 0
+
+  ul#jot-toolbar
+    width: 100%
+    line-height: 2rem
+    margin: 0
+    font-family: 'Monda'
+    background-color: $palette-light-gray
+    color: $palette-black
+    outline: 0
+
+    &:focus
+      background-color: $primary-color
+      color: $palette-white
+
+    li
+      display: inline-block
+      padding: 0 1rem
+      cursor: pointer
+      margin-right: 1px
+      font-size: .9rem
+      vertical-align: top
+
+      i
+        margin-right: .5rem
+
+      &.tab
+        &.active
+          background-color: $palette-white
+          color: $palette-black
+
+        &:not(.active)
+          &:hover
+            background-color: $primary-color
+            color: $palette-white
+
+      &#break-option
+        font-size: .8rem
+        display: inline-block
+
+        .is-checked
+          display: inline-block
+
+        .not-checked
+          display: none
+
+        i
+          font-size: 1rem
+          vertical-align: -12%
+
+        &:hover
+          color: $palette-white
+          background-color: $primary-color
+
+  .tab-wrap
+    display: none
+
+    &.active
+      display: block
+
+    &#jot-heading-tab
+      input#jot_heading
+        width: 100%
+        border: 0
+        font-size: 1.1rem
+        font-weight: 600
+        background-color: $palette-white
+        box-shadow: none
+        margin-bottom: 0
+        padding: 0 1rem
+        line-height: 3rem
+        height: 3rem
+
+    &#jot-standard-tab
+      form#new_jot
+        textarea#jot_content
+          position: relative
+          min-height: 7rem
+          margin-bottom: 0
+          border: 0
+          transition: none
+          resize: none
+          background-color: $palette-white
+          box-shadow: none
+          padding: .5rem .75rem
+
+  &.is-scrolled-from-bottom
+    box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
+
+  &[data-editing='true']
+    z-index: 4
+
+  &.active
+    background-color: $primary-color
