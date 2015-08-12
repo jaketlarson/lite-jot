@@ -104,15 +104,15 @@ class window.KeyControls extends LiteJot
     # New Jot, standard content type
     @lj.jots.new_jot_content.keydown (e) =>
       jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
-      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0
+      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToLastJot()
 
-      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0
+      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
-      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0
+      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         @lj.search.focusSearchInput()
 
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
@@ -121,15 +121,15 @@ class window.KeyControls extends LiteJot
     # New Jot, heading type
     @lj.jots.new_jot_heading.keydown (e) =>
       jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
-      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0
+      if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToLastJot()
 
-      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0
+      if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
-      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0
+      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         @lj.search.focusSearchInput()
 
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0

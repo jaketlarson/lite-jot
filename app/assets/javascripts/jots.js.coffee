@@ -118,9 +118,19 @@ class window.Jots extends LiteJot
     @new_jot_wrap.removeClass('active')
 
   switchTab: (tab) =>
-    console.log tab
     if tab == @new_jot_current_tab
       return
+
+    # Value of current input should be carried over
+    if @new_jot_current_tab == 'standard'
+      carry_over_value = @new_jot_content.val()
+    else if @new_jot_current_tab == 'heading'
+      carry_over_value = @new_jot_heading.val()
+
+    if tab == 'standard'
+      @new_jot_content.val(carry_over_value)
+    else if tab == 'heading'
+      @new_jot_heading.val(carry_over_value)
 
     @new_jot_current_tab = tab
 
@@ -411,15 +421,6 @@ class window.Jots extends LiteJot
       new HoverNotice(@lj, 'You do not have permission to edit this jot.', 'error')
       return
 
-    @edit_overlay.show()
-    @edit_overlay.find('#edit-notice').css(
-      bottom: (@new_jot_content.height() - @edit_notice.height()/2)
-      left: @new_jot_content.offset().left - @edit_notice.width()
-    )
-    elem.attr('data-editing', 'true')
-
-    @new_jot_wrap.attr('data-editing', 'true')
-
     if jot_object.jot_type == 'heading'
       @switchTab 'heading'
       @new_jot_heading.val(raw_content).focus()
@@ -431,6 +432,14 @@ class window.Jots extends LiteJot
       @jotBreakOn()
     else
       @jotBreakOff()
+
+    @edit_overlay.show()
+    @edit_overlay.find('#edit-notice').css(
+      bottom: (@new_jot_wrap.height() - @edit_notice.height()/2)
+      left: @new_jot_wrap.offset().left - @edit_notice.width()
+    )
+    elem.attr('data-editing', 'true')
+    @new_jot_wrap.attr('data-editing', 'true')
 
   finishEditing: =>
     if @currently_editing_id
@@ -457,19 +466,26 @@ class window.Jots extends LiteJot
 
       # only update folder/topic order & send server request if the user
       # changed the content field of the jot
-      if updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top
+      if updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type
         @lj.folders.moveCurrentFolderToTop()
         @lj.topics.moveCurrentTopicToTop()
 
+        jot_object.jot_type = @new_jot_current_tab
+        jot_object.break_from_top = @new_jot_break_value
         if @new_jot_break_value
           elem.addClass 'break-from-top'
         else
           elem.removeClass 'break-from-top'
 
+        if @new_jot_current_tab == 'heading'
+          elem.addClass 'heading'
+        else
+          elem.removeClass 'heading'
+
         $.ajax(
           type: 'PATCH'
           url: "/jots/#{id}"
-          data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}"
+          data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}&jot_type=#{@new_jot_current_tab}"
 
           success: (data) =>
             jot_object.content = data.jot.content
