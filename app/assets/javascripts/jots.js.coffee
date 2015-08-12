@@ -16,7 +16,7 @@ class window.Jots extends LiteJot
     @new_jot_checklist_tab = @new_jot_wrap.find('.tab-wrap#jot-checklist-tab')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
-    @new_jot_break_option_wrap = @new_jotgit _toolbar.find('#break-option')
+    @new_jot_break_option_wrap = @new_jot_toolbar.find('#break-option')
     @new_jot_break_value = false
 
     @jots_heading = $('h2#jots-heading')
@@ -647,6 +647,7 @@ class window.Jots extends LiteJot
       raw_content = window.unescapeHtml(jot_object.content)
 
       updated_content = window.escapeHtml @getJotContent()
+      console.log updated_content
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       @edit_overlay.hide()
@@ -654,11 +655,6 @@ class window.Jots extends LiteJot
       jot_length = @newJotLength()
       @clearJotInputs()
       elem.attr('data-editing', 'false')
-
-      if jot_object.jot_type == 'checklist'
-        content_elem.html @parseCheckListToHTML(updated_content)
-      else
-        content_elem.html updated_content.replace(/\n/g, '<br />')
       
       # return keyboard controls
       @jots_wrapper.focus()
@@ -672,6 +668,11 @@ class window.Jots extends LiteJot
         @lj.topics.moveCurrentTopicToTop()
 
         jot_object.jot_type = @new_jot_current_tab
+        if jot_object.jot_type == 'checklist'
+          content_elem.html @parseCheckListToHTML(updated_content)
+        else
+          content_elem.html updated_content.replace(/\n/g, '<br />')
+
         jot_object.break_from_top = @new_jot_break_value
         if @new_jot_break_value
           elem.addClass 'break-from-top'

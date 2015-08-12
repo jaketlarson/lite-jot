@@ -33,7 +33,7 @@ $ ->
 class window.LiteJot
   constructor: ->
     @init_data_loaded = false
-    
+
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
     @emergency_mode = new EmergencyMode(@)
@@ -53,6 +53,7 @@ class window.LiteJot
     @initAppInfoModalBind()
     @initModalFocusBind()
     @connection.startConnectionTestTimer()
+    @jots.new_jot_content.focus()
 
   initFoundation: =>
     $(document).foundation()
