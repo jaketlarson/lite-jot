@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150806020621) do
+ActiveRecord::Schema.define(version: 20150812000731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,11 +27,13 @@ ActiveRecord::Schema.define(version: 20150806020621) do
     t.integer  "folder_id"
     t.integer  "topic_id"
     t.integer  "user_id"
-    t.boolean  "is_flagged", default: false
+    t.boolean  "is_flagged",     default: false
     t.integer  "order"
     t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "break_from_top", default: false
+    t.string   "type",           default: "standard"
   end
 
   create_table "shares", force: true do |t|
