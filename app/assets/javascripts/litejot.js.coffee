@@ -54,6 +54,7 @@ class window.LiteJot
     @initModalFocusBind()
     @connection.startConnectionTestTimer()
     @jots.new_jot_content.focus()
+    @emergency_mode.checkLocalStorageContents()
 
   initFoundation: =>
     $(document).foundation()
@@ -100,6 +101,7 @@ class window.LiteJot
         @app.topics = data.topics
         @app.jots = data.jots
         @app.shares = data.shares
+        @app.user = data.users
 
         @buildUI()
         @initNotifications()

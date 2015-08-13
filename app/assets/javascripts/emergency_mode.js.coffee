@@ -88,13 +88,15 @@ class window.EmergencyMode extends LiteJot
     new HoverNotice(@lj, 'This feature is unavailable while in Emergency Mode.', 'error')
     return
 
-  storeJot: (content, key) =>
+  storeJot: (content, key, jot_type, break_from_top) =>
     jot = 
       content: content
       is_temp: true
       temp_key: key
       topic_id: @lj.app.current_topic
       folder_id: @lj.app.current_folder
+      jot_type: jot_type
+      break_from_top: break_from_top
 
     stored_jots = @getStoredJotsObject()
     console.log stored_jots
@@ -116,7 +118,7 @@ class window.EmergencyMode extends LiteJot
       console.log "found jots to store.."
       $.ajax(
         type: 'POST'
-        url: @lj.jots.new_jot_form.attr('action')
+        url: '/jots'
         data: {"jots": stored_jots}
         success: (data) =>
           if data.error_list.length > 0
@@ -140,14 +142,64 @@ class window.EmergencyMode extends LiteJot
           @clearLocalStorage()
 
         error: (data) =>
-          console.log data
+          # still can't save the jots..
+          # if this happens to often, an improvement could be
+          # to reattempt this ajax request again before firing
+          # the unsaved-jots-alert message.
+          errorWhileAttemptingToSaveJots()
+          @clearLocalStorage()
       )
 
+    # unsavedJotsAlert fires upon savedStoredJots ajax success
+    # but returns errors from the server
     unsavedJotsAlert = (error_list) =>
       @unsaved_jots_modal.foundation 'reveal', 'open'
       @unsaved_jots_modal.html @unsaved_jots_modal_template.html()
       $.each error_list, (key, item) =>
-        @unsaved_jots_modal.find('textarea#error-list').append("Jot: #{item.content}\nError: #{item.error}\n\n")
+        if item.jot_type == "heading"
+          type_desc = "Heading Jot"
+          content = item.content
+        else if item.jot_type == "checklist"
+          type_desc = "Checklist Jot"
+          content = @lj.jots.parseCheckListToText item.content
+        else
+          type_desc = "Standard Jot"
+          content = item.content
+
+        if item.break_from_top
+          type_desc += ", space from top"
+
+        @unsaved_jots_modal.find('textarea#error-list').append("#{type_desc}:\n#{content}\nError: #{item.error}\n\n")
+
+      @unsaved_jots_modal.find('.close').click =>
+        @unsaved_jots_modal.foundation 'reveal', 'close'
+
+    # errorWhileAttemptingToSaveJots fires when the ajax request
+    # has an error.. this can happen during a choppy internet connection,
+    # when emergency mode starts up and then goes off, but internet
+    # is still bad
+    errorWhileAttemptingToSaveJots = =>
+      @unsaved_jots_modal.foundation 'reveal', 'open'
+      @unsaved_jots_modal.html @unsaved_jots_modal_template.html()
+      $.each stored_jots, (key, item) =>
+        console.log item
+        if item.jot_type == "heading"
+          type_desc = "Heading Jot"
+          content = item.content
+        else if item.jot_type == "checklist"
+          type_desc = "Checklist Jot"
+          content = @lj.jots.parseCheckListToText item.content
+        else
+          type_desc = "Standard Jot"
+          content = item.content
+
+        if item.break_from_top
+          type_desc += ", space from top"
+
+        @unsaved_jots_modal.find('textarea#error-list').append("#{type_desc}:\n#{content}\n\n")
+
+      @unsaved_jots_modal.find('.close').click =>
+        @unsaved_jots_modal.foundation 'reveal', 'close'
 
   clearLocalStorage: =>
     localStorage.clear()
@@ -159,4 +211,15 @@ class window.EmergencyMode extends LiteJot
       return true
     catch e
       return false
+
+  # This is ran upon Lite Jot init, in case user left in emergency mode
+  # w/ unsaved jots
+  checkLocalStorageContents: =>
+    stored_jots = @getStoredJotsObject()
+
+    if stored_jots.length > 0
+      console.log 'OMG ITS THERE'
+      @saveStoredJots()
+    else
+      console.log 'no...'
 

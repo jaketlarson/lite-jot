@@ -392,7 +392,7 @@ class window.Jots extends LiteJot
 
       # If emergency mode is on, then store the jot in local storage. Otherwise send to server
       if @lj.emergency_mode.active
-        @lj.emergency_mode.storeJot content, key
+        @lj.emergency_mode.storeJot content, key, jot_type, @new_jot_break_value
         # reset new jot inputs
         @clearJotInputs()
 
