@@ -74,6 +74,7 @@ class window.Jots extends LiteJot
   initJotFormListeners: =>
     @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
+        e.preventDefault()
         if @currently_editing_id # if this is set, we're editing
           @finishEditing()
         else
@@ -81,6 +82,7 @@ class window.Jots extends LiteJot
 
     @new_jot_heading.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter
+        e.preventDefault()
         if @currently_editing_id # if this is set, we're editing
           @finishEditing()
         else
@@ -92,9 +94,6 @@ class window.Jots extends LiteJot
     @new_jot_heading.blur (e) =>
       @newJotWrapInactive()
 
-    # @new_jot_wrap.blur (e) =>
-    #   @newJotWrapInactive()
-
     @new_jot_content.focus (e) =>
       @newJotWrapActive()
 
@@ -104,6 +103,7 @@ class window.Jots extends LiteJot
     @new_jot_wrap.find('li.tab').click (e) =>
       # maybe cancel other events
       @switchTab $(e.currentTarget).data('tab')
+      @determineFocusForNewJot()
 
     @new_jot_break_option_wrap.click =>
       @toggleJotBreak()
