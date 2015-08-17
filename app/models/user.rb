@@ -20,6 +20,8 @@ class User < ActiveRecord::Base
 
   validate :freeze_email, :on => :update
 
+  attr_accessor :current_password
+
   def freeze_email
     errors.add(:email, 'cannot be changed') if self.email_changed?
   end

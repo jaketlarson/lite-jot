@@ -11,6 +11,7 @@ class window.UserSettings extends LiteJot
     @modal_template = $('#user-settings-modal-template')
     @waiting = false
     @success_text_time = 2000
+    @header_display_name = $('nav #header-display-name')
 
   initModalInstanceVars: =>
     @form = @modal.find('form.edit_user')
@@ -32,6 +33,7 @@ class window.UserSettings extends LiteJot
       @modal.foundation 'reveal', 'open'
       @modal.html(@modal_template.html())
       @initModalInstanceVars()
+      @updateFormWithClientSideData()
 
       @modal.find('.cancel').click =>
         @modal.foundation 'reveal', 'close'
@@ -51,14 +53,16 @@ class window.UserSettings extends LiteJot
       data: @form.serialize()
 
       success: (data) =>
-        @handleSuccess(data)
+        @updateClientSideUserData data
+        @handleSuccess data
 
       error: (data) =>
         @handleError(data)
     )
 
   handleSuccess: (data) =>
-    #data.user
+    @error_wrap.hide()
+    @clearPasswordFields()
     @success_text.show()
     @loading_text.hide()
     @submit_button.addClass 'success'
@@ -70,7 +74,25 @@ class window.UserSettings extends LiteJot
     , @success_text_time)
 
   handleError: (data) =>
-    @error_text.html(data.responseJSON.user.errors)
+    @error_text.html data.responseJSON.errors
     @error_wrap.show()
     @submit_text.show()
     @loading_text.hide()
+
+  updateClientSideUserData: (user) =>
+    @lj.app.user = user
+    @updateHeaderDisplayName()
+
+  updateHeaderDisplayName: =>
+    @header_display_name.html @lj.app.user.display_name
+
+  updateFormWithClientSideData: =>
+    if @lj.app.user
+      user = @lj.app.user
+      @form.find('#user_display_name').val user.display_name
+      @form.find('#user_email').val user.email
+
+  clearPasswordFields: =>
+    @form.find('#user_current_password').val ''
+    @form.find('#user_password').val ''
+    @form.find('#user_password_confirmation').val ''

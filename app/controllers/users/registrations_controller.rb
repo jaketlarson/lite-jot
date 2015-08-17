@@ -52,10 +52,12 @@ class Users::RegistrationsController < Devise::RegistrationsController
         set_flash_message :success, flash_key
       end
       sign_in resource_name, resource, bypass: true
-      render :json => resource, :status => :ok
+      render :json => UserSerializer.new(resource, :root => false), :status => :ok
     else
+      ap resource
       clean_up_passwords resource
-      render :json => resource, :status => :not_acceptable
+      ap resource
+      render :json => UserSerializer.new(resource, :root => false), :status => :not_acceptable
     end
   end
 

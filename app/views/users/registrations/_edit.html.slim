@@ -6,12 +6,22 @@
     span.error-text
 
   == simple_form_for current_user, :url => registration_path(current_user), :html => { :method => :put } do |edit|
+
+    h4 General
+
+    section
+
     == edit.input :display_name
     == edit.input :email, :disabled => true
 
+
     - if current_user.auth_provider.blank?
-      == edit.input :password
-      == edit.input :password_confirmation
+      h4.divider Password Change (optional)
+
+      section
+        == edit.input :current_password, :placeholder => "Confirm current password"
+        == edit.input :password, :placeholder => "New password"
+        == edit.input :password_confirmation, :placeholder => "New password, again"
 
   .actions
     button.primary.confirm

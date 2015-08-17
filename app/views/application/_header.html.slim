@@ -18,7 +18,7 @@ nav.top-bar data-topbar='true' role='navigation'
 
       - if user_signed_in? && action_name == 'dashboard'
         li.has-dropdown
-          a href='#'
+          a#header-display-name href='#'
             == current_user.display_name
           ul.dropdown
             li

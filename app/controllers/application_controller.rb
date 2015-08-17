@@ -59,6 +59,7 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:sign_up) << :display_name
 
+    devise_parameter_sanitizer.for(:account_update) << :current_password
     devise_parameter_sanitizer.for(:account_update) << :display_name
     devise_parameter_sanitizer.for(:account_update) << :is_viewing_key_controls
   end
