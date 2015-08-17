@@ -2,15 +2,22 @@ h3
   |new jotters
 
 
-.form-wrap
+.form-wrap#sign-up-form
   = simple_form_for @user_sign_up, :url => user_registration_path(@user_sign_up) do |sign_up|
 
-    == sign_up.input :display_name, :label => false, :error => false
+    == sign_up.input :display_name, :label => false, :error => false, :autofocus => true
 
     == sign_up.input :email, :label => false, :error => false
 
     == sign_up.input :password, :label => false, :error => false
 
     == sign_up.input :password_confirmation, :label => false, :error => false
-    
+
     button.right Sign up
+
+    p.terms-disclaimer
+      | By clicking &ldquo;Sign up&rdquo;, you agree to our&nbsp;
+      a href='/terms' target='_blank' terms of service
+      | &nbsp;and&nbsp;
+      a href='/privacy' target='_blank' privacy policy
+      |.

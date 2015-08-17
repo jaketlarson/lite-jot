@@ -3,14 +3,16 @@ class PagesController < ApplicationController
   def welcome
     @user_sign_up = User.new
     @user_sign_in = User.new
-    users = User.all
-    users.each do |user|
-      puts user.display_name
-    end
   end
 
   def panel
     @user = current_user
-    
   end
+
+  def terms
+  end
+
+  def privacy
+  end
+
 end

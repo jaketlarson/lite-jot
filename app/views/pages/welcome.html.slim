@@ -8,11 +8,11 @@
         == render :partial => "action_messages"
 
         .row
-          .medium-6.columns
+          .medium-6.columns#sign-up-column
+            = render :partial => 'users/registrations/new'
+          .medium-6.columns#sign-in-column
             = render :partial => 'users/sessions/new'
             = render :partial => 'users/omniauth/new'
-          .medium-6.columns
-            = render :partial => 'users/registrations/new'
 
 .panel#features
   h2 Features

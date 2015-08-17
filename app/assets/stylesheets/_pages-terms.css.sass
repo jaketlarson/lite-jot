@@ -1,0 +1,44 @@
+body#pages-terms
+  article
+    margin: 0 auto
+    background-color: $palette-white
+    padding: 2rem
+    max-width: 60rem
+    font-size: .9rem
+    box-shadow: $default-box-shadow
+
+    @media #{$large-up}
+      margin: 3rem auto
+
+    h2
+      font-family: 'Monda'
+      font-size: 1.6rem
+      margin-top: 0
+      text-transform: uppercase
+
+    p.updated-at
+      margin-bottom: 1rem
+      text-align: center
+      font-family: 'Monda'
+      padding-bottom: 1rem
+      border-bottom: 1px solid $palette-gray
+
+    h3
+      font-size: 1.2rem
+      font-family: 'Open Sans'
+      margin-top: 1rem
+
+      &:not(:first-child)
+        margin-top: 3rem
+
+    #terms-wrap
+      margin-top: 2rem
+
+    .actions
+      border-top: 1px solid $palette-gray
+      padding-top: 2rem
+      padding-bottom: 1rem
+      overflow: auto
+
+      .button, button
+        margin-bottom: 0

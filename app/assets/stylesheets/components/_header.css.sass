@@ -3,8 +3,12 @@
 //  overflow: auto
 
 nav.top-bar
-  box-shadow: 0px 1px 4px rgba(0,0,0,0.5)
+  box-shadow: $default-box-shadow
   z-index: 3
+  position: fixed
+  left: 0
+  right: 0
+  top: 0
   
   h1
     color: $palette-lightest-gray
@@ -32,6 +36,9 @@ nav.top-bar
 
         span
           display: inline-block!important
+
+      a
+        font-family: 'Monda'
 
       a#keyboard-shortcuts-link.active, a#calendar-link.active
         background-color: $palette-black

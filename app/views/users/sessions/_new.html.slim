@@ -1,8 +1,8 @@
 h3
   |returning jotters
 
-.form-wrap
+.form-wrap#sign-in-form
   = simple_form_for @user_sign_in, :url => user_session_path(@user_sign_in) do |sign_in|
-    = sign_in.input :email, :label => false, :autofocus => true
+    = sign_in.input :email, :label => false
     = sign_in.input :password, :label => false
-    button Sign in
+    button.right Sign in

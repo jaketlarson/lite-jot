@@ -10,11 +10,26 @@ body#pages-welcome, body#users_registrations-create
     background-color: none
     margin: 0
     padding-top: 2rem
+    padding-bottom: 2rem
 
     &#authenticate
       h3
-        margin-top: 2rem
         font-family: 'Monda'
+        margin-bottom: 1rem
+
+        @media #{$small-only}
+          margin-top: 2rem
+
+      @media #{$medium-up}
+        #sign-up-column, #sign-in-column
+          margin-top: 2rem
+
+        #sign-up-column
+          border-right: 1px solid #ccc
+          padding-right: 2rem
+
+        #sign-in-column
+          padding-left: 2rem
 
     &#features
       background-color: $palette-dark-red
