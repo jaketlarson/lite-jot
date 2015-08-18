@@ -20,12 +20,11 @@ This application makes significant use of the following RoR gems:
   <li>google-api-client</li>
 </ul>
 
-# Running Lite Jot Locally
-To run Lite Jot locally, clone this repository and run <code>bundle install</code> and <code>rails s</code> when the gem dependencies are installed.
+# Copyright & Contributions
+Copyright 2015 <a href="http://www.codereloadrepeat.com">Jake Larson</a>
 
-# License
-<a href="http://opensource.org/licenses/gpl-3.0.html">GNU General Public License, version 3 (GPL-3.0)</a>. Copyright 2015 Jake Larson.
+This repository is currently publicly-viewable However, you are not permitted to copy any of Lite Jot's source code for your own use.
 
-Please request permission from Jake Larson (codereloadrepeat [at] gmail.com) to host this application on your own.
+You are welcome to contribute to this project to improve features and fix bugs. Any contributions are very appreciated!
 
-You are not granted rights or license to the brand name Lite Jot.
+Please contact Jake Larson at codereloadrepeat[at]gmail[dot]com for any questions.
