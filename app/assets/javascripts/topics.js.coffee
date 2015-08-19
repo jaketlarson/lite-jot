@@ -140,6 +140,7 @@ class window.Topics extends LiteJot
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
+    @lj.key_controls.clearKeyedOverData()
     elem.addClass('current').attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()

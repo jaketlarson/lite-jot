@@ -106,7 +106,6 @@ class window.Jots extends LiteJot
       @newJotWrapActive()
 
     @new_jot_wrap.find('li.tab').click (e) =>
-      # maybe cancel other events
       @switchTab $(e.currentTarget).data('tab')
       @determineFocusForNewJot()
 

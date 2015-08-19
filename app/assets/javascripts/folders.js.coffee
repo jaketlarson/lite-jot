@@ -218,6 +218,7 @@ class window.Folders extends LiteJot
     $("li[data-folder='#{@lj.app.current_folder}']").removeClass('current')
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id
+    @lj.key_controls.clearKeyedOverData()
     elem.addClass('current').attr('data-keyed-over', true)
     topics_count = @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length
 

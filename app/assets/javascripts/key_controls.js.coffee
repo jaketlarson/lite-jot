@@ -226,27 +226,32 @@ class window.KeyControls extends LiteJot
     @lj.folders.folders_column.focus (e) =>
       @curr_pos = 'folders'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.topics.topics_column.focus (e) =>
       @curr_pos = 'topics'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.jots.jots_wrapper.focus (e) =>
       @curr_pos = 'jots'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.jots.new_jot_content.focus (e) =>
       @curr_pos = 'new_jot'
       @switchKeyboardShortcutsPane()
-      @clearKeyedOverData() # may need a better way
+      @clearKeyedOverData()
 
     @lj.search.search_input.focus (e) =>
       @curr_pos = 'search_jots'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.jots.new_jot_toolbar.focus (e) =>
       @curr_pos = 'jot_toolbar'
       @switchKeyboardShortcutsPane()
+      @clearKeyedOverData()
 
     @lj.folders.folders_column.blur (e) =>
       @clearKeyboardShortcutsPane()
@@ -258,7 +263,7 @@ class window.KeyControls extends LiteJot
 
     @lj.jots.jots_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
+      @clearKeyedOverData()
 
     @lj.jots.new_jot_content.blur (e) =>
       @clearKeyboardShortcutsPane()
