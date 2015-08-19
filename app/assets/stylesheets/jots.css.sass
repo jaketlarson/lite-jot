@@ -138,7 +138,7 @@
         color: $palette-gray
 
       &:hover
-        color: $primary-color
+        //color: $primary-color
         
         i.edit, i.delete
           display: block
@@ -165,9 +165,12 @@
         right: .5rem
 
       &.highlighted
-        font-weight: bold
         color: $primary-color
 
+        &:before
+          color: $primary-color
+
+      &.timestamp-hover
         &:before
           color: $primary-color
 

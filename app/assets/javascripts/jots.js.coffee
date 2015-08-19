@@ -604,7 +604,26 @@ class window.Jots extends LiteJot
   initJotBinds: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}']").click (e) =>
       e.stopPropagation()
-      @flagJot jot_id
+
+      # Detect pseudo element click if they click the element but are outside
+      # of the jot LI element boundaries. This means they are clicking the
+      # timestamp.
+      # Timestamp click => flag jot
+      # Jot click => edit jot
+      if e.clientX < $(e.currentTarget).offset().left - parseInt($(e.currentTarget).css('paddingLeft'))
+        @flagJot jot_id
+      else
+        @editJot jot_id
+
+    .mousemove (e) =>
+      # Detect if they move over the timestamp, and if so, add responsive class
+      if e.clientX < $(e.currentTarget).offset().left - parseInt($(e.currentTarget).css('paddingLeft'))
+        if !$(e.currentTarget).hasClass 'timestamp-hover'
+          $(e.currentTarget).addClass 'timestamp-hover'
+
+    .mouseout (e) =>
+      if $(e.currentTarget).hasClass 'timestamp-hover'
+        $(e.currentTarget).removeClass 'timestamp-hover'
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.edit").click (e) =>
       @editJot(jot_id)
