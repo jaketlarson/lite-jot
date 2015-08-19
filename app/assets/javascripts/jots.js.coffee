@@ -287,7 +287,8 @@ class window.Jots extends LiteJot
     else
       @jots_heading.addClass('is-scrolled-from-top')
 
-    if @jots_wrapper.scrollTop() + @jots_wrapper.height() == @jots_wrapper[0].scrollHeight
+    buffer = 1 # seems to be buggy in Chrome, so just add 1 to the test
+    if @jots_wrapper.scrollTop() + @jots_wrapper.outerHeight() + buffer >= @jots_wrapper[0].scrollHeight
       @new_jot_wrap.removeClass('is-scrolled-from-bottom')
     else
       @new_jot_wrap.addClass('is-scrolled-from-bottom')
