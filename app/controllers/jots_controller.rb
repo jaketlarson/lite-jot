@@ -169,12 +169,20 @@ class JotsController < ApplicationController
   def update
     jot = Jot.find(params[:id])
 
-    if jot.content != params[:content] && !params[:content].nil?
-      topic = Topic.find(jot.topic_id)
-      folder = Folder.find(topic.folder_id)
+    topic = Topic.find(jot.topic_id)
+    folder = Folder.find(topic.folder_id)
+
+    # check permissions
+    can_modify = false
+    if jot.user_id == current_user.id
+      # they are the jot owner
+      can_modify = true
+    elsif folder.user_id == current_user.id
+      # they are the folder owner, so they can modify what shared users contribute
+      can_modify = true
     end
 
-    if jot.user_id == current_user.id
+    if can_modify
       if jot.update(jot_params)
         if topic
           topic.touch
