@@ -66,6 +66,7 @@ class window.KeyControls extends LiteJot
     @key_nav.search_jots =
       down: @keyToFirstJotOrNew
       esc: @lj.search.endSearchState
+      left: @lj.jots.determineFocusForNewJot
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -249,9 +250,13 @@ class window.KeyControls extends LiteJot
       @clearKeyedOverData()
 
     @lj.jots.new_jot_content.focus (e) =>
-      @curr_pos = 'new_jot'
+      @curr_pos = 'new_jot_content'
       @switchKeyboardShortcutsPane()
       @clearKeyedOverData()
+
+    @lj.jots.new_jot_heading.focus (e) =>
+      @curr_pos = 'new_jot_header'
+      @switchKeyboardShortcutsPane()
 
     @lj.search.search_input.focus (e) =>
       @curr_pos = 'search_jots'
@@ -265,11 +270,9 @@ class window.KeyControls extends LiteJot
 
     @lj.folders.folders_column.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
 
     @lj.topics.topics_column.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
 
     @lj.jots.jots_wrapper.blur (e) =>
       @clearKeyboardShortcutsPane()
@@ -277,15 +280,15 @@ class window.KeyControls extends LiteJot
 
     @lj.jots.new_jot_content.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
+
+    @lj.jots.new_jot_heading.blur (e) =>
+      @clearKeyboardShortcutsPane()
 
     @lj.search.search_input.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
 
     @lj.jots.new_jot_toolbar.blur (e) =>
       @clearKeyboardShortcutsPane()
-      #@clearKeyedOverData()
 
   initKeyboardShortcutsHelpBind: =>
     $('nav a#keyboard-shortcuts-link').click =>
@@ -344,7 +347,9 @@ class window.KeyControls extends LiteJot
       folders: '#keyboard-shortcuts #folder-keys'
       topics: '#keyboard-shortcuts #topic-keys'
       jots: '#keyboard-shortcuts #jot-keys'
-      new_jot: '#keyboard-shortcuts #new_jot-keys'
+      new_jot_content: '#keyboard-shortcuts #new_jot_content-keys'
+      new_jot_header: '#keyboard-shortcuts #new_jot_header-keys'
+      new_jot_checklist: '#keyboard-shortcuts #new_jot_checklist-keys'
       jot_toolbar: '#keyboard-shortcuts #jot_toolbar-keys'
       search_jots: '#keyboard-shortcuts #search_jots-keys'
 

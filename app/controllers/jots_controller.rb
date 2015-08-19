@@ -204,7 +204,18 @@ class JotsController < ApplicationController
   def destroy
     jot = Jot.find(params[:id])
 
+    can_delete = false
     if jot.user_id == current_user.id
+      can_delete = true
+    else
+      # check if they are the owner of the folder this jot is in
+      folder = Folder.find(jot.folder_id)
+      if folder.user_id == current_user.id
+        can_delete = true
+      end
+    end
+
+    if can_delete
       if jot.destroy
         render :json => {:success => true, :message => "Jot moved to trash."}
       else

@@ -238,7 +238,7 @@ class window.Jots extends LiteJot
     if @new_jot_current_tab == 'checklist'
       @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').focus()
 
-  # addNewCheckListItem does some binding that woudl normally
+  # addNewCheckListItem does some binding that would normally
   # be done in key_controls.js, but since they are created in JS
   # the binds were just added here.
   addNewCheckListItem: =>
@@ -253,6 +253,8 @@ class window.Jots extends LiteJot
 
   initCheckListItemBinds: (elem) =>
     elem.keyup (e) =>
+      this_checklist_value = elem.find('input.checklist-value').val()
+
       if e.keyCode == @lj.key_controls.key_codes.enter
         if @currently_editing_id
           @finishEditing()
@@ -271,7 +273,12 @@ class window.Jots extends LiteJot
           @lj.key_controls.keyToNextNewJotListItemDown()
         return
 
-      this_checklist_value = elem.find('input.checklist-value').val()
+      if e.keyCode == @lj.key_controls.key_codes.right
+        if this_checklist_value.trim().length == 0
+          @lj.search.focusSearchInput()
+          console.log 'wow'
+          return
+
       if this_checklist_value.trim().length > 0
         elem.find('input.checklist-value').attr 'data-blank', 'false'
 
@@ -288,11 +295,14 @@ class window.Jots extends LiteJot
       @removeExcessiveBlankCheckListItems()
 
     elem.find('input.checklist-value').focus (e) =>
+      @lj.key_controls.curr_pos = 'new_jot_checklist'
+      @lj.key_controls.switchKeyboardShortcutsPane()
       $(e.currentTarget).attr('data-keyed-over', 'true')
 
     elem.find('input.checklist-value').blur (e) =>
       $(e.currentTarget).attr('data-keyed-over', 'false')
       @removeExcessiveBlankCheckListItems()
+      @lj.key_controls.clearKeyboardShortcutsPane()
 
   removeExcessiveBlankCheckListItems: =>
     num = 0
@@ -822,7 +832,7 @@ class window.Jots extends LiteJot
 
       error: (data) =>
         elem.attr('data-deleting', false)
-        unless typeof data.responseJSON.error == 'undefined'
+        unless typeof data.responseJSON == 'undefined' || data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
         else
           new HoverNotice(@lj, 'Could not delete jot.', 'error')
