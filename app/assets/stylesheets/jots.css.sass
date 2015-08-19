@@ -143,6 +143,9 @@
         i.edit, i.delete
           display: block
 
+      a:hover
+        text-decoration: underline
+
       i.edit, i.delete
         position: absolute
         top: .25rem
@@ -222,6 +225,9 @@
 
       &[data-keyed-over='true']
         background-color: $keyover-color
+
+        a
+          color: $palette-lightest-gray
 
         i.edit, i.delete
           background-color: $primary-color

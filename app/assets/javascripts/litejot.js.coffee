@@ -24,7 +24,11 @@ window.unescapeHtml = (escapedStr) ->
   child = div.childNodes[0]
   if child then child.nodeValue else ''
 
+
+
 $ ->
+  window.autolinker = new Autolinker
+  
   if $('body#pages-dashboard').length > 0
     window.lj = {
       litejot: new window.LiteJot()

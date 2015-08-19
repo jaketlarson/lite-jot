@@ -521,6 +521,8 @@ class window.Jots extends LiteJot
 
     build_entry = @jot_temp_entry_template.html()
 
+    # parse possible links
+    build_entry = Autolinker.link(build_entry)
 
     @jots_list.append build_entry
 
@@ -567,6 +569,10 @@ class window.Jots extends LiteJot
 
     build_html += "</div>
                   </li>"
+
+    # parse possible links
+    build_html = Autolinker.link(build_html)
+
     @jots_list.append(build_html)
     @setTimestamp jot
     @initJotBinds jot.id
@@ -766,9 +772,9 @@ class window.Jots extends LiteJot
 
         jot_object.jot_type = @new_jot_current_tab
         if jot_object.jot_type == 'checklist'
-          content_elem.html @parseCheckListToHTML(updated_content)
+          content_elem.html Autolinker.link(@parseCheckListToHTML(updated_content))
         else
-          content_elem.html updated_content.replace(/\n/g, '<br />')
+          content_elem.html Autolinker.link(updated_content.replace(/\n/g, '<br />'))
 
         jot_object.break_from_top = @new_jot_break_value
         if @new_jot_break_value
@@ -861,6 +867,8 @@ class window.Jots extends LiteJot
       , 350)
 
   checkIfJotsEmpty: =>
+    @determineFocusForNewJot()
+
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
       @jots_empty_message_elem.show()
       @positionEmptyMessage()

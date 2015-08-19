@@ -17,4 +17,5 @@
 //= require hover_notice
 //= require emergency_mode
 //= require connection
+//= require Autolinker
 //= require litejot
