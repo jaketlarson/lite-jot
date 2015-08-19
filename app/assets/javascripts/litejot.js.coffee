@@ -96,7 +96,6 @@ class window.LiteJot
       type: 'GET'
       url: '/load-data'
       success: (data) =>
-        console.log data
         @app.folders = data.folders
         @app.topics = data.topics
         @app.jots = data.jots
@@ -109,7 +108,6 @@ class window.LiteJot
         @init_data_loaded = true
 
       error: (data) =>
-        console.log data
     )
 
   buildUI: (organize_dom=true) =>

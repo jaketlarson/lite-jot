@@ -120,7 +120,8 @@ class window.Topics extends LiteJot
 
 
   initTopicBinds: (topic_id) =>
-    @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>
+    @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>   
+      @lj.key_controls.clearKeyedOverData()
       @selectTopic($(e.currentTarget).data('topic'))
 
     @topics_list.find("li[data-topic='#{topic_id}'] [data-edit]").click (e) =>
@@ -140,7 +141,6 @@ class window.Topics extends LiteJot
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
-    @lj.key_controls.clearKeyedOverData()
     elem.addClass('current').attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()
@@ -326,7 +326,7 @@ class window.Topics extends LiteJot
     filtered_content = window.escapeHtml(topic_title.val())
 
     unless filtered_content.trim().length == 0
-      @lj.jots.new_jot_content.focus()
+      @lj.jots.determineFocusForNewJot()
       topic_title.attr 'disabled', true
 
       $.ajax(
@@ -413,9 +413,10 @@ class window.Topics extends LiteJot
     # this function removes the topics of a specific folder from the JS data
     topic_keys = []
 
-    $.each @lj.app.topics.filter((topic) => topic.folder_id == folder_id), (key, topic) =>
-      @lj.jots.removeJotsInTopicFromData topic.id
-      topic_keys.push key
+    $.each @lj.app.topics, (key, topic) =>
+      if topic.folder_id == folder_id
+        @lj.jots.removeJotsInTopicFromData topic.id
+        topic_keys.push key
 
     $.each topic_keys.reverse(), (array_key, topic_key) =>
       @lj.app.topics.remove topic_key

@@ -75,7 +75,6 @@ class window.EmergencyMode extends LiteJot
     return
 
   deactivate: =>
-    console.log 'deactivated'
     @active = false
     @hideHeaderNotice()
     @hideTerms()
@@ -99,11 +98,9 @@ class window.EmergencyMode extends LiteJot
       break_from_top: break_from_top
 
     stored_jots = @getStoredJotsObject()
-    console.log stored_jots
     stored_jots.push jot
 
     localStorage.jots = JSON.stringify(stored_jots)
-    console.log JSON.parse(localStorage.jots)
 
   getStoredJotsObject: =>
     if localStorage.jots
@@ -113,10 +110,8 @@ class window.EmergencyMode extends LiteJot
 
   saveStoredJots: =>
     stored_jots = @getStoredJotsObject()
-    console.log stored_jots
 
     if stored_jots.length > 0
-      console.log "found jots to store.."
       $.ajax(
         type: 'POST'
         url: '/jots'

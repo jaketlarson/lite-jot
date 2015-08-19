@@ -16,13 +16,11 @@ class window.Notifications extends LiteJot
       type: 'GET'
       url: '/notifications/calendar'
       success: (data) =>
-        console.log data
         @user_email = data.user_email
         @notifications_data = $.parseJSON(data.notifications)
         @handleNotificationData()
 
       error: (data) =>
-        console.log data
     )
 
   handleNotificationData: =>
@@ -66,7 +64,6 @@ class window.Notifications extends LiteJot
 
     day = notification.start.day
     date = new Date(notification.start.dateTime)
-    console.log date
     am_pm = if date.getHours() >= 12 then "pm" else "am"
     hour = (date.getHours() % 12)
     hour = if hour == 0 then 12 else hour

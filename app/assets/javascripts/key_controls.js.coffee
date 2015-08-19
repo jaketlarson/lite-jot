@@ -157,6 +157,7 @@ class window.KeyControls extends LiteJot
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.jots).call()
 
     @lj.topics.topics_column.keydown (e) =>
+      console.log 'what'
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 
@@ -226,12 +227,21 @@ class window.KeyControls extends LiteJot
     @lj.folders.folders_column.focus (e) =>
       @curr_pos = 'folders'
       @switchKeyboardShortcutsPane()
-      @clearKeyedOverData()
+
+      # only clear keyed over settings if not in folders column already
+      # this avoids bugs with editing and deleting
+      if @lj.folders.folders_column.find('[data-keyed-over=true]').length == 0
+        @clearKeyedOverData()
 
     @lj.topics.topics_column.focus (e) =>
       @curr_pos = 'topics'
       @switchKeyboardShortcutsPane()
       @clearKeyedOverData()
+
+      # only clear keyed over settings if not in topics column already
+      # this avoids bugs with editing and deleting
+      if @lj.topics.topics_column.find('[data-keyed-over=true]').length == 0
+        @clearKeyedOverData()
 
     @lj.jots.jots_wrapper.focus (e) =>
       @curr_pos = 'jots'
@@ -306,10 +316,8 @@ class window.KeyControls extends LiteJot
         url: "/users"
         data: data
         success: (data) =>
-          console.log data
 
         error: (data) =>
-          console.log data
       )
 
     else
@@ -325,10 +333,8 @@ class window.KeyControls extends LiteJot
         url: "/users"
         data: data
         success: (data) =>
-          console.log data
 
         error: (data) =>
-          console.log data
       )
 
     @lj.sizeUI()
@@ -620,7 +626,7 @@ class window.KeyControls extends LiteJot
       @cur_pos = 'jot_toolbar'
       @cur_pos_index = elem.index()
       @clearKeyedOverData()
-      console.log elem.index()
+
       if elem.index() > 0
         nextElem = elem.prev()
       else

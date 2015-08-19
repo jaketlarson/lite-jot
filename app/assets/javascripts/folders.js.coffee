@@ -104,6 +104,7 @@ class window.Folders extends LiteJot
 
   initFolderBinds: (folder_id) =>
     @folders_list.find("li:not(.new-folder-form-wrap)[data-folder='#{folder_id}']").click (e) =>
+      @lj.key_controls.clearKeyedOverData()
       @selectFolder($(e.currentTarget).data('folder'))
 
     @folders_list.find("li[data-folder='#{folder_id}'] [data-share]").click (e) =>
@@ -218,7 +219,6 @@ class window.Folders extends LiteJot
     $("li[data-folder='#{@lj.app.current_folder}']").removeClass('current')
     elem = $("li[data-folder='#{folder_id}']")
     @lj.app.current_folder = folder_id
-    @lj.key_controls.clearKeyedOverData()
     elem.addClass('current').attr('data-keyed-over', true)
     topics_count = @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length
 

@@ -71,19 +71,15 @@ class window.Calendar extends LiteJot
       type: 'GET'
       url: '/notifications/calendar'
       success: (data) =>
-        console.log data
         @user_email = data.user_email
         @cal_loaded_data = $.parseJSON(data.calendar_items)
         @handleCalData()
         @hideLoading()
 
       error: (data) =>
-        console.log data
     )
 
   handleCalData: =>
-    console.log @cal_loaded_data
-
     $.each @cal_loaded_data, (index, cal_item) =>
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
@@ -91,8 +87,6 @@ class window.Calendar extends LiteJot
       @cal_items[cal_item.start.day].push cal_item
 
     @updateCalView()
-
-    console.log @cal_items
 
   updateCalView: =>
     if $.isEmptyObject @cal_items

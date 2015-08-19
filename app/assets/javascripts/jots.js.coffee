@@ -61,10 +61,8 @@ class window.Jots extends LiteJot
         if jot.topic_id == @lj.app.current_topic
           @insertJotElem jot
 
-      console.log @lj.emergency_mode.getStoredJotsObject()
       $.each @lj.emergency_mode.getStoredJotsObject(), (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
-          console.log jot
           @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break
 
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
@@ -843,8 +841,9 @@ class window.Jots extends LiteJot
     # this function removes the jots of a specific topic from the JS data
     jot_keys = []
 
-    $.each @lj.app.jots.filter((jot) => jot.topic_id == topic_id).reverse(), (key, jot) =>
-      jot_keys.push key
+    $.each @lj.app.jots, (key, jot) =>
+      if jot.topic_id == topic_id
+        jot_keys.push key
 
     $.each jot_keys.reverse(), (array_key, topic_key) =>
       @lj.app.jots.remove topic_key
