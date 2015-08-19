@@ -43,7 +43,7 @@ class JotsController < ApplicationController
         if !folder_check.empty?
           if folder_check[0].user_id != current_user.id
             folder_is_owned = false
-            folder_is_empty = folder_check.topics.count == 0 ? true : false
+            folder_is_empty = folder_check[0].topics.count == 0 ? true : false
           end
         end
       end
@@ -167,17 +167,21 @@ class JotsController < ApplicationController
   end
 
   def update
-    jot = current_user.jots.find(params[:id])
+    jot = Jot.find(params[:id])
 
     if jot.content != params[:content] && !params[:content].nil?
-      topic = current_user.topics.find(jot.topic_id)
-      topic.touch
-      folder = current_user.folders.find(topic.folder_id)
-      folder.touch
+      topic = Topic.find(jot.topic_id)
+      folder = Folder.find(topic.folder_id)
     end
 
     if jot.user_id == current_user.id
       if jot.update(jot_params)
+        if topic
+          topic.touch
+        end
+        if folder
+          folder.touch
+        end
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
         render :json => {:success => true, :jot => ser_jot}
 

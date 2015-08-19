@@ -48,6 +48,9 @@ class window.Jots extends LiteJot
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
       @jots_heading_text.html("Jots: #{topic_title}")
 
+    if @lj.search.current_terms.length > 0
+      @jots_heading_text.prepend("<span class='search-result-info-test'>Searching </span>")
+
   buildJotsList: =>
     @clearJotsList()
     @updateHeading()
@@ -57,11 +60,36 @@ class window.Jots extends LiteJot
       @jots_empty_message_elem.hide()
 
       i = 0
-      $.each @lj.app.jots, (index, jot) =>
+
+      # if searching, limit scope to keywords
+      if @lj.search.current_terms.length > 0
+        jots_scope = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
+      else
+        jots_scope = @lj.app.jots
+
+      $.each jots_scope, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
+          # if searching: checklist jots are special, so they need an extra loop
+          if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'
+            items = JSON.parse jot.content
+            items_matched = 0
+            $.each items, (index, item) =>
+              if item.value.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1
+                items_matched++
+            if items_matched == 0
+              return
+
           @insertJotElem jot
 
-      $.each @lj.emergency_mode.getStoredJotsObject(), (index, jot) =>
+      # if searching, limit jots in local storage (emergency mode) 
+      all_em_jots = @lj.emergency_mode.getStoredJotsObject()
+
+      if @lj.search.current_terms.length > 0
+        em_jots_scope = all_em_jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
+      else
+        em_jots_scope = all_em_jots
+
+      $.each em_jots_scope, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
           @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break
 

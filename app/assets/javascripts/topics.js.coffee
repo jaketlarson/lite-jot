@@ -66,7 +66,14 @@ class window.Topics extends LiteJot
 
       if organize_dom
         @sortTopicsList()
-        @selectFirstTopic()
+
+        # Only select first topic if the current topic is not in the folder.
+        # This check is helpful when searching and cancelling search mode,
+        # but expecting to stay on that topic opened while searching
+        get_topic = @lj.app.folders.filter((folder) => folder.id == @lj.app.current_folder)
+        check_for_topic = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic && topic.folder_id == @lj.app.current_folder)
+        if check_for_topic.length == 0
+          @selectFirstTopic()
 
     else
       @lj.app.current_topic = undefined

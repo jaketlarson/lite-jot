@@ -11,15 +11,17 @@ class window.Search extends LiteJot
     @search_button = $('#search-button')
 
     @clicking_button = false
+    @current_terms = ""
 
   initSearchListeners: =>
     @search_input.focus (e) =>
       @search_button.addClass('input-has-focus')
       @search_wrapper.addClass('active')
+      @clicking_button = false
 
     @search_input.blur (e) =>
       @search_button.removeClass('input-has-focus')
-      if @search_input.val().length == 0 && !@clicking_button
+      if @search_input.val().trim().length == 0 && !@clicking_button
         @search_wrapper.removeClass('active')
 
       if @clicking_button
@@ -32,24 +34,39 @@ class window.Search extends LiteJot
       @clicking_button = true
 
       if @search_input.val().trim().length > 0
-        @endSearchState()
+        @endSearchState(false)
         @focusSearchInput()
+
+        # if we don't rebuild jots list, it will be empty
+        @lj.topics.buildTopicsList true
+        @lj.jots.buildJotsList()
       else
         @focusSearchInput()
 
-
   handleSearchKeyUp: => # needs optimization
-    if @search_input.val().trim().length > 0
+    @current_terms = @search_input.val().trim()
+    if @current_terms.length > 0
       @jots_in_search_results = []
       @restoreMasterData()
       @search_button.attr('data-searching', 'true')
 
       keyword = @search_input.val().trim()
-      jot_results = @lj.app.jots.filter((jot) => jot.content.toLowerCase().search(keyword.toLowerCase()) > -1).reverse()
+      jot_results = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
       folder_keys = []
       topic_keys = []
 
       $.each jot_results, (key, jot) =>
+        # if searching: checklist jots are special, so they need an extra loop
+        if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'
+          items = JSON.parse jot.content
+          items_matched = 0
+          $.each items, (index, item) =>
+            if item.value.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1
+              items_matched++
+          if items_matched == 0
+            return
+
+
         @jots_in_search_results.push jot.id
 
         if jot.topic_id not in topic_keys
@@ -61,8 +78,6 @@ class window.Search extends LiteJot
               if topic.folder_id not in folder_keys
                 if topic.folder_id != null
                   folder_keys.push topic.folder_id
-
-
 
       folder_results = []
       $.each folder_keys, (index, folder_key) =>
@@ -103,6 +118,7 @@ class window.Search extends LiteJot
       if !@search_input.is(':focus')
         @search_wrapper.removeClass('active')
 
+    @current_terms = ""
     @jots_in_search_results = []
     $('li[data-jot].highlighted').removeClass('highlighted')
 
