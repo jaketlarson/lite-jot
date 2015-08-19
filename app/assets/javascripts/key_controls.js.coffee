@@ -39,7 +39,7 @@ class window.KeyControls extends LiteJot
       left: @keyToCurrentFolder
       up: @keyToNextTopicUp
       down: @keyToNextTopicDown
-      right: @keyToNewJot
+      right: @keyToNewJotFromSearchOrTopic
       e: @editTopicKeyedAt
       n: @keyToNewTopic
       del: @lj.topics.deleteTopicPrompt
@@ -66,7 +66,7 @@ class window.KeyControls extends LiteJot
     @key_nav.search_jots =
       down: @keyToFirstJotOrNew
       esc: @lj.search.endSearchState
-      left: @lj.jots.determineFocusForNewJot
+      left: @keyToNewJotFromSearchOrTopic
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -437,6 +437,15 @@ class window.KeyControls extends LiteJot
 
   keyToNewJot: =>
     @clearKeyedOverData()
+    @lj.jots.determineFocusForNewJot()
+
+  # keyToNewJotFromSearchOrTopic is special because it sets 
+  # @lj.jots.ignore_this_key_down = true to fix the checklist
+  # keydown bug, where it would skip two elems, due to the 
+  # keydown/keyup event conflict
+  keyToNewJotFromSearchOrTopic: =>
+    @clearKeyedOverData()
+    @lj.jots.ignore_this_key_down = true
     @lj.jots.determineFocusForNewJot()
 
   flagJotKeyedAt: =>

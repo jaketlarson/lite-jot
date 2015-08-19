@@ -274,7 +274,9 @@ class window.Jots extends LiteJot
         return
 
       if e.keyCode == @lj.key_controls.key_codes.right
-        if this_checklist_value.trim().length == 0
+        if @ignore_this_key_down
+          @ignore_this_key_down = false
+        else if this_checklist_value.trim().length == 0
           @lj.search.focusSearchInput()
           console.log 'wow'
           return
@@ -290,7 +292,10 @@ class window.Jots extends LiteJot
         elem.find('input.checklist-value').attr 'data-blank', 'true'
 
         if e.keyCode == @lj.key_controls.key_codes.left
-          @lj.key_controls.keyToCurrentTopic()
+          if @ignore_this_key_down
+            @ignore_this_key_down = false
+          else
+            @lj.key_controls.keyToCurrentTopic()
 
       @removeExcessiveBlankCheckListItems()
 
