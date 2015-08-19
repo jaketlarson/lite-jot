@@ -11,6 +11,8 @@ class window.ShareSettings extends LiteJot
   initVars: =>
     @modal = $('#share-modal')
     @modal_template = $('#share-modal-template')
+    @share_template = $('#share-template')
+    @share_topic_row_template = $('#share-topic-row-template')
 
   initModal: =>
     if @lj.emergency_mode.active
@@ -51,41 +53,22 @@ class window.ShareSettings extends LiteJot
       @submitShare()
 
   buildShares: =>
-    console.log @folder_shares.length
     $.each @folder_shares, (share_index, share) =>
-      console.log share_index
       @buildShareItem share.id
 
   buildShareItem: (share_id) =>
     share = @folder_shares.filter((share) => share.id == share_id)[0]
-    console.log share
 
-    html = "<li data-share='#{share.id}'>
+    new_elem = $(@share_template.html())
+    new_elem.attr('data-share', share.id)
+    new_elem.find('span.recipient-email').html(share.recipient_email)
+    new_elem.find('span.permissions-preview').html(share.permissions_preview)
+    new_elem.find('input.share-all-checkbox').attr("id", "toggle-topics-#{share.id}")
+    new_elem.find('label.share-all-label').attr("for", "toggle-topics-#{share.id}")
+    if share.is_all_topics
+      new_elem.find('input.share-all-checkbox').prop('checked', true)
 
-              <h4>#{share.recipient_email}
-                <div class='manage-link'>
-                  #{share.permissions_preview}
-                  <i class='fa fa-caret-down'></i>
-                </div>
-              </h4>
-              <div class='share-info'>
-                <div class='label-text toggle-topics-and-delete'>
-                  <div class='switch tiny share-all-switch'>
-                    <input id='toggle-topics-#{share.id}' type='checkbox' #{if share.is_all_topics then 'checked' else ''}>
-                    <label for='toggle-topics-#{share.id}'></label>
-                  </div> 
-                  Share all topics
-
-                  <a class='delete-link'><i class='fa fa-remove'></i>Unshare</a>
-                </div>
-
-                <div class='topics-wrap'>
-                  <h5>Share Specific Topics:</h5>
-                  <ul class='topics'></ul>
-                </div>
-              </div>
-            </li>"
-    @user_list.prepend(html)
+    @user_list.prepend new_elem
 
     list_elem = $("li[data-share='#{share.id}']")
 
@@ -104,15 +87,14 @@ class window.ShareSettings extends LiteJot
       @unshare share.id
 
     $.each @lj.app.topics.filter((topic) => topic.folder_id == share.folder_id), (topic_index, topic) =>
+      new_row = $(@share_topic_row_template.html())
+      new_row.attr("data-share-topic", "#{share.id}-#{topic.id}")
+             .attr("title", "#{topic.title}")
+      new_row.find('.topic-check').attr("data-checked", "#{if $.inArray(String(topic.id), share.specific_topics) >= 0 then 'true' else 'false'}")
+              .attr("id", "share-check-#{share.id}-#{topic.id}")
+      new_row.find('span.topic-title').html(topic.title)
 
-      html = "<li data-share-topic='#{share.id}-#{topic.id}' title='#{topic.title}'>
-                <div class='topic-check' data-checked='#{if $.inArray(String(topic.id), share.specific_topics) >= 0 then 'true' else 'false'}'' id='share-check-#{share.id}-#{topic.id}'>
-                  <i class='fa fa-square-o not-checked'></i>
-                  <i class='fa fa-check-square-o is-checked'></i>
-                </div>
-                #{topic.title}
-              </li>"
-      list_elem.find('ul.topics').append(html)
+      list_elem.find('ul.topics').append new_row
 
       topic_elem = $("li[data-share-topic='#{share.id}-#{topic.id}']")
       topic_elem.click (e) =>
@@ -140,7 +122,6 @@ class window.ShareSettings extends LiteJot
   submitShare: =>
     form = @modal.find('form.new-share-form')
     email = form.find('input.recipient-email')
-    console.log @error_wrap
 
     if email.val().length > 0
       @showSubmitLoading()
@@ -152,6 +133,7 @@ class window.ShareSettings extends LiteJot
         success: (data) =>
           @error_wrap.hide()
           @hideSubmitLoading()
+          @lj.app.shares.push data.share
           @folder_shares.push data.share
           @buildShareItem data.share.id
           $("li[data-share='#{data.share.id}']").addClass('active')
@@ -219,11 +201,14 @@ class window.ShareSettings extends LiteJot
       url: "/shares/#{share_id}"
       data: share
       success: (data) =>
-        console.log data
+        share.permissions_preview = data.share.permissions_preview
+        share.is_all_topics = data.share.is_all_topics
+        share.specific_topics = data.share.specific_topics
+
         @XHR_update_waiting = false
+        @updatePermissionsPreviewText share
 
       error: (data) =>
-        console.log data
         @XHR_update_waiting = false
     )
 
@@ -232,7 +217,6 @@ class window.ShareSettings extends LiteJot
       type: 'DELETE'
       url: "/shares/#{share_id}"
       success: (data) =>
-        console.log data
         share_key = null
         $.each @lj.app.shares, (index, share) =>
           if share.id == share_id
@@ -244,6 +228,12 @@ class window.ShareSettings extends LiteJot
 
 
       error: (data) =>
-        console.log data
+
     )
+
+  updatePermissionsPreviewText: (share) =>
+    elem = $("li[data-share='#{share.id}'] .permissions-preview")
+
+    if elem.length == 1
+      elem.html share.permissions_preview
 

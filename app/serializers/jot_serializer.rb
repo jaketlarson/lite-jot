@@ -1,5 +1,5 @@
 class JotSerializer < ActiveModel::Serializer
-  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top
+  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top, :temp_key
   delegate :current_user, to: :scope
 
   def created_at_short

@@ -44,7 +44,7 @@ class SharesController < ApplicationController
         share.save
       end
 
-      render :json => {:success => true}
+      render :json => {:success => true, :share => ShareSerializer.new(share, :root => false)}
 
     else
       render :json => {:success => false}, :status => :bad_request

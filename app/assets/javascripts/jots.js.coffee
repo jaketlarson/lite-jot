@@ -59,8 +59,13 @@ class window.Jots extends LiteJot
       i = 0
       $.each @lj.app.jots, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
-          @insertJotElem(jot)
+          @insertJotElem jot
 
+      console.log @lj.emergency_mode.getStoredJotsObject()
+      $.each @lj.emergency_mode.getStoredJotsObject(), (index, jot) =>
+        if jot.topic_id == @lj.app.current_topic
+          console.log jot
+          @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break
 
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
       @checkScrollPosition()
@@ -397,6 +402,9 @@ class window.Jots extends LiteJot
         @clearJotInputs()
 
       else
+        # reset new jot inputs
+        @clearJotInputs()
+
         $.ajax(
           type: 'POST'
           url: "/jots/"
@@ -419,15 +427,26 @@ class window.Jots extends LiteJot
             if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
               new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
-            # reset new jot inputs
-            @clearJotInputs()
+            # # reset new jot inputs
+            # @clearJotInputs()
 
           error: (data) =>
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
               new HoverNotice(@lj, data.responseJSON.error, 'error')
             else
               new HoverNotice(@lj, 'Could not save jot. Please check internet connect or contact us.', 'error')
+            
+            # Handle this gracefully
             @rollbackTempJot()
+            @switchTab(jot_type)
+            if jot_type == 'heading'
+              @new_jot_heading.val(content)
+            else if jot_type == 'standard'
+              @new_jot_content.val(content)
+            else if jot_type == 'checklist'
+              @populateCheckList content
+            @determineFocusForNewJot()
+
         )
 
       if @lj.app.folders.length > 1
@@ -439,13 +458,13 @@ class window.Jots extends LiteJot
       @clearJotEntryTemplate()
 
   rollbackTempJot: =>
-    @jots_list.find('li.temp').remove()
+    @jots_list.find('li.temp').remove() # may need refinement
 
   insertTempJotElem: (content, key, jot_type, break_from_top) =>
     content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
     .attr('id', key)
-    .attr("data-before-content", "\uf141")
+    .attr("data-before-content", "\uf0ec")
     .attr("title", "submitting jot...")
 
     if jot_type == 'checklist'
@@ -461,11 +480,12 @@ class window.Jots extends LiteJot
 
     build_entry = @jot_temp_entry_template.html()
 
-    @jots_list.append build_entry
-    @resetTemplateClasses()
 
-  resetTemplateClasses: =>
+    @jots_list.append build_entry
+
+    # reset template where necessary (classes, content)
     @jot_temp_entry_template.find('li').removeClass('heading').removeClass('break-from-top')
+    @jot_temp_entry_template.find('li .content').remove()
 
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
@@ -558,15 +578,17 @@ class window.Jots extends LiteJot
       content[index].checked = !content[index].checked
       jot_object.content = JSON.stringify content
 
-      @toggleCheckJotItem jot_object
+      @toggleCheckJotItem jot_object, e
 
 
-  toggleCheckJotItem: (jot) =>
+  toggleCheckJotItem: (jot, event) =>
     if @lj.emergency_mode.active
+      event.preventDefault()
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
     if !jot.has_manage_permissions
+      event.preventDefault()
       new HoverNotice(@lj, 'You do not have permission to flag this jot.', 'error')
       return
 
@@ -678,10 +700,10 @@ class window.Jots extends LiteJot
       elem = $("li[data-jot='#{id}']")
       content_elem = elem.find('.content')
       jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
+      old_content = jot_object.content
       raw_content = window.unescapeHtml(jot_object.content)
 
       updated_content = window.escapeHtml @getJotContent()
-      console.log updated_content
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       @edit_overlay.hide()
@@ -737,6 +759,17 @@ class window.Jots extends LiteJot
               new HoverNotice(@lj, data.responseJSON.error, 'error')
             else
               new HoverNotice(@lj, 'Could not update jot.', 'error')
+
+            # Handle this gracefully
+            @editJot jot_object.id
+            @switchTab(jot_object.jot_type)
+            if jot_object.jot_type == 'heading'
+              @new_jot_heading.val(updated_content)
+            else if jot_object.jot_type == 'standard'
+              @new_jot_content.val(updated_content)
+            else if jot_object.jot_type == 'checklist'
+              @populateCheckList updated_content
+            @determineFocusForNewJot()
         )
 
   deleteJot: (id) =>

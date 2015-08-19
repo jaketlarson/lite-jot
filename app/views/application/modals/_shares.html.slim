@@ -2,3 +2,30 @@
 
 .modal-template#share-modal-template
   == render :partial => "folders/share_settings"
+
+#share-template
+  li
+    h4
+      span.recipient-email
+      .manage-link
+        span.permissions-preview
+        i.fa.fa-caret-down
+    .share-info
+      .label-text.toggle-topics-and-delete
+        .switch.tiny.share-all-switch
+          input.share-all-checkbox type='checkbox'
+          label.share-all-label
+        | Share all topics
+        a.delete-link
+          i.fa.fa-remove
+          | Unshare
+      .topics-wrap
+        h5 Share Specific Topics:
+        ul.topics
+
+#share-topic-row-template
+  li
+    .topic-check
+      i.fa.fa-square-o.not-checked
+      i.fa.fa-check-square-o.is-checked
+    span.topic-title

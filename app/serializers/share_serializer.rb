@@ -10,7 +10,11 @@ class ShareSerializer < ActiveModel::Serializer
     if object.is_all_topics
       "sharing all topics"
     else
-      "sharing specific topics"
+      if !object.specific_topics.nil? && object.specific_topics.length > 0
+        "sharing specific topics"
+      else
+        "sharing nothing"
+      end
     end
   end
 end

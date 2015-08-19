@@ -23,7 +23,7 @@ class window.EmergencyMode extends LiteJot
     $('#share-settings-modal').foundation 'reveal', 'close'
     $('#user-settings-modal').foundation 'reveal', 'close'
 
-    if !@accepted_by_user && @hasLocalStorage()
+    if !@terms_accepted_by_user && @hasLocalStorage()
       @showTerms()
 
     return
@@ -113,6 +113,7 @@ class window.EmergencyMode extends LiteJot
 
   saveStoredJots: =>
     stored_jots = @getStoredJotsObject()
+    console.log stored_jots
 
     if stored_jots.length > 0
       console.log "found jots to store.."
@@ -129,6 +130,7 @@ class window.EmergencyMode extends LiteJot
 
           $.each data.jots, (key, jot) =>
             @lj.app.jots.push jot
+            @lj.jots.integrateTempJot jot, jot.temp_key
 
           # Handle auto-generated folder or topic.
           if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.folder != 'undefined'
@@ -182,7 +184,6 @@ class window.EmergencyMode extends LiteJot
       @unsaved_jots_modal.foundation 'reveal', 'open'
       @unsaved_jots_modal.html @unsaved_jots_modal_template.html()
       $.each stored_jots, (key, item) =>
-        console.log item
         if item.jot_type == "heading"
           type_desc = "Heading Jot"
           content = item.content
@@ -216,10 +217,6 @@ class window.EmergencyMode extends LiteJot
   # w/ unsaved jots
   checkLocalStorageContents: =>
     stored_jots = @getStoredJotsObject()
-
     if stored_jots.length > 0
-      console.log 'OMG ITS THERE'
       @saveStoredJots()
-    else
-      console.log 'no...'
 
