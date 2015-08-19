@@ -55,7 +55,7 @@ class window.Search extends LiteJot
       folder_keys = []
       topic_keys = []
 
-      $.each jot_results, (key, jot) =>
+      $.each jot_results.slice(0).concat(@lj.emergency_mode.getStoredJotsObject()), (key, jot) =>
         # if searching: checklist jots are special, so they need an extra loop
         if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'
           items = JSON.parse jot.content
