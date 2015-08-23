@@ -110,17 +110,26 @@ class window.Folders extends LiteJot
     @folders_list.find("li[data-folder='#{folder_id}'] [data-share]").click (e) =>
       new ShareSettings @lj, folder_id
       return false
+    .cooltip({
+      align: 'left'
+    })
 
     @folders_list.find("li[data-folder='#{folder_id}'] [data-edit]").click (e) =>
       @editFolder folder_id 
       return false
+    .cooltip({
+      align: 'left'
+    })
 
     @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
       return false
 
     @folders_list.find("li[data-folder='#{folder_id}'] [data-delete]").click (e) =>
       @deleteFolderPrompt e.currentTarget
-
+    .cooltip({
+      align: 'left'
+    })
+    
   initNewFolderListeners: =>
     $('button.new-folder-button').mousedown (e) =>
       e.preventDefault()

@@ -134,12 +134,18 @@ class window.Topics extends LiteJot
     @topics_list.find("li[data-topic='#{topic_id}'] [data-edit]").click (e) =>
       @editTopic(topic_id)
       return false
+    .cooltip({
+      align: 'left'
+    })
 
     @topics_list.find("li[data-topic='#{topic_id}'] .input-edit").click (e) =>
       return false
 
     @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e) =>
       @deleteTopicPrompt e.currentTarget
+    .cooltip({
+      align: 'left'
+    })
 
   selectTopic: (topic_id) =>
     if topic_id == @lj.app.current_topic

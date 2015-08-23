@@ -88,7 +88,7 @@
   position: relative
   padding-left: .5rem
   padding-right: .5rem
-  margin: 0 0 0 1rem
+  margin: 0
   outline: 0
 
   i.loading
@@ -117,29 +117,46 @@
 
   ul#jots-list
     list-style: none
+    margin-left: 0
 
     li
       position: relative
       transition: margin-left .25s, opacity .25s
       transition-timing-function: ease-out
-      padding-left: .25rem
-      margin: .15rem 0 .15rem 2rem
+      padding-left: .3rem
+      margin: .15rem 0 .15rem 0
       cursor: pointer
       word-wrap: break-word
       font-size: .95rem
+      overflow: auto
 
-      &:before  
+      .timestamp
         font-family: FontAwesome, Open Sans
-        content: attr(data-before-content)
-        margin: 0 .5rem 0 -3.5rem
-        position: absolute
-        top: .4rem
+        margin: 0 1rem 0 .5rem
+        float: left
         font-size: .3rem
         color: $palette-gray
+        width: 3rem
+        text-align: right
+        line-height: 1.5rem
+
+        .flag-icon
+          display: none
+          margin-right: .25rem
+
+        &:hover
+          color: $primary-color
+
+      .content
+        padding-left: 4rem
+
+      &.jot-item
+        border: 1px solid transparent
 
       &:hover
-        //color: $primary-color
-        
+        &.jot-item
+          border: 1px solid $primary-color
+
         i.edit, i.delete
           display: block
 
@@ -170,17 +187,19 @@
         &:before
           color: $primary-color
 
-      &.timestamp-hover
-        &:before
+      &.flagged
+        .timestamp
           color: $primary-color
 
-      &.flagged
-        &:before
-          color: $primary-color
+          .flag-icon
+            display: inline-block
 
       &.heading
         font-weight: 600
         font-size: 1.3rem
+
+        .timestamp
+          line-height: rem-calc(33)
 
       &.break-from-top
         margin-top: 2rem
@@ -238,7 +257,7 @@
           &:hover
             color: $palette-lightest-gray
 
-        .content, i
+        .timestamp, .content, i
           color: $palette-white
 
       &[data-deleted='true']

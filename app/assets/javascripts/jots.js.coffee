@@ -505,8 +505,10 @@ class window.Jots extends LiteJot
     content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
     .attr('id', key)
-    .attr("data-before-content", "\uf0ec")
     .attr("title", "submitting jot...")
+
+    timestamp = $("<div class='timestamp'><i class='fa fa-exchange'></i></div>");
+    @jot_temp_entry_template.find('li').append timestamp
 
     if jot_type == 'checklist'
       @jot_temp_entry_template.find('li').append "<div class='content'>#{@parseCheckListToHTML(content)}</div>"
@@ -552,7 +554,8 @@ class window.Jots extends LiteJot
     highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
     build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{highlighted_class} #{break_class}'>"
-    
+    build_html += "<div class='timestamp'></div>"
+
     if jot.has_manage_permissions
       build_html += "<i class='fa fa-edit edit' title='Edit jot' />
                     <i class='fa fa-trash delete' title='Delete jot' />
@@ -578,13 +581,13 @@ class window.Jots extends LiteJot
     @initJotBinds jot.id
 
   setTimestamp: (jot) =>
-    elem = @jots_list.find("[data-jot='#{jot.id}']")[0]
-    data_before_content = jot.created_at_short
-    if $(elem).hasClass('flagged')
-      data_before_content = "\uf024 "+ data_before_content
+    elem = @jots_list.find("[data-jot='#{jot.id}'] .timestamp")
+    html = "<i class='flag-icon fa fa-flag'></i> "+ jot.created_at_short
 
-    $(elem).attr("data-before-content", data_before_content)
-    .attr("title", "created on #{jot.created_at_long}\nlast updated on #{jot.updated_at}")
+    $(elem).html(html)
+    .attr("title", "Created on #{jot.created_at_long}.<br>Last updated on #{jot.updated_at}.<br>Click to toggle flag.")
+    $(elem).cooltip({direction: 'left', align: 'bottom', class: 'timestamp'})
+
 
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
@@ -602,36 +605,28 @@ class window.Jots extends LiteJot
     return build_key;
 
   initJotBinds: (jot_id) =>
-    @jots_list.find("li[data-jot='#{jot_id}']").click (e) =>
+    @jots_list.find("li[data-jot='#{jot_id}'] .content").click (e) =>
       e.stopPropagation()
+      @editJot jot_id
 
-      # Detect pseudo element click if they click the element but are outside
-      # of the jot LI element boundaries. This means they are clicking the
-      # timestamp.
-      # Timestamp click => flag jot
-      # Jot click => edit jot
-      if e.clientX < $(e.currentTarget).offset().left - parseInt($(e.currentTarget).css('paddingLeft'))
-        @flagJot jot_id
-      else
-        @editJot jot_id
-
-    .mousemove (e) =>
-      # Detect if they move over the timestamp, and if so, add responsive class
-      if e.clientX < $(e.currentTarget).offset().left - parseInt($(e.currentTarget).css('paddingLeft'))
-        if !$(e.currentTarget).hasClass 'timestamp-hover'
-          $(e.currentTarget).addClass 'timestamp-hover'
-
-    .mouseout (e) =>
-      if $(e.currentTarget).hasClass 'timestamp-hover'
-        $(e.currentTarget).removeClass 'timestamp-hover'
+    @jots_list.find("li[data-jot='#{jot_id}'] .timestamp").click (e) =>
+      e.stopPropagation()
+      console.log 'whoa'
+      @flagJot jot_id
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.edit").click (e) =>
       @editJot(jot_id)
       return false
+    .cooltip({
+      align: 'left'
+    })
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
       e.stopPropagation()
       @deleteJot jot_id
+    .cooltip({
+      align: 'left'
+    })
 
     @jots_list.find("li[data-jot='#{jot_id}'] input[type='checkbox']").click (e) =>
       e.stopImmediatePropagation()
@@ -753,7 +748,7 @@ class window.Jots extends LiteJot
 
     @edit_overlay.show()
     @edit_overlay.find('#edit-notice').css(
-      bottom: (@new_jot_wrap.height() - @edit_notice.height()/2)
+      bottom: (@new_jot_wrap.height()/2 - @edit_notice.height()/2)
       left: @new_jot_wrap.offset().left - @edit_notice.width()
     )
     elem.attr('data-editing', 'true')
@@ -886,9 +881,8 @@ class window.Jots extends LiteJot
       , 350)
 
   checkIfJotsEmpty: =>
-    @determineFocusForNewJot()
-
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
+      @determineFocusForNewJot()
       @jots_empty_message_elem.show()
       @positionEmptyMessage()
       return true

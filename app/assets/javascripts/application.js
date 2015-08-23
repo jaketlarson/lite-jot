@@ -18,4 +18,5 @@
 //= require emergency_mode
 //= require connection
 //= require Autolinker
+//= require cooltip
 //= require litejot

@@ -59,6 +59,7 @@ class window.LiteJot
     @connection.startConnectionTestTimer()
     @jots.new_jot_content.focus()
     @emergency_mode.checkLocalStorageContents()
+    @initTips()
 
   initFoundation: =>
     $(document).foundation()
@@ -157,4 +158,10 @@ class window.LiteJot
       if scroll_to != wrap.scrollTop()
         wrap.scrollTop(scroll_to)
 
+  initTips: =>
+    $('button.new-folder-button, button.new-topic-button').cooltip {direction: 'bottom'}
+    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request').cooltip {
+      direction: 'bottom'
+      align: 'left'
+    }
 
