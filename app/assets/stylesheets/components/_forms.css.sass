@@ -21,9 +21,11 @@
   button
     margin-bottom: 0
     
-input[type='text']:focus, input[type='email']:focus, textarea:focus
-  border: 1px solid $primary-color
+input[type='text'], input[type='email'], textarea
   font-family: 'Open Sans'
+
+  &:focus
+    border: 1px solid $primary-color
 
 label
   margin-bottom: .2rem

@@ -15,7 +15,6 @@ body id="#{body_id}"
   == render :partial => "status_bar"
 
   - if user_signed_in?
-
     == render :partial => "application/modals/app_info"
     == render :partial => "application/modals/user_settings"
     == render :partial => "application/modals/delete_folder"
@@ -24,6 +23,7 @@ body id="#{body_id}"
     == render :partial => "application/modals/shares"
     == render :partial => "application/modals/emergency_mode_terms"
     == render :partial => "application/modals/emergency_mode_unsaved_jots"
+    == render :partial => "application/modals/calendar_event_topic"
 
     #notification-template
       h1
@@ -33,7 +33,7 @@ body id="#{body_id}"
 
       .new-topic-overlay
         .new-topic-text
-          i.fa.fa-plus
-          |new topic for this event
+          i.fa.fa-pencil-square-o
+          |jot for this event
 
   == javascript_include_tag 'application', 'data-turbolinks-track' => true

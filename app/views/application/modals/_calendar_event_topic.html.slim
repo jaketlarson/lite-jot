@@ -1,0 +1,35 @@
+.reveal-modal#calendar-event-topic-modal data-reveal=true
+
+  .modal-template#calendar-event-topic-template
+    h3 Create Topic for Calendar Event
+
+    .cal-event-existing-folder-wrap
+      h4 Existing Folder
+
+      form
+        #cal-folder-choices-wrap
+          label for='cal-folder-choices' Select folder
+          select#cal-folder-choices
+
+        #cal-topic-title-wrap
+          label for='cal-topic-title' New topic title
+          input#cal-topic-title type='text' placeholder='New title'
+
+        button.save save
+
+    .cal-event-new-folder-wrap
+      h4 New Folder
+
+      form
+        #cal-folder-title-wrap
+          label for='cal-folder-title' New folder title
+          input#cal-folder-title type='text' placeholder='New Folder'
+
+        #cal-new-folder-topic-title-wrap
+          label for='cal-new-folder-topic-title' New topic title
+          input#cal-new-folder-topic-title type='text' placeholder='New title'
+
+        button.save save
+
+      .actions
+        button.secondary.cancel Cancel

@@ -23,7 +23,7 @@ This application makes significant use of the following RoR gems:
 # Copyright & Contributions
 Copyright 2015 <a href="http://www.codereloadrepeat.com">Jake Larson</a>.
 
-This repository is currently publicly-viewable, and soon change to a private repository. However, you are not permitted to copy any of Lite Jot's source code for your own use.
+This repository is currently publicly-viewable, and will soon change to a private repository. You are not permitted to copy any of Lite Jot's source code for your own use.
 
 You are welcome to contribute to this project to improve features and fix bugs. Any contributions are very appreciated!
 

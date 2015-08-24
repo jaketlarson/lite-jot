@@ -17,7 +17,7 @@ class window.Notification extends LiteJot
     $('body').append("<div class='notification' id='notification-#{@rid}'>#{html}</div>")
     elem = $(".notification#notification-#{@rid}")
 
-    elem.find('h1').html(@title)
+    elem.find('h1').html("<i class='fa fa-bell-o'></i> #{@title}")
     elem.find('section.description').html(@description)
     elem.find('.new-topic-text').css('line-height', elem.outerHeight()+'px')
 
@@ -40,6 +40,14 @@ class window.Notification extends LiteJot
     elem = $("#notification-#{@rid}")
     elem.find('a.close').click (e) =>
       e.preventDefault()
+      @closeNotification()
+
+    elem.find('.new-topic-overlay').click =>
+      if @lj.emergency_mode.active
+        @lj.emergency_mode.feature_unavailable_notice()
+        return
+
+      @lj.calendar.openEventTopicModal @title
       @closeNotification()
 
   closeNotification: =>

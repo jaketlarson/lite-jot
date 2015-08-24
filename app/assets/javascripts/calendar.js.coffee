@@ -18,8 +18,9 @@ class window.Calendar extends LiteJot
     @cal_empty_message = $('#cal-empty-message')
     @cal_loading = $('#cal-loading')
     @event_reminder_minutes = 10
-
     @cal_notifications = []
+    @event_topic_modal = $('#calendar-event-topic-modal')
+    @event_topic_modal_template = $('#calendar-event-topic-template')
 
   initBinds: =>
     @cal_link.click (event) =>
@@ -175,7 +176,7 @@ class window.Calendar extends LiteJot
         # They've seen it, abort.
         return
 
-    title = "<i class='fa fa-bell-o'></i> #{cal_item.summary}"
+    title = cal_item.summary
 
     # Build info
     info = "<i class='fa fa-clock-o'></i> #{cal_item.start_time_display} - #{cal_item.end_time_display}"
@@ -213,3 +214,108 @@ class window.Calendar extends LiteJot
     minutes = if minutes == 0 then "00" else minutes
 
     return "#{hour}:#{minutes}#{am_pm}"
+
+  openEventTopicModal: (title) =>
+    @event_topic_modal.foundation 'reveal', 'open'
+    @event_topic_modal.html @event_topic_modal_template.html()
+    @event_topic_modal.find('button.cancel').click =>
+      @closeEventTopicModal()
+
+    @event_topic_modal.find('input').val title
+
+    if @lj.app.folders.filter((folder) -> folder.has_manage_permissions).length > 0
+      $.each @lj.app.folders.filter((folder) -> folder.has_manage_permissions), (index, folder) =>
+        @event_topic_modal.find('select#cal-folder-choices')
+        .append("<option value='#{folder.id}'>#{folder.title}</option>")
+    else
+      @event_topic_modal.find('.cal-event-existing-folder-wrap').hide()
+
+    @event_topic_modal.find('.cal-event-existing-folder-wrap form').submit (e) =>
+      e.preventDefault()
+      @submitEventTopicForm('existing-folder')
+
+    @event_topic_modal.find('.cal-event-new-folder-wrap form').submit (e) =>
+      e.preventDefault()
+      @submitEventTopicForm('new-folder')
+
+
+  submitEventTopicForm: (mode) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
+    # Define folder create action, based off regular method
+    createFolder = (folder_title, topic_title) =>
+      filtered_content = window.escapeHtml(folder_title)
+      topic_title_blank = if window.escapeHtml(topic_title).trim().length == 0 then true else false
+      unless filtered_content.trim().length == 0 || topic_title_blank
+        # Disable elements
+        @event_topic_modal.find('select, input, button').attr('disabled', true)
+
+        $.ajax(
+          type: 'POST'
+          url: '/folders'
+          data: "title=#{encodeURIComponent(filtered_content)}"
+          success: (data) =>
+            @lj.folders.pushFolderIntoData data.folder
+            @lj.key_controls.clearKeyedOverData()
+            @lj.folders.selectFolder data.folder.id
+            createTopic data.folder.id, topic_title
+
+          error: (data) =>
+            # Re-enable form elements
+            @event_topic_modal.find('select:disabled, input:disabled, button:disabled').attr('disabled', false)
+            
+            unless typeof data.responseJSON.error == 'undefined'
+              new HoverNotice(@lj, data.responseJSON.error, 'error')
+            else
+              new HoverNotice(@lj, 'Could not create folder.', 'error')
+          )
+
+    # Define topic create action, based off regular method
+    createTopic = (folder_id, title) =>
+      filtered_content = window.escapeHtml(title)
+      unless filtered_content.trim().length == 0
+        # Disable elements
+        @event_topic_modal.find('select, input, button').attr('disabled', true)
+
+        $.ajax(
+          type: 'POST'
+          url: '/topics'
+          data: "folder_id=#{folder_id}&title=#{encodeURIComponent(filtered_content)}"
+          success: (data) =>
+            new HoverNotice @lj, 'Topic created.', 'success'
+            @lj.key_controls.clearKeyedOverData()
+            @lj.folders.selectFolder data.topic.folder_id
+            @lj.topics.pushTopicIntoData data.topic
+            @lj.topics.hideNewTopicForm()
+            @closeEventTopicModal()
+
+          error: (data) =>
+            # Re-enable form elements
+            @event_topic_modal.find('select:disabled, input:disabled, button:disabled').attr('disabled', false)
+            
+            unless typeof data.responseJSON.error == 'undefined'
+              new HoverNotice(@lj, data.responseJSON.error, 'error')
+            else
+              new HoverNotice(@lj, 'Could not create folder.', 'error')
+          )
+
+      else
+        # Re-enable form elements
+        @event_topic_modal.find('select:disabled, input:disabled, button:disabled').attr('disabled', false)
+        
+    # Determine course of action
+    if mode == 'existing-folder'
+      folder_id = parseInt(@event_topic_modal.find('#cal-folder-choices').val())
+      topic_title = @event_topic_modal.find('#cal-topic-title').val()
+      createTopic folder_id, topic_title
+    else if mode =='new-folder'
+      folder_title = @event_topic_modal.find('#cal-folder-title').val()
+      topic_title = @event_topic_modal.find('#cal-new-folder-topic-title').val()
+      createFolder folder_title, topic_title
+
+  closeEventTopicModal: =>
+    @event_topic_modal.foundation 'reveal', 'close'
+
+

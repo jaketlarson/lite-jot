@@ -221,7 +221,7 @@ class window.Folders extends LiteJot
       @new_folder_title.val('')
     , 250)
 
-  selectFolder: (folder_id, new_folder_init=false) =>
+  selectFolder: (folder_id) =>
     if folder_id == @lj.app.current_folder
       return
       
