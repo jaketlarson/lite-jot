@@ -10,7 +10,7 @@
 //= require search
 //= require key_controls
 //= require user_settings
-//= require notifications
+//= require notification
 //= require clock
 //= require calendar
 //= require share_settings

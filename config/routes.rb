@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   resources :shares
 
   get 'notifications/calendar' => 'notifications#calendar'
+  post 'notifications/acknowledge' => 'notifications#acknowledge'
   resources :notifications
 
   get '/load-data' => 'application#load_data'

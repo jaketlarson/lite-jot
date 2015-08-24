@@ -1,0 +1,82 @@
+.notification
+  background-color: $palette-dark-red
+  color: $palette-white
+  width: 20rem
+  padding: .5rem .75rem
+  position: fixed
+  left: 1rem
+  bottom: 0
+  opacity: 0
+  margin-bottom: 1rem
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
+  transition: all .25s linear
+  transition-property: bottom, opacity
+  z-index: 3
+  font-family: Monda
+
+  &:hover
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)
+
+  h1
+    font-size: .9rem
+    color: $palette-white
+    margin: 0 0 .25rem 0
+    font-family: Monda
+
+    i
+      margin: 0 .1rem 0 .2rem
+
+  section.description
+    display: inline-block
+    font-size: .75rem
+    line-height: 1.25rem
+
+    i
+      width: 1.2rem
+      text-align: center
+
+  a.close
+    position: absolute
+    color: $palette-lightest-gray
+    top: .25rem
+    right: .5rem
+    opacity: 0
+    z-index: 5
+
+    &:hover
+      color: $primary-color
+
+  .new-topic-overlay
+    opacity: 0.92
+    background-color: $palette-black
+    backdrop-filter: blur(10px)
+    -webkit-backdrop-filter: blur(10px)
+    z-index: 4
+    cursor: pointer
+    display: none
+    position: absolute
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+
+    .new-topic-text
+      width: 100%
+      text-align: center
+      color: $palette-white
+      text-shadow: -1px 0 $palette-black, 0 1px $palette-black, 1px 0 $palette-black, 0 -1px $palette-black
+      font-weight: .9rem
+
+      i
+        margin-right: .5rem
+        vertical-align: -5%
+
+  &:hover
+    a.close
+      opacity: 1
+
+    .new-topic-overlay
+      display: block
+
+#notification-template
+  display: none

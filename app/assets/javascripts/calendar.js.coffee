@@ -17,6 +17,9 @@ class window.Calendar extends LiteJot
     @month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     @cal_empty_message = $('#cal-empty-message')
     @cal_loading = $('#cal-loading')
+    @event_reminder_minutes = 10
+
+    @cal_notifications = []
 
   initBinds: =>
     @cal_link.click (event) =>
@@ -127,13 +130,9 @@ class window.Calendar extends LiteJot
               if index < attendees_count - 2
                 attendees_text += ", "
 
-          day = cal_item.start.day
-          date = new Date(cal_item.start.dateTime)
-          am_pm = if date.getHours() >= 12 then "pm" else "am"
-          hour = (date.getHours() % 12)
-          hour = if hour == 0 then 12 else hour
-          minutes = date.getMinutes()
-          minutes = if minutes == 0 then "00" else minutes
+          cal_item.attendees_text = attendees_text
+          cal_item.start_time_display = @prettyTimestamp new Date(cal_item.start.dateTime)
+          cal_item.end_time_display = @prettyTimestamp new Date(cal_item.end.dateTime)
 
           if cal_item.event_finished
             event_class = 'event-finished'
@@ -143,7 +142,7 @@ class window.Calendar extends LiteJot
             event_class = ''
 
           html += "<li class='#{event_class}'>"
-          html += "<section class='time'>#{hour}:#{minutes}#{am_pm}</section>"
+          html += "<section class='time'>#{cal_item.start_time_display}</section>"
 
           html += "<h4>#{cal_item.summary}</h4>"
 
@@ -160,7 +159,57 @@ class window.Calendar extends LiteJot
 
           html += "</li>"
 
+          @setNotification cal_item
+
         html += "</ul>"
         html += "</article>"
 
       @cal_items_elem.html(html)
+
+  setNotification: (cal_item) =>
+    # Check to see if user has already seen this notification 
+    # (i.e., clicked the X on the notification)
+    user = @lj.app.user
+    if user.notifications_seen && user.notifications_seen.length > 0
+      if user.notifications_seen.indexOf(cal_item.id) > -1
+        # They've seen it, abort.
+        return
+
+    title = "<i class='fa fa-bell-o'></i> #{cal_item.summary}"
+
+    # Build info
+    info = "<i class='fa fa-clock-o'></i> #{cal_item.start_time_display} - #{cal_item.end_time_display}"
+    if cal_item.location
+      info += "<br /><i class='fa fa-map-marker' /> #{cal_item.location}"
+    if cal_item.attendees_text.length > 0
+      info += "<br /><i class='fa fa-group'></i> with #{cal_item.attendees_text}"
+
+    # Schedule notification
+    current_unix = new Date().valueOf()
+    time_until = parseInt(cal_item.start.dateTime_unix)*1000 - current_unix - @event_reminder_minutes*60000
+    hide_at = parseInt(cal_item.end.dateTime_unix)*1000 - current_unix
+
+    if parseInt(cal_item.end.dateTime_unix)*1000 > current_unix
+      if parseInt(cal_item.start.dateTime_unix)*1000 - @event_reminder_minutes*60000 > current_unix
+        # if it's more than @event_reminder_minutes away, then set timer for notification show time
+        @cal_notifications.push(setTimeout(() =>
+          new Notification @lj, cal_item.id, title, info, hide_at
+        , time_until))
+      else
+        # if notification would've shown by now, show it now.
+        new Notification @lj, cal_item.id, title, info, hide_at
+
+  resetNotificationTimers: =>
+    @cal_notifications.each (key, timer) =>
+      clearTimeout timer
+    @cal_notifications = []
+
+
+  prettyTimestamp: (date) =>
+    am_pm = if date.getHours() >= 12 then "pm" else "am"
+    hour = (date.getHours() % 12)
+    hour = if hour == 0 then 12 else hour
+    minutes = date.getMinutes()
+    minutes = if minutes == 0 then "00" else minutes
+
+    return "#{hour}:#{minutes}#{am_pm}"

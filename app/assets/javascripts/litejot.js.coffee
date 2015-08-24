@@ -25,7 +25,6 @@ window.unescapeHtml = (escapedStr) ->
   if child then child.nodeValue else ''
 
 
-
 $ ->
   window.autolinker = new Autolinker
   
@@ -47,7 +46,6 @@ class window.LiteJot
     @search = new Search(@)
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
-    @calendar = new Calendar(@)
     @connection = new Connection(@)
     @initFoundation()
     @initVars()
@@ -105,10 +103,10 @@ class window.LiteJot
         @app.topics = data.topics
         @app.jots = data.jots
         @app.shares = data.shares
-        @app.user = data.users
+        @app.user = data.user
 
         @buildUI()
-        @initNotifications()
+        @initCalendar()
 
         @init_data_loaded = true
 
@@ -131,9 +129,6 @@ class window.LiteJot
     $(document).on('opened.fndtn.reveal', '[data-reveal]', () ->
       $(this).focus()
     )
-
-  initNotifications: =>
-    @notifications = new Notifications(@)
 
   moveElemIntoView: (elem, wrap) =>
     if elem.length == 1 && wrap.length == 1
@@ -165,3 +160,5 @@ class window.LiteJot
       align: 'left'
     }
 
+  initCalendar: =>
+    @calendar = new Calendar(@)

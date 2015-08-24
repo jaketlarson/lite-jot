@@ -42,7 +42,9 @@ class CalendarClient
         if item.start
           # Choose events between now and two days later
           if item.start.dateTime >= min_start_time && item.start.dateTime < max_start_time
-            dateTime_unix = item.start.dateTime.to_i
+            start_dateTime_unix = item.start.dateTime.to_i
+            end_dateTime_unix = item.end.dateTime.to_i
+
             if item.start.dateTime.today?
               day = 'Today'
             elsif item.start.dateTime.to_date == Date.tomorrow
@@ -71,13 +73,18 @@ class CalendarClient
             event_finished = item.end.dateTime < Time.now ? true : false
 
             event = {
-              :summary => item.summary,
+              :id => item.id,
+              :summary => (item.summary || "(No title)"),
               :attendees => attendees,
               :location => item.location,
               :start => {
                 :day => day,
                 :dateTime => item.start.dateTime,
-                :dateTime_unix => dateTime_unix
+                :dateTime_unix => start_dateTime_unix
+              },
+              :end => {
+                :dateTime => item.end.dateTime,
+                :dateTime_unix => end_dateTime_unix
               },
               :event_in_progress => event_in_progress,
               :event_finished => event_finished

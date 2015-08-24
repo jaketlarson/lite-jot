@@ -20,6 +20,8 @@ class User < ActiveRecord::Base
 
   validate :freeze_email, :on => :update
 
+  serialize :notifications_seen
+
   attr_accessor :current_password
 
   def freeze_email

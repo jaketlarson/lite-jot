@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :display_name, :email, :errors
+  attributes :id, :display_name, :email, :errors, :notifications_seen
   
   def errors
     error_text = ""
