@@ -252,6 +252,8 @@ class JotsController < ApplicationController
     if can_check
       checklist = JSON.parse(jot.content)
       checklist[params[:checkbox_index].to_i]['checked'] = !checklist[params[:checkbox_index].to_i]['checked']
+      checklist[params[:checkbox_index].to_i]['toggled_by'] = current_user.id
+      checklist[params[:checkbox_index].to_i]['toggled_at'] = DateTime.now
       jot.content = checklist.to_json
 
       if jot.save

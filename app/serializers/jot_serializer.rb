@@ -1,6 +1,30 @@
 class JotSerializer < ActiveModel::Serializer
-  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top, :temp_key
+  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top, :temp_key, :author_display_name
   delegate :current_user, to: :scope
+
+  def content
+    if object.jot_type != 'checklist'
+      return object.content
+    end
+
+    # Since checklists insert dates and user id's into the checklist meta,
+    # the content needs to be up to date.
+    # This means localizing datetime and pulling current user display_name
+
+    checklist = JSON.parse(object.content)
+    checklist.each do |item|
+    item['toggled_text'] = "Click to toggle checkbox.<br />"
+      if item['toggled_by'] && !item['toggled_by'].blank?
+        if item['toggled_by'] == scope.id
+          display_name = scope.display_name
+        else
+          display_name = User.find(item['toggled_by']).display_name
+        end
+        item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime)}."
+      end
+    end
+    return checklist.to_json
+  end
 
   def created_at_short
     return nil if object.created_at.nil?
@@ -52,5 +76,9 @@ class JotSerializer < ActiveModel::Serializer
     if !object.folder_id.nil?
       return object.folder_id.to_i
     end
+  end
+
+  def author_display_name
+    return User.find(object.user_id).display_name
   end
 end

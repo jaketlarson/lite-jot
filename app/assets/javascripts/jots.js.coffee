@@ -352,8 +352,8 @@ class window.Jots extends LiteJot
     items = JSON.parse(items)
     html = "<ul class='checklist-jot'>"
     $.each items, (index, item) =>
-      html += "<li>"
-      html += "<input type='checkbox'#{if item.checked then "checked" else ""}>"
+      html += "<li class='checklist-item' title='#{item.toggled_text}'>"
+      html += "<div class='checkbox-wrap'><input type='checkbox'#{if item.checked then "checked" else ""}></div>"
       html += "#{item.value}"
       html += "</li>"
 
@@ -585,7 +585,10 @@ class window.Jots extends LiteJot
     html = "<i class='flag-icon fa fa-flag'></i> "+ jot.created_at_short
 
     $(elem).html(html)
-    .attr("title", "Created on #{jot.created_at_long}.<br>Last updated on #{jot.updated_at}.<br>Click to toggle flag.")
+    .attr("title", "Written by #{jot.author_display_name}.<br>
+                    Created on #{jot.created_at_long}.<br>
+                    Last updated on #{jot.updated_at}.<br>
+                    Click to toggle flag.")
     $(elem).cooltip({direction: 'left', align: 'bottom', class: 'timestamp'})
 
 
@@ -627,18 +630,34 @@ class window.Jots extends LiteJot
       align: 'left'
     })
 
-    @jots_list.find("li[data-jot='#{jot_id}'] input[type='checkbox']").click (e) =>
-      e.stopImmediatePropagation()
 
-      # toggle checkbox
-      parent_ul = $(e.currentTarget).closest('ul')
-      index = parent_ul.find("input[type='checkbox']").index $(e.currentTarget)
-      jot_object = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
-      content = JSON.parse(jot_object.content)
-      content[index].checked = !content[index].checked
-      jot_object.content = JSON.stringify content
+    @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").click (e) => 
+      e.stopPropagation()
+      @handleCheckboxEvent e, $(e.currentTarget), jot_id
 
-      @toggleCheckJotItem jot_object, e, index
+      # If the clicked target was not the checkbox, then manipulate the checkbox event
+      if $(e.target).prop('tagName') != 'INPUT'
+        checkbox = $(event.currentTarget).find("input[type='checkbox']")
+        checkbox.prop 'checked', !checkbox.is(':checked')
+
+    .cooltip({
+      direction: 'left'
+      align: 'bottom'
+    })
+
+
+  handleCheckboxEvent: (e, elem, jot_id) =>
+    # toggle checkbox
+    parent_ul = elem.closest('ul')
+    index = parent_ul.find("li.checklist-item").index elem
+    jot_object = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
+    content = JSON.parse(jot_object.content)
+    content[index].checked = !content[index].checked
+    jot_object.content = JSON.stringify content
+
+    @toggleCheckJotItem jot_object, e, index
+
+    return false
 
 
   toggleCheckJotItem: (jot, event, checkbox_index) =>
@@ -647,15 +666,20 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
+    checkbox = $(event.currentTarget).find("input[type='checkbox']")
+
     $.ajax(
       type: 'PATCH'
       url: "/jots/check_box/#{jot.id}"
       data: "content=#{jot.content}&checkbox_index=#{checkbox_index}"
 
       success: (data) =>
+        console.log data
         # all actions carried out on correct assumption that action would pass
-
+        checkbox.closest('li').attr 'title', JSON.parse(data.jot.content)[checkbox_index].toggled_text
+        .cooltip('update')
       error: (data) =>
+        checkbox.prop 'checked', !checkbox.is(':checked')
         unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
         else

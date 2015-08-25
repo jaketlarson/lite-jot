@@ -150,6 +150,21 @@
       .content
         padding-left: 4.5rem
 
+        ul
+          li.checklist-item
+            .checkbox-wrap
+              display: inline-block
+              margin-right: .5rem
+
+              input[type='checkbox']
+                margin: .25rem
+
+            &:hover
+              color: $primary-color
+
+              .checkbox-wrap
+                background-color: $primary-color
+
       &.jot-item
         border: 1px solid transparent
 

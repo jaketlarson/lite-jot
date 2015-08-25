@@ -1,6 +1,6 @@
 /**
  * Cooltip.js - Lightweight, jQuery tooltip plugin
- * v0.4.9
+ * v0.5.1
  * Docs: http://jaketlarson.github.io/cooltip/
  *
  * Copyright(c) 2015 Jake Larson <codereloadrepeat@gmail.com> <codereloadrepeat.com>
@@ -41,7 +41,7 @@
         id: this.uniq_id,
         "class": 'cooltip'
       });
-      this.$tip.html(this.$target.attr(this.options.attr));
+      this.update();
       if (this.options["class"].length > 0) {
         this.$tip.addClass(this.options["class"]);
       }
@@ -231,6 +231,10 @@
     destroy: function() {
       this._disabled;
       return this.$tip.remove();
+    },
+    update: function() {
+      this.$tip.html(this.$target.attr(this.options.attr));
+      return this._positionTip();
     }
   };
   return $.fn[pluginName] = function(options, arg) {
@@ -252,6 +256,8 @@
               return instance.enable();
             case 'destroy':
               return instance.destroy();
+            case 'update':
+              return instance.update();
           }
         }
       }
