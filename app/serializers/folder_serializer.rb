@@ -1,5 +1,5 @@
 class FolderSerializer < ActiveModel::Serializer
-  attributes :id, :title, :has_manage_permissions, :share_id
+  attributes :id, :title, :has_manage_permissions, :share_id, :owner_email, :owner_display_name
   delegate :current_user, to: :scope
 
   def has_manage_permissions
@@ -16,6 +16,22 @@ class FolderSerializer < ActiveModel::Serializer
       else
         return nil
       end
+    end
+  end
+
+  def owner_email
+    if object.user_id == scope.id
+      scope.email
+    else
+      User.find(object.user_id).email
+    end
+  end
+
+  def owner_display_name
+    if object.user_id == scope.id
+      scope.display_name
+    else
+      User.find(object.user_id).display_name
     end
   end
 end

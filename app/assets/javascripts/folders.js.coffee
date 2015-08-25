@@ -61,8 +61,15 @@ class window.Folders extends LiteJot
     @initNewFolderListeners()
 
   insertFolderElem: (folder, append = true) =>
+    if !folder.has_manage_permissions
+      shared_icon_prefix = "<i class='fa fa-share-alt shared-icon-prefix'
+                            title='Shared with you by #{folder.owner_display_name}<br />&amp;lt;#{folder.owner_email}&amp;gt;'>
+                            </i>"
+    else
+      shared_icon_prefix = ""
+
     build_html = "<li data-folder='#{folder.id}' data-editing='false'>
-                    <span class='title'>#{folder.title}</span>
+                    <span class='title'>#{shared_icon_prefix + folder.title}</span>
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
@@ -116,6 +123,12 @@ class window.Folders extends LiteJot
     .cooltip({
       align: 'right'
     })
+
+    @folders_list.find("li[data-folder='#{folder_id}'] .shared-icon-prefix")
+    .cooltip({
+      align: 'right'
+    })
+
     @folders_list.find("li[data-folder='#{folder_id}'] [data-unshare]").click (e) =>
       @unshare folder_id, e.currentTarget
       return false
