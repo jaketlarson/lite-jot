@@ -117,7 +117,7 @@ class window.Folders extends LiteJot
       align: 'right'
     })
     @folders_list.find("li[data-folder='#{folder_id}'] [data-unshare]").click (e) =>
-      @unshare folder_id
+      @unshare folder_id, e.currentTarget
       return false
     .cooltip({
       align: 'right'
@@ -405,7 +405,7 @@ class window.Folders extends LiteJot
     @lj.app.folders[0] = folder_object_to_move
     @lj.folders.sortFoldersList()
 
-  unshare: (folder_id) =>
+  unshare: (folder_id, share_icon_target) =>
     if @lj.emergency_mode.active
       @lj.emergency_mode.feature_unavailable_notice()
       return
@@ -422,6 +422,7 @@ class window.Folders extends LiteJot
       success: (data) =>
         new HoverNotice(@lj, data.message, 'success')
         @vanish folder_id
+        $(share_icon_target).cooltip('destroy')
 
       error: (data) =>
         elem.attr('data-deleting', false)

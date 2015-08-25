@@ -227,6 +227,10 @@
     },
     enable: function() {
       return this._enabled = true;
+    },
+    destroy: function() {
+      this._disabled;
+      return this.$tip.remove();
     }
   };
   return $.fn[pluginName] = function(options, arg) {
@@ -246,6 +250,8 @@
               return instance.disable();
             case 'enable':
               return instance.enable();
+            case 'destroy':
+              return instance.destroy();
           }
         }
       }
