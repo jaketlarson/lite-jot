@@ -71,6 +71,9 @@ class window.Folders extends LiteJot
       build_html += "<i class='fa fa-share share' data-share title='Share folder' />
                     <i class='fa fa-pencil edit' data-edit title='Edit folder' />
                     <i class='fa fa-trash delete' data-delete title='Delete folder' />"
+    else
+      build_html += "<i class='fa fa-times unshare' data-unshare title='Stop sharing folder with me' />"
+    
     build_html += "</li>"
 
     if append
@@ -111,14 +114,20 @@ class window.Folders extends LiteJot
       new ShareSettings @lj, folder_id
       return false
     .cooltip({
-      align: 'left'
+      align: 'right'
+    })
+    @folders_list.find("li[data-folder='#{folder_id}'] [data-unshare]").click (e) =>
+      @unshare folder_id
+      return false
+    .cooltip({
+      align: 'right'
     })
 
     @folders_list.find("li[data-folder='#{folder_id}'] [data-edit]").click (e) =>
       @editFolder folder_id 
       return false
     .cooltip({
-      align: 'left'
+      align: 'right'
     })
 
     @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
@@ -127,7 +136,7 @@ class window.Folders extends LiteJot
     @folders_list.find("li[data-folder='#{folder_id}'] [data-delete]").click (e) =>
       @deleteFolderPrompt e.currentTarget
     .cooltip({
-      align: 'left'
+      align: 'right'
     })
     
   initNewFolderListeners: =>
@@ -339,7 +348,7 @@ class window.Folders extends LiteJot
 
       success: (data) =>
         new HoverNotice(@lj, data.message, 'success')
-        vanish()
+        @vanish id
 
       error: (data) =>
         elem.attr('data-deleting', false)
@@ -349,30 +358,31 @@ class window.Folders extends LiteJot
           new HoverNotice(@lj, 'Could not delete folder.', 'error')
     )
 
-    vanish = =>
-      elem.attr('data-deleted', 'true')
-      setTimeout(() =>
-        folder_key = null
-        $.each @lj.app.folders, (index, folder) =>
-          if folder.id == id
-            folder_key = index
-            return false
+  vanish: (id) =>
+    elem = $("li[data-folder='#{id}']")
+    elem.attr('data-deleted', 'true')
+    setTimeout(() =>
+      folder_key = null
+      $.each @lj.app.folders, (index, folder) =>
+        if folder.id == id
+          folder_key = index
+          return false
 
-        @lj.app.folders.remove(folder_key)
-        elem.remove()
-        @lj.topics.removeTopicsInFolderFromData id
-        @sortFoldersList false
+      @lj.app.folders.remove(folder_key)
+      elem.remove()
+      @lj.topics.removeTopicsInFolderFromData id
+      @sortFoldersList false
 
-        if @lj.app.folders.length > 0
-          next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
-          @selectFolder($(next_folder_elem).data('folder'))
+      if @lj.app.folders.length > 0
+        next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
+        @selectFolder($(next_folder_elem).data('folder'))
 
-        else # they deleted the last folder
-          @lj.app.current_folder = null
-          @newFolder()
-          @lj.topics.buildTopicsList() # will render empty topics/jots
+      else # they deleted the last folder
+        @lj.app.current_folder = null
+        @newFolder()
+        @lj.topics.buildTopicsList() # will render empty topics/jots
 
-      , 350)
+    , 350)
 
 
   moveCurrentFolderToTop: =>
@@ -394,3 +404,29 @@ class window.Folders extends LiteJot
     @lj.app.folders = $.extend([], temp_list)
     @lj.app.folders[0] = folder_object_to_move
     @lj.folders.sortFoldersList()
+
+  unshare: (folder_id) =>
+    if @lj.emergency_mode.active
+      @lj.emergency_mode.feature_unavailable_notice()
+      return
+
+    elem = $("li[data-folder='#{folder_id}']")
+    elem.attr('data-deleting', 'true')
+    share_id = @lj.app.folders.filter((folder) => folder.id == folder_id)[0].share_id
+
+    $.ajax(
+      type: 'POST'
+      url: "/shares/#{share_id}"
+      data: {'_method': 'delete'}
+
+      success: (data) =>
+        new HoverNotice(@lj, data.message, 'success')
+        @vanish folder_id
+
+      error: (data) =>
+        elem.attr('data-deleting', false)
+        unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
+          new HoverNotice(@lj, data.responseJSON.error, 'error')
+        else
+          new HoverNotice(@lj, 'Could not remove shared folder.', 'error')
+    )

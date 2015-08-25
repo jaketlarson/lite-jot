@@ -52,12 +52,16 @@ class SharesController < ApplicationController
   end
 
   def destroy
-    share = current_user.shares.find(params[:id])
+    share = Share.find(params[:id])
 
-    if share.destroy
-      render :json => {:success => true}
+    if share.owner_id == current_user.id || share.recipient_id == current_user.id
+      if share.destroy
+        render :json => {:success => true, :message => "Folder has been unshared with you."}
+      else
+        render :json => {:success => false}, :status => :bad_request
+      end
     else
-      render :json => {:success => false}, :status => :bad_request
+      render :json => {:success => false, :error => "You cannot modify this share."}, :status => :bad_request
     end
   end
 

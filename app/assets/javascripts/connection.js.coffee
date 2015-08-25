@@ -7,8 +7,8 @@ class window.Connection extends LiteJot
   initVars: =>
     @connection_test_timer = null
     @connection_test_timing = 2000
-    @conntection_test_url = '/connection-test'
-    @connection_test_url = "https://qrng.anu.edu.au/API/jsonI.php?length=1&type=uint8"
+    @connection_test_url = '/connection-test'
+    #@connection_test_url = "https://qrng.anu.edu.au/API/jsonI.php?length=1&type=uint8"
 
     # if the connection test fails, and there are allowed
     # retrials, this timer will be used to more quickly
