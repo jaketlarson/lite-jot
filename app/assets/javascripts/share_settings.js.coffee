@@ -61,7 +61,7 @@ class window.ShareSettings extends LiteJot
 
     new_elem = $(@share_template.html())
     new_elem.attr('data-share', share.id)
-    new_elem.find('span.recipient-email').html(share.recipient_email)
+    new_elem.find('span.recipient-email').html("#{share.recipient_display_name} &lt;#{share.recipient_email}&gt;")
     new_elem.find('span.permissions-preview').html(share.permissions_preview)
     new_elem.find('input.share-all-checkbox').attr("id", "toggle-topics-#{share.id}")
     new_elem.find('label.share-all-label').attr("for", "toggle-topics-#{share.id}")
