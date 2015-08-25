@@ -201,6 +201,71 @@ class JotsController < ApplicationController
     end
   end
 
+  def flag
+    # This method is an form of #update, but for flagging.
+    # This allows flagging permissions to be extended shared users
+    jot = Jot.find(params[:id])
+
+    # Future update: move this into model.. it pretty much mirrors #check_box
+    can_flag = false
+    if jot.user_id == current_user.id
+      can_flag = true
+    else
+      share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
+      if share_check.length == 1
+        # This user is shared with the containing folder, so they can flag.
+        can_flag = true
+      end
+    end
+
+    if can_flag
+      jot.is_flagged = !jot.is_flagged
+      if jot.save
+        ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
+        render :json => {:success => true, :jot => ser_jot}
+
+      else
+        render :json => {:success => false}, :status => :bad_request
+      end
+    else
+      render :json => {:success => false, :error => "You do not have permission to flag this jot."}, :status => :bad_request
+    end
+  end
+
+  def check_box
+    # This method is an form of #update, but for checkboxes only.
+    # This allows checkbox-checking permissions to be extended shared users
+    jot = Jot.find(params[:id])
+
+    # Future update: move this into model.. it pretty much mirrors #flag
+    can_check = false
+    if jot.user_id == current_user.id
+      can_check = true
+    else
+      share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
+      if share_check.length == 1
+        # This user is shared with the containing folder, so they can check boxes.
+        can_check = true
+      end
+    end
+
+    if can_check
+      checklist = JSON.parse(jot.content)
+      checklist[params[:checkbox_index].to_i]['checked'] = !checklist[params[:checkbox_index].to_i]['checked']
+      jot.content = checklist.to_json
+
+      if jot.save
+        ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
+        render :json => {:success => true, :jot => ser_jot}
+
+      else
+        render :json => {:success => false}, :status => :bad_request
+      end
+    else
+      render :json => {:success => false, :error => "You do not have permission to check this checkbox."}, :status => :bad_request
+    end
+  end
+
   def destroy
     jot = Jot.find(params[:id])
 
@@ -230,6 +295,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key])
+      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :checkbox_index, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key])
     end
 end

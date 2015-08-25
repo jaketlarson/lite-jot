@@ -611,7 +611,6 @@ class window.Jots extends LiteJot
 
     @jots_list.find("li[data-jot='#{jot_id}'] .timestamp").click (e) =>
       e.stopPropagation()
-      console.log 'whoa'
       @flagJot jot_id
 
     @jots_list.find("li[data-jot='#{jot_id}'] i.edit").click (e) =>
@@ -639,24 +638,19 @@ class window.Jots extends LiteJot
       content[index].checked = !content[index].checked
       jot_object.content = JSON.stringify content
 
-      @toggleCheckJotItem jot_object, e
+      @toggleCheckJotItem jot_object, e, index
 
 
-  toggleCheckJotItem: (jot, event) =>
+  toggleCheckJotItem: (jot, event, checkbox_index) =>
     if @lj.emergency_mode.active
       event.preventDefault()
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
-    if !jot.has_manage_permissions
-      event.preventDefault()
-      new HoverNotice(@lj, 'You do not have permission to flag this jot.', 'error')
-      return
-
     $.ajax(
       type: 'PATCH'
-      url: "/jots/#{jot.id}"
-      data: "content=#{jot.content}"
+      url: "/jots/check_box/#{jot.id}"
+      data: "content=#{jot.content}&checkbox_index=#{checkbox_index}"
 
       success: (data) =>
         # all actions carried out on correct assumption that action would pass
@@ -677,18 +671,12 @@ class window.Jots extends LiteJot
     is_flagged = elem.hasClass('flagged') ? true : false
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
 
-    if !jot_object.has_manage_permissions
-      new HoverNotice(@lj, 'You do not have permission to flag this jot.', 'error')
-      return
-
     @toggleFlagClientSide(jot_object)
-
-    @setTimestamp (jot_object)
 
     is_flagged = !is_flagged
     $.ajax(
       type: 'PATCH'
-      url: "/jots/#{id}"
+      url: "/jots/flag/#{id}"
       data: "is_flagged=#{is_flagged}"
 
       success: (data) =>

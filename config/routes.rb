@@ -20,6 +20,8 @@ Rails.application.routes.draw do
 
   resources :topics
 
+  patch 'jots/flag/:id' => 'jots#flag'
+  patch 'jots/check_box/:id' => 'jots#check_box'
   resources :jots
 
   resources :shares
