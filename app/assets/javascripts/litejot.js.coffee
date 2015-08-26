@@ -24,7 +24,6 @@ window.unescapeHtml = (escapedStr) ->
   child = div.childNodes[0]
   if child then child.nodeValue else ''
 
-
 $ ->
   window.autolinker = new Autolinker
   

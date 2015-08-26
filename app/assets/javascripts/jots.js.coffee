@@ -771,6 +771,8 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
+    @lj.connection.abortPossibleDataLoadXHR()
+
     @currently_editing_id = id
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
@@ -852,7 +854,6 @@ class window.Jots extends LiteJot
         else
           elem.removeClass 'heading'
 
-        @lj.connection.abortPossibleDataLoadXHR()
         $.ajax(
           type: 'PATCH'
           url: "/jots/#{id}"
@@ -886,6 +887,8 @@ class window.Jots extends LiteJot
               @populateCheckList updated_content
             @determineFocusForNewJot()
         )
+      else
+        @lj.connection.startDataLoadTimer()
 
   deleteJot: (id) =>
     if @lj.emergency_mode.active

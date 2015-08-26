@@ -88,7 +88,29 @@ class window.Folders extends LiteJot
     else
       @new_folder_form_wrap.after build_html
 
-  sortFoldersList: (sort_dom=true) =>
+  updateFolderElem: (folder, append = true) =>
+    elem = @folders_list.find("li[data-folder='#{folder.id}']")
+    if !folder.has_manage_permissions
+      shared_icon_prefix = "<i class='fa fa-share-alt shared-icon-prefix'
+                            title='Shared with you by #{folder.owner_display_name}<br />&amp;lt;#{folder.owner_email}&amp;gt;'>
+                            </i>"
+    else
+      shared_icon_prefix = ""
+
+    elem.find('.title').html shared_icon_prefix + folder.title
+
+  sortFolderData: =>
+    @lj.app.folders.sort((a, b) =>
+      return a.updated_at_unix - b.updated_at_unix
+    )
+
+  sortFoldersList: (sort_dom=true, sort_folder_data_first=false) =>
+    # sort_folder_data_first is called to make sure the folders are sorted
+    # by last updated.. but this should not always be necessary.
+    # Therefore, make it an option but not default.
+    if sort_folder_data_first
+      @sortFolderData()
+
     offset_top = 0
 
     if @new_folder_form_wrap.is(':visible') && @new_folder_form_wrap.attr('data-hidden') == 'false'
@@ -274,6 +296,8 @@ class window.Folders extends LiteJot
     if !folder_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to modify this folder.', 'error')
       return
+
+    @lj.connection.abortPossibleDataLoadXHR()
     
     input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
@@ -303,7 +327,6 @@ class window.Folders extends LiteJot
           folder_object.title = filtered_input
           title.html(filtered_input)
 
-          @lj.connection.abortPossibleDataLoadXHR()
           $.ajax(
             type: 'PATCH'
             url: "/folders/#{id}"
@@ -320,6 +343,8 @@ class window.Folders extends LiteJot
               else
                 new HoverNotice(@lj, 'Could not update folder.', 'error')
           )
+        else
+          @lj.connection.startDataLoadTimer()
 
   deleteFolderPrompt: (target) =>
     if @lj.emergency_mode.active

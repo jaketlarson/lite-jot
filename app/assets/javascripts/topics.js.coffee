@@ -101,7 +101,23 @@ class window.Topics extends LiteJot
     else
       @new_topic_form_wrap.after build_html
 
-  sortTopicsList: (sort_dom=true) => #optimize this
+  updateTopicElem: (topic, append = true) =>
+    elem = @topics_list.find("li[data-topic='#{topic.id}']")
+    elem.find('.title').html topic.title
+
+  sortTopicData: =>
+    @lj.app.topics.sort((a, b) =>
+      return b.updated_at_unix - a.updated_at_unix
+    )
+
+  sortTopicsList: (sort_dom=true, sort_topic_data_first=false) => #optimize this
+    # sort_topic_data_first is called to make sure the topics are sorted
+    # by last updated.. but this should not always be necessary.
+    # Therefore, make it an option but not default.
+    if sort_topic_data_first
+      @sortTopicData()
+
+    # Make sure topics are 
     offset_top = 0
 
     if @new_topic_form_wrap.is(':visible') && @new_topic_form_wrap.attr('data-hidden') == 'false'
@@ -172,6 +188,8 @@ class window.Topics extends LiteJot
       new HoverNotice(@lj, 'You do not have permission to modify this topic.', 'error')
       return
 
+    @lj.connection.abortPossibleDataLoadXHR()
+
     input.val(window.unescapeHtml(title.html()))
     elem.attr('data-editing', 'true')
     input.focus()
@@ -200,7 +218,6 @@ class window.Topics extends LiteJot
           topic_object.title = filtered_input
           title.html(filtered_input)
 
-          @lj.connection.abortPossibleDataLoadXHR()
           $.ajax(
             type: 'PATCH'
             url: "/topics/#{id}"
@@ -218,6 +235,8 @@ class window.Topics extends LiteJot
               else
                 new HoverNotice(@lj, 'Could not update topic.', 'error')
           )
+        else
+          @lj.connection.startDataLoadTimer()
 
   deleteTopicPrompt: (target) =>
     if @lj.emergency_mode.active
@@ -268,7 +287,7 @@ class window.Topics extends LiteJot
       success: (data) =>
         @lj.connection.startDataLoadTimer()
         new HoverNotice(@lj, data.message, 'success')
-        vanish()
+        @vanish id
 
       error: (data) =>
         @lj.connection.startDataLoadTimer()
@@ -279,30 +298,31 @@ class window.Topics extends LiteJot
           new HoverNotice(@lj, 'Could not delete topic.', 'error')
     )
 
-    vanish = =>
-      elem.attr('data-deleted', 'true')
+  vanish: (id) =>
+    elem = $("li[data-topic='#{id}']")
+    elem.attr('data-deleted', 'true')
 
-      setTimeout(() =>
-        topic_key = null
-        $.each @lj.app.topics, (index, topic) =>
-          if topic.id == id
-            topic_key = index
-            return false
+    setTimeout(() =>
+      topic_key = null
+      $.each @lj.app.topics, (index, topic) =>
+        if topic.id == id
+          topic_key = index
+          return false
 
-        @lj.app.topics.remove(topic_key)
-        elem.remove()
-        @sortTopicsList false
+      @lj.app.topics.remove(topic_key)
+      elem.remove()
+      @sortTopicsList false
 
-        if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-          @selectFirstTopic()
-        else
-          # deleted last topic
-          @lj.app.current_topic = null
-          @lj.jots.updateHeading()
-          @lj.jots.clearJotsList()
-          @newTopic()
+      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+        @selectFirstTopic()
+      else
+        # deleted last topic
+        @lj.app.current_topic = null
+        @lj.jots.updateHeading()
+        @lj.jots.clearJotsList()
+        @newTopic()
 
-      , 350)
+    , 350)
 
   selectFirstTopic: =>
     next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]
