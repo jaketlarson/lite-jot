@@ -126,11 +126,13 @@ class window.ShareSettings extends LiteJot
     if email.val().length > 0
       @showSubmitLoading()
 
+      @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
         url: '/shares'
         data: "recipient_email=#{encodeURIComponent(email.val())}&folder_id=#{@folder_id}"
         success: (data) =>
+          @lj.connection.startDataLoadTimer()
           @error_wrap.hide()
           @hideSubmitLoading()
           @lj.app.shares.push data.share
@@ -140,6 +142,7 @@ class window.ShareSettings extends LiteJot
           @modal.find('form.new-share-form').hide()
 
         error: (data) =>
+          @lj.connection.startDataLoadTimer()
           response = data.responseJSON
           @hideSubmitLoading()
           @error_wrap.show()
@@ -196,11 +199,13 @@ class window.ShareSettings extends LiteJot
 
     share = @folder_shares.filter((share) => share.id == share_id)[0]
 
+    @lj.connection.abortPossibleDataLoadXHR()
     @XHR_update_request = $.ajax(
       type: 'PATCH'
       url: "/shares/#{share_id}"
       data: share
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         share.permissions_preview = data.share.permissions_preview
         share.is_all_topics = data.share.is_all_topics
         share.specific_topics = data.share.specific_topics
@@ -209,14 +214,17 @@ class window.ShareSettings extends LiteJot
         @updatePermissionsPreviewText share
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         @XHR_update_waiting = false
     )
 
   unshare: (share_id) =>
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'DELETE'
       url: "/shares/#{share_id}"
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         share_key = null
         $.each @lj.app.shares, (index, share) =>
           if share.id == share_id
@@ -226,8 +234,8 @@ class window.ShareSettings extends LiteJot
         @lj.app.shares.remove(share_key)
         $("li[data-share='#{share_id}']").remove()
 
-
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
 
     )
 

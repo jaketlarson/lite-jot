@@ -47,16 +47,19 @@ class window.UserSettings extends LiteJot
     @loading_text.show()
     clearTimeout(@success_text_timeout)
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'PATCH'
       url: @form.attr('action')
       data: @form.serialize()
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         @updateClientSideUserData data
         @handleSuccess data
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         @handleError(data)
     )
 

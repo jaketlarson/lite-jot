@@ -22,6 +22,63 @@ class window.Connection extends LiteJot
     @failures_before_emergency_mode = 1
     @consecutive_failures = 0
 
+    # @data_load_xhr is checked on every ajax request.
+    # If it's in progress, it is aborted to avoid complications
+    # when cross-checking data.
+    @data_load_xhr = null
+    @data_load_timer = null
+    @data_load_timer_seconds = 3
+
+  loadDataFromServer: =>
+    @data_load_xhr = $.ajax(
+      type: 'GET'
+      url: '/load-data'
+      success: (data) =>
+        if !@lj.init_data_loaded
+          @lj.app.folders = data.folders
+          @lj.app.topics = data.topics
+          @lj.app.jots = data.jots
+          @lj.app.shares = data.shares
+          @lj.app.user = data.user
+          @lj.buildUI()
+          @lj.initCalendar()
+          @lj.initPushUI()
+          @lj.init_data_loaded = true
+        else
+          @lj.temp.folders = data.folders
+          @lj.temp.topics = data.topics
+          @lj.temp.jots = data.jots
+          @lj.temp.shares = data.shares
+          @lj.temp.user = data.user
+          @lj.pushUI.mergeData()
+
+        @startDataLoadTimer()
+        @data_load_xhr = null
+
+      error: (data) =>
+        # error handling.. seriously.
+
+    )
+
+  abortPossibleDataLoadXHR: =>
+    # This function is called on any ajax request
+    # to stop any possible data load request in progress.
+    # This way, the client's UI doesn't get messed up
+    # when merging data from server to client.
+    # We only care if it's not on init data load.
+    if @data_load_xhr && @lj.init_data_loaded
+      @data_load_xhr.abort()
+      @data_load_xhr = null
+
+    if @data_load_timer
+      clearTimeout @data_load_timer
+
+  startDataLoadTimer: =>
+    @data_load_timer = setTimeout(() =>
+      @loadDataFromServer()
+    , @data_load_timer_seconds*1000)
+
+
   startConnectionTestTimer: =>
     @connection_test_timer = setTimeout @testConnection, @connection_test_timing
     return

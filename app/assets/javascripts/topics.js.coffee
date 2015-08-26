@@ -200,16 +200,19 @@ class window.Topics extends LiteJot
           topic_object.title = filtered_input
           title.html(filtered_input)
 
+          @lj.connection.abortPossibleDataLoadXHR()
           $.ajax(
             type: 'PATCH'
             url: "/topics/#{id}"
             data: "title=#{encodeURIComponent(filtered_input)}"
 
             success: (data) =>
+              @lj.connection.startDataLoadTimer()
               new HoverNotice(@lj, 'Topic updated.', 'success')
               @lj.jots.updateHeading()
 
             error: (data) =>
+              @lj.connection.startDataLoadTimer()
               unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
                 new HoverNotice(@lj, data.responseJSON.error, 'error')
               else
@@ -256,16 +259,19 @@ class window.Topics extends LiteJot
     elem = $("li[data-topic='#{id}']")
     elem.attr('data-deleting', 'true')
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'POST'
       url: "/topics/#{id}"
       data: {'_method': 'delete'}
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         new HoverNotice(@lj, data.message, 'success')
         vanish()
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         elem.attr('data-deleting', false)
         unless typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -342,11 +348,13 @@ class window.Topics extends LiteJot
       @lj.jots.determineFocusForNewJot()
       topic_title.attr 'disabled', true
 
+      @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
         url: '/topics'
         data: "title=#{encodeURIComponent(filtered_content)}&folder_id=#{@lj.app.current_folder}"
         success: (data) =>
+          @lj.connection.startDataLoadTimer()
           @lj.search.endSearchState()
           @hideNewTopicForm()
 
@@ -360,6 +368,7 @@ class window.Topics extends LiteJot
           topic_title.attr 'disabled', false
 
         error: (data) =>
+          @lj.connection.startDataLoadTimer()
           unless typeof data.responseJSON.error == 'undefined'
             new HoverNotice(@lj, data.responseJSON.error, 'error')
           else

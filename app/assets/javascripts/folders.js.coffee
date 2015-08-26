@@ -192,11 +192,13 @@ class window.Folders extends LiteJot
     unless filtered_content.trim().length == 0
       folder_title.attr 'disabled', true
 
+      @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
         url: '/folders'
         data: "title=#{encodeURIComponent(filtered_content)}"
         success: (data) =>
+          @lj.connection.startDataLoadTimer()
           @lj.search.endSearchState()
           @hideNewFolderForm()
           folder_title.attr 'disabled', false
@@ -207,6 +209,7 @@ class window.Folders extends LiteJot
           @lj.topics.newTopic()
 
         error: (data) =>
+          @lj.connection.startDataLoadTimer()
           unless typeof data.responseJSON.error == 'undefined'
             new HoverNotice(@lj, data.responseJSON.error, 'error')
           else
@@ -300,15 +303,18 @@ class window.Folders extends LiteJot
           folder_object.title = filtered_input
           title.html(filtered_input)
 
+          @lj.connection.abortPossibleDataLoadXHR()
           $.ajax(
             type: 'PATCH'
             url: "/folders/#{id}"
             data: "title=#{encodeURIComponent(filtered_input)}"
 
             success: (data) =>
+              @lj.connection.startDataLoadTimer()
               new HoverNotice(@lj, 'Folder updated.', 'success')
 
             error: (data) =>
+              @lj.connection.startDataLoadTimer()
               unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
                 new HoverNotice(@lj, data.responseJSON.error, 'error')
               else
@@ -354,16 +360,19 @@ class window.Folders extends LiteJot
     elem = $("li[data-folder='#{id}']")
     elem.attr('data-deleting', 'true')
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'POST'
       url: "/folders/#{id}"
       data: {'_method': 'delete'}
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         new HoverNotice(@lj, data.message, 'success')
         @vanish id
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         elem.attr('data-deleting', false)
         unless typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -427,17 +436,20 @@ class window.Folders extends LiteJot
     elem.attr('data-deleting', 'true')
     share_id = @lj.app.folders.filter((folder) => folder.id == folder_id)[0].share_id
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'POST'
       url: "/shares/#{share_id}"
       data: {'_method': 'delete'}
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         new HoverNotice(@lj, data.message, 'success')
         @vanish folder_id
         $(share_icon_target).cooltip('destroy')
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         elem.attr('data-deleting', false)
         unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')

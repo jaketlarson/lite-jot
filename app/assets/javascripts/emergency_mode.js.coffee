@@ -112,11 +112,13 @@ class window.EmergencyMode extends LiteJot
     stored_jots = @getStoredJotsObject()
 
     if stored_jots.length > 0
+      @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
         url: '/jots'
         data: {"jots": stored_jots}
         success: (data) =>
+          @lj.connection.startDataLoadTimer()
           if data.error_list.length > 0
             # add a timeout so the reveal overlay doesn't glitch up and disappear
             setTimeout(() =>
@@ -139,6 +141,7 @@ class window.EmergencyMode extends LiteJot
           @clearLocalStorage()
 
         error: (data) =>
+          @lj.connection.startDataLoadTimer()
           # still can't save the jots..
           # if this happens to often, an improvement could be
           # to reattempt this ajax request again before firing

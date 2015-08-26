@@ -352,7 +352,8 @@ class window.Jots extends LiteJot
     items = JSON.parse(items)
     html = "<ul class='checklist-jot'>"
     $.each items, (index, item) =>
-      html += "<li class='checklist-item' title='#{item.toggled_text}'>"
+      toggled_text = if item.toggled_text then item.toggled_text else "Click to toggle checkbox."
+      html += "<li class='checklist-item' title='#{toggled_text}'>"
       html += "<div class='checkbox-wrap'><input type='checkbox'#{if item.checked then "checked" else ""}></div>"
       html += "#{item.value}"
       html += "</li>"
@@ -446,11 +447,13 @@ class window.Jots extends LiteJot
         # reset new jot inputs
         @clearJotInputs()
 
+        @lj.connection.abortPossibleDataLoadXHR()
         $.ajax(
           type: 'POST'
           url: "/jots/"
           data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}&jot_type=#{jot_type}&break_from_top=#{@new_jot_break_value}"
           success: (data) =>
+            @lj.connection.startDataLoadTimer()
             @lj.app.jots.push data.jot
             @integrateTempJot data.jot, key
 
@@ -462,16 +465,19 @@ class window.Jots extends LiteJot
               @lj.topics.hideNewTopicForm()
               @lj.topics.pushTopicIntoData data.auto_topic
 
-            # inform user of an auto generated folder or topic
+            # Inform user of an auto generated folder or topic
             if typeof data.auto_folder != 'undefined' && typeof data.auto_topic != 'undefined'
               new HoverNotice(@lj, 'Folder and topic auto-generated.', 'success')
             if typeof data.auto_folder == 'undefined' && typeof data.auto_topic != 'undefined'
               new HoverNotice(@lj, 'Topic auto-generated.', 'success')
 
-            # # reset new jot inputs
-            # @clearJotInputs()
+            # Extra check against emptiness, in case @vanish() conflicts with
+            # this ajax request timing and the error message shows up
+            # with the new jot..
+            @checkIfJotsEmpty()
 
           error: (data) =>
+            @lj.connection.startDataLoadTimer()
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
               new HoverNotice(@lj, data.responseJSON.error, 'error')
             else
@@ -550,10 +556,10 @@ class window.Jots extends LiteJot
     flagged_class = if jot.is_flagged then 'flagged' else ''
     heading_class = if jot.jot_type == 'heading' then 'heading' else ''
     break_class = if jot.break_from_top then 'break-from-top' else ''
+    #highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
-    highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
 
-    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{highlighted_class} #{break_class}'>"
+    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{break_class}'>"
     build_html += "<div class='timestamp'></div>"
 
     if jot.has_manage_permissions
@@ -574,11 +580,35 @@ class window.Jots extends LiteJot
                   </li>"
 
     # parse possible links
-    build_html = Autolinker.link(build_html)
+    build_html = Autolinker.link build_html
 
     @jots_list.append(build_html)
     @setTimestamp jot
     @initJotBinds jot.id
+    if jot.jot_type == 'checklist'
+      @initJotElemChecklistBind jot.id
+
+  updateJotElem: (jot) =>
+    elem = @jots_list.find("li[data-jot='#{jot.id}']")
+    classes = ""
+    if jot.is_flagged then classes += "flagged "
+    if jot.jot_type == 'heading' then classes += "heading "
+    if jot.break_from_top then classes += "break-from-top "
+    #if (jot.id in @jots_in_search_results) then classes += "highlighted "
+    elem.attr 'class', classes
+
+    jot_content = jot.content.replace /\n/g, '<br />'
+
+    if jot.jot_type == 'checklist'
+      jot_content = @parseCheckListToHTML jot_content
+
+    # parse possible links
+    jot_content = Autolinker.link jot_content
+
+    elem.find('.content').html jot_content
+    @setTimestamp jot
+    if jot.jot_type == 'checklist'
+      @initJotElemChecklistBind jot.id
 
   setTimestamp: (jot) =>
     elem = @jots_list.find("[data-jot='#{jot.id}'] .timestamp")
@@ -591,6 +621,9 @@ class window.Jots extends LiteJot
                     Click to toggle flag.")
     $(elem).cooltip({direction: 'left', align: 'bottom', class: 'timestamp'})
 
+    # Update timestamp tooltip,
+    # just in case this method call was to update the jot elem
+    elem.cooltip 'update'
 
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
@@ -630,7 +663,7 @@ class window.Jots extends LiteJot
       align: 'left'
     })
 
-
+  initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").click (e) => 
       e.stopPropagation()
       @handleCheckboxEvent e, $(e.currentTarget), jot_id
@@ -668,17 +701,20 @@ class window.Jots extends LiteJot
 
     checkbox = $(event.currentTarget).find("input[type='checkbox']")
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'PATCH'
       url: "/jots/check_box/#{jot.id}"
       data: "content=#{jot.content}&checkbox_index=#{checkbox_index}"
 
       success: (data) =>
-        console.log data
+        @lj.connection.startDataLoadTimer()
+
         # all actions carried out on correct assumption that action would pass
         checkbox.closest('li').attr 'title', JSON.parse(data.jot.content)[checkbox_index].toggled_text
         .cooltip('update')
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         checkbox.prop 'checked', !checkbox.is(':checked')
         unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -698,15 +734,18 @@ class window.Jots extends LiteJot
     @toggleFlagClientSide(jot_object)
 
     is_flagged = !is_flagged
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'PATCH'
       url: "/jots/flag/#{id}"
       data: "is_flagged=#{is_flagged}"
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         # all actions carried out on correct assumption that action would pass
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         @toggleFlagClientSide(jot_object)
         unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -813,12 +852,14 @@ class window.Jots extends LiteJot
         else
           elem.removeClass 'heading'
 
+        @lj.connection.abortPossibleDataLoadXHR()
         $.ajax(
           type: 'PATCH'
           url: "/jots/#{id}"
           data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}&jot_type=#{@new_jot_current_tab}"
 
           success: (data) =>
+            @lj.connection.startDataLoadTimer()
             jot_object.content = data.jot.content
             jot_object.created_at_long = data.jot.created_at_long
             jot_object.created_at_short = data.jot.created_at_short
@@ -828,6 +869,7 @@ class window.Jots extends LiteJot
             new HoverNotice(@lj, 'Jot updated.', 'success')
 
           error: (data) =>
+            @lj.connection.startDataLoadTimer()
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
               new HoverNotice(@lj, data.responseJSON.error, 'error')
             else
@@ -858,39 +900,42 @@ class window.Jots extends LiteJot
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleting', 'true')
 
+    @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'POST'
       url: "/jots/#{id}"
       data: {'_method': 'delete'}
 
       success: (data) =>
+        @lj.connection.startDataLoadTimer()
         new HoverNotice(@lj, data.message, 'success')
-        vanish()
+        @vanish id
 
       error: (data) =>
+        @lj.connection.startDataLoadTimer()
         elem.attr('data-deleting', false)
         unless typeof data.responseJSON == 'undefined' || data.responseJSON.error == 'undefined'
           new HoverNotice(@lj, data.responseJSON.error, 'error')
         else
           new HoverNotice(@lj, 'Could not delete jot.', 'error')
-
     )
 
-    vanish = =>
-      setTimeout(() =>
-        elem.attr('data-deleted', 'true')
-        jot_key = null
-        $.each @lj.app.jots, (index, jot) =>
-          if jot.id == id
-            jot_key = index
-            return false
+  vanish: (id) =>
+    elem = $("li[data-jot='#{id}']")
 
-        @lj.app.jots.remove(jot_key)
-        elem.remove()
+    setTimeout(() =>
+      elem.attr('data-deleted', 'true')
+      jot_key = null
+      $.each @lj.app.jots, (index, jot) =>
+        if jot.id == id
+          jot_key = index
+          return false
 
-        @checkIfJotsEmpty()
+      @lj.app.jots.remove(jot_key)
+      elem.remove()
 
-      , 350)
+      @checkIfJotsEmpty()
+    , 350)
 
   checkIfJotsEmpty: =>
     if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
@@ -899,6 +944,7 @@ class window.Jots extends LiteJot
       @positionEmptyMessage()
       return true
     else
+      @jots_empty_message_elem.hide()
       return false
 
   positionEmptyMessage: =>

@@ -51,7 +51,7 @@ class window.LiteJot
     @initVars()
     @sizeUI()
     @setUIInterval()
-    @loadDataFromServer()
+    @connection.loadDataFromServer()
     @initAppInfoModalBind()
     @initModalFocusBind()
     @connection.startConnectionTestTimer()
@@ -64,6 +64,7 @@ class window.LiteJot
 
   initVars: =>
     @app = {} # all loaded app data goes here
+    @temp = {} # used for merging server data with clientside (@app) data
 
     @setViewport()
 
@@ -93,25 +94,6 @@ class window.LiteJot
         @sizeUI()
 
     , 500)
-
-  loadDataFromServer: =>
-    $.ajax(
-      type: 'GET'
-      url: '/load-data'
-      success: (data) =>
-        @app.folders = data.folders
-        @app.topics = data.topics
-        @app.jots = data.jots
-        @app.shares = data.shares
-        @app.user = data.user
-
-        @buildUI()
-        @initCalendar()
-
-        @init_data_loaded = true
-
-      error: (data) =>
-    )
 
   buildUI: (organize_dom=true) =>
     @folders.buildFoldersList()
@@ -162,3 +144,6 @@ class window.LiteJot
 
   initCalendar: =>
     @calendar = new Calendar(@)
+
+  initPushUI: =>
+    @pushUI = new PushUI(@)
