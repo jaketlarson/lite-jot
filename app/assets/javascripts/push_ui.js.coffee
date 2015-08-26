@@ -9,9 +9,19 @@ class window.PushUI extends LiteJot
 
   mergeData: =>
     console.log 'merge'
-    @mergeJots $.extend([], @lj.temp.jots)
-    @mergeTopics $.extend([], @lj.temp.topics)
+    # Merge folders, topics, then jots.
+    # This order is necessary, because when, during a merge,
+    # a folder is flagged as deleted, it calls the vanish function.
+    # The vanish function for folders deletes topics, and then jots.
+    # The functionality is similar for topics.
+    # This way, the merging and vanishing process doesn't clash.
+    # It would clash if you were deleting a folder with topics/jots,
+    # and the jots were being merged and the keys were being
+    # checked against that weren't actually there anymore.
+    # It also makes more sense to start from the root.
     @mergeFolders $.extend([], @lj.temp.folders)
+    @mergeTopics $.extend([], @lj.temp.topics)
+    @mergeJots $.extend([], @lj.temp.jots)
     @mergeShares $.extend([], @lj.temp.shares)
 
   mergeJots: (v_server) =>
@@ -44,7 +54,6 @@ class window.PushUI extends LiteJot
       s_jot = s_jot[0]
       $.each c_jot, (key, value) =>
         if c_jot[key] != s_jot[key]
-          console.log "um #{key}=#{c_jot[key]} != #{key}=#{s_jot[key]}"
           c_jot[key] = s_jot[key]
           jot_updated = true
 
@@ -61,7 +70,6 @@ class window.PushUI extends LiteJot
     if keys_to_delete.length > 0
       $.each keys_to_delete, (index, key) =>
         v_client.remove key
-        console.log key
 
     # Any jots without the property 'checked' in v_server means they are new
     # Append remaining jots to actual client-side @app data.
@@ -71,10 +79,7 @@ class window.PushUI extends LiteJot
         any_new = true
         v_client.push s_jot
         if @lj.app.current_topic == s_jot.topic_id
-          console.log "inserting: "
-          console.log s_jot
           @lj.jots.insertJotElem s_jot
-          console.log key
 
       if any_new
         @lj.jots.scrollJotsToBottom()
@@ -102,23 +107,18 @@ class window.PushUI extends LiteJot
         # If this is on the current folder, then remove from DOM
         # @lj.topics.vanish will take care of the data removal.
         topics_deleted++
-        if @lj.app.current_folder == c_topic.folder_id
-          @lj.topics.vanish c_topic.id
-        else
-          # @lj.topics.vanish won't help here, add to delete queue
-          keys_to_delete.push c_topic_key
+        keys_to_delete.push c_topic_key
 
         return
 
       s_topic = s_topic[0]
       $.each c_topic, (key, value) =>
         if c_topic[key] != s_topic[key]
-          console.log "um #{key}=#{c_topic[key]} != #{key}=#{s_topic[key]}"
           c_topic[key] = s_topic[key]
           topic_updated = true
 
       if topic_updated && @lj.app.current_folder == c_topic.folder_id
-        # 'touched' means the topic was updated
+        # 'touched' means the topic was updated while the containing folder is open
         s_topic.touched = true
         @lj.topics.updateTopicElem c_topic
 
@@ -131,8 +131,13 @@ class window.PushUI extends LiteJot
 
     if keys_to_delete.length > 0
       $.each keys_to_delete, (index, key) =>
-        v_client.remove key
-        console.log key
+        topic = v_client[key]
+        # If this is on the current folder, then remove from DOM
+        # @lj.topics.vanish will take care of the data removal.
+        if @lj.app.current_folder == topic.folder_id
+          @lj.topics.vanish topic.id
+        else
+          v_client.remove key
 
     # Any topics without the property 'checked' in v_server means they are new
     # Append remaining topics to actual client-side @app data.
@@ -143,6 +148,7 @@ class window.PushUI extends LiteJot
         v_client.push s_topic
         if @lj.app.current_folder == s_topic.folder_id
           @lj.topics.insertTopicElem s_topic
+          @lj.topics.initTopicBinds s_topic.id
 
     # Check if sortTopicList is necessary..
     any_topics_added_or_edited = v_server.filter((s_topic) => !s_topic.checked || s_topic.touched).length > 0
@@ -156,6 +162,7 @@ class window.PushUI extends LiteJot
     # v_client represents client version of data
     v_client = $.extend [], @lj.app.folders
     v_client = @lj.app.folders
+    keys_to_delete = []
     folders_deleted = 0
 
     # Check for modifications & deletes
@@ -168,15 +175,14 @@ class window.PushUI extends LiteJot
 
       if s_folder.length == 0
         folders_deleted++
-        @lj.folders.vanish c_folder.id
+        keys_to_delete.push c_folder_key
         return
 
       s_folder = s_folder[0]
       $.each c_folder, (key, value) =>
         if c_folder[key] != s_folder[key]
-          console.log "um #{key}=#{c_folder[key]} != #{key}=#{s_folder[key]}"
           c_folder[key] = s_folder[key]
-          folder_updated = true
+          s_folder.touched = true
 
       @lj.folders.updateFolderElem c_folder
 
@@ -195,6 +201,10 @@ class window.PushUI extends LiteJot
         any_new = true
         v_client.push s_folder
         @lj.folders.insertFolderElem s_folder
+        @lj.folders.initFolderBinds s_folder.id
+
+    $.each keys_to_delete, (index, key) =>
+      @lj.folders.vanish v_client[key].id
 
     # Check if sortFolderList is necessary..
     any_folders_added_or_edited = v_server.filter((s_folder) => !s_folder.checked || s_folder.touched).length > 0

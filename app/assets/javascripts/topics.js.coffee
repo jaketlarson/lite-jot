@@ -52,7 +52,8 @@ class window.Topics extends LiteJot
             $("li[data-topic='#{topic.id}']").addClass('current')
 
       $.each @lj.app.topics, (index, topic) =>
-        @initTopicBinds(topic.id)
+        if topic.folder_id == @lj.app.current_folder
+          @initTopicBinds topic.id
 
       # organize_dom is an option because if a user submits a jot while in search mode
       # the jot submission process would be redundantly calling the sortTopicsList()
@@ -299,29 +300,36 @@ class window.Topics extends LiteJot
     )
 
   vanish: (id) =>
+    # Handles the real deleting
     elem = $("li[data-topic='#{id}']")
     elem.attr('data-deleted', 'true')
+    
+    topic_key = null
+    $.each @lj.app.topics, (index, topic) =>
+      if topic.id == id
+        topic_key = index
+        return false
+    @lj.app.topics.remove(topic_key)
 
-    setTimeout(() =>
-      topic_key = null
-      $.each @lj.app.topics, (index, topic) =>
-        if topic.id == id
-          topic_key = index
-          return false
-
-      @lj.app.topics.remove(topic_key)
-      elem.remove()
-      @sortTopicsList false
-
-      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-        @selectFirstTopic()
+    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+      if elem.prev('li[data-topic]').length > 0
+        next_topic_elem = elem.prev('li[data-topic]')
       else
-        # deleted last topic
-        @lj.app.current_topic = null
-        @lj.jots.updateHeading()
-        @lj.jots.clearJotsList()
-        @newTopic()
+        next_topic_elem = elem.next('li[data-topic]')
+      @selectTopic($(next_topic_elem).data('topic'))
 
+    else
+      # deleted last topic
+      @lj.app.current_topic = null
+      @lj.jots.updateHeading()
+      @lj.jots.clearJotsList()
+      @newTopic()
+
+    @sortTopicsList false
+
+    # Wait for animation
+    setTimeout(() =>
+      elem.remove()
     , 350)
 
   selectFirstTopic: =>

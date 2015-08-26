@@ -9,28 +9,33 @@ class SharesController < ApplicationController
     share = Share.new(share_params)
     ownership_check = Folder.where('id = ? AND user_id = ?', share.folder_id, current_user.id)
 
-    if ownership_check.count > 0
-      recip_user = User.where('email = ?', share.recipient_email).first
-      if !recip_user
-        render :json => {:success => false, :error => "No user exists for that email address."}, :status => :bad_request
-      else
-        dup_check = current_user.shares.where('recipient_id = ? AND folder_id = ?', recip_user.id, share.folder_id)
-        
-        if dup_check.count > 0
-          render :json => {:success => false, :error => "You are already sharing this folder with #{share.recipient_email}."}, :status => :bad_request
-        else
-          share.recipient_id = recip_user.id
-          share.owner_id = current_user.id
 
-          if share.save
-            render :json => {:success => true, :share => ShareSerializer.new(share, :root => false)}
+    if share.recipient_email != current_user.email
+      if ownership_check.count > 0
+        recip_user = User.where('email = ?', share.recipient_email).first
+        if !recip_user
+          render :json => {:success => false, :error => "No user exists for that email address."}, :status => :bad_request
+        else
+          dup_check = current_user.shares.where('recipient_id = ? AND folder_id = ?', recip_user.id, share.folder_id)
+          
+          if dup_check.count > 0
+            render :json => {:success => false, :error => "You are already sharing this folder with #{share.recipient_email}."}, :status => :bad_request
           else
-            render :json => {:success => false, :error => "There was an error while sharing. Please contact us if this issue persists."}, :status => :bad_request
+            share.recipient_id = recip_user.id
+            share.owner_id = current_user.id
+
+            if share.save
+              render :json => {:success => true, :share => ShareSerializer.new(share, :root => false)}
+            else
+              render :json => {:success => false, :error => "There was an error while sharing. Please contact us if this issue persists."}, :status => :bad_request
+            end
           end
         end
+      else
+        render :json => {:success => false, :error => "You can only share folders you've created."}, :status => :bad_request
       end
     else
-      render :json => {:success => false, :error => "You can only share folders you've created."}, :status => :bad_request
+      render :json => {:success => false, :error => "You cannot share a folder with yourself."}, :status => :bad_request
     end
 
   end
