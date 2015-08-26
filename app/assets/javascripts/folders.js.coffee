@@ -101,7 +101,7 @@ class window.Folders extends LiteJot
 
   sortFolderData: =>
     @lj.app.folders.sort((a, b) =>
-      return a.updated_at_unix - b.updated_at_unix
+      return b.updated_at_unix - a.updated_at_unix
     )
 
   sortFoldersList: (sort_dom=true, sort_folder_data_first=false) =>
@@ -406,31 +406,36 @@ class window.Folders extends LiteJot
     )
 
   vanish: (id) =>
+    # Handles the real deleting
     elem = $("li[data-folder='#{id}']")
     elem.attr('data-deleted', 'true')
+
+    folder_key = null
+    $.each @lj.app.folders, (index, folder) =>
+      if folder.id == id
+        folder_key = index
+        return false
+    @lj.app.folders.remove(folder_key)
+    @lj.topics.removeTopicsInFolderFromData id
+
+    if @lj.app.folders.length > 0
+      if elem.prev('li[data-folder]').length > 0
+        next_folder_elem = elem.prev('li[data-folder]')
+      else
+        next_folder_elem = elem.next('li[data-folder]')
+      @selectFolder($(next_folder_elem).data('folder'))
+
+    else # they deleted the last folder
+      @lj.app.current_folder = null
+      @newFolder()
+      @lj.topics.buildTopicsList() # will render empty topics/jots
+
+    @sortFoldersList false
+
+    # Wait for animation
     setTimeout(() =>
-      folder_key = null
-      $.each @lj.app.folders, (index, folder) =>
-        if folder.id == id
-          folder_key = index
-          return false
-
-      @lj.app.folders.remove(folder_key)
       elem.remove()
-      @lj.topics.removeTopicsInFolderFromData id
-      @sortFoldersList false
-
-      if @lj.app.folders.length > 0
-        next_folder_elem = @folders_list.find('li:not(.new-folder-form-wrap)')[0]
-        @selectFolder($(next_folder_elem).data('folder'))
-
-      else # they deleted the last folder
-        @lj.app.current_folder = null
-        @newFolder()
-        @lj.topics.buildTopicsList() # will render empty topics/jots
-
     , 350)
-
 
   moveCurrentFolderToTop: =>
     folder_key_to_move = null

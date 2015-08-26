@@ -278,7 +278,6 @@ class window.Jots extends LiteJot
           @ignore_this_key_down = false
         else if this_checklist_value.trim().length == 0
           @lj.search.focusSearchInput()
-          console.log 'wow'
           return
 
       if this_checklist_value.trim().length > 0
@@ -925,18 +924,17 @@ class window.Jots extends LiteJot
 
   vanish: (id) =>
     elem = $("li[data-jot='#{id}']")
+    elem.attr('data-deleted', 'true')
+    jot_key = null
+    $.each @lj.app.jots, (index, jot) =>
+      if jot.id == id
+        jot_key = index
+        return false
+
+    @lj.app.jots.remove(jot_key)
 
     setTimeout(() =>
-      elem.attr('data-deleted', 'true')
-      jot_key = null
-      $.each @lj.app.jots, (index, jot) =>
-        if jot.id == id
-          jot_key = index
-          return false
-
-      @lj.app.jots.remove(jot_key)
       elem.remove()
-
       @checkIfJotsEmpty()
     , 350)
 
