@@ -5,4 +5,5 @@ class Share < ActiveRecord::Base
   attr_accessor :recipient_email
   serialize :specific_topics
   
+  default_scope { order("created_at ASC") }
 end

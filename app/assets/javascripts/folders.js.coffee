@@ -410,13 +410,7 @@ class window.Folders extends LiteJot
     elem = $("li[data-folder='#{id}']")
     elem.attr('data-deleted', 'true')
 
-    folder_key = null
-    $.each @lj.app.folders, (index, folder) =>
-      if folder.id == id
-        folder_key = index
-        return false
-    @lj.app.folders.remove(folder_key)
-    @lj.topics.removeTopicsInFolderFromData id
+    @removeFolderFromDataById id
 
     if @lj.app.folders.length > 0
       if elem.prev('li[data-folder]').length > 0
@@ -436,6 +430,15 @@ class window.Folders extends LiteJot
     setTimeout(() =>
       elem.remove()
     , 350)
+
+  removeFolderFromDataById: (id) =>
+    folder_key = null
+    $.each @lj.app.folders, (index, folder) =>
+      if folder.id == id
+        folder_key = index
+        return false
+    @lj.app.folders.remove(folder_key)
+    @lj.topics.removeTopicsInFolderFromData id
 
   moveCurrentFolderToTop: =>
     folder_key_to_move = null

@@ -925,6 +925,15 @@ class window.Jots extends LiteJot
   vanish: (id) =>
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleted', 'true')
+
+    @removeJotFromDataById id
+
+    setTimeout(() =>
+      elem.remove()
+      @checkIfJotsEmpty()
+    , 350)
+
+  removeJotFromDataById: (id) =>
     jot_key = null
     $.each @lj.app.jots, (index, jot) =>
       if jot.id == id
@@ -933,13 +942,8 @@ class window.Jots extends LiteJot
 
     @lj.app.jots.remove(jot_key)
 
-    setTimeout(() =>
-      elem.remove()
-      @checkIfJotsEmpty()
-    , 350)
-
   checkIfJotsEmpty: =>
-    if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length == 0
+    if @lj.app.jots.filter((jot) => if(jot) then (jot.topic_id == @lj.app.current_topic) else false).length == 0
       @determineFocusForNewJot()
       @jots_empty_message_elem.show()
       @positionEmptyMessage()

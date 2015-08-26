@@ -304,26 +304,23 @@ class window.Topics extends LiteJot
     elem = $("li[data-topic='#{id}']")
     elem.attr('data-deleted', 'true')
     
-    topic_key = null
-    $.each @lj.app.topics, (index, topic) =>
-      if topic.id == id
-        topic_key = index
-        return false
-    @lj.app.topics.remove(topic_key)
+    @removeTopicFromDataById id
 
-    if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
-      if elem.prev('li[data-topic]').length > 0
-        next_topic_elem = elem.prev('li[data-topic]')
+    # Handle case of viewing current jot being vanished
+    if @lj.app.current_topic == id
+      if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
+        if elem.prev('li[data-topic]').length > 0
+          next_topic_elem = elem.prev('li[data-topic]')
+        else
+          next_topic_elem = elem.next('li[data-topic]')
+        @selectTopic($(next_topic_elem).data('topic'))
+
       else
-        next_topic_elem = elem.next('li[data-topic]')
-      @selectTopic($(next_topic_elem).data('topic'))
-
-    else
-      # deleted last topic
-      @lj.app.current_topic = null
-      @lj.jots.updateHeading()
-      @lj.jots.clearJotsList()
-      @newTopic()
+        # deleted last topic
+        @lj.app.current_topic = null
+        @lj.jots.updateHeading()
+        @lj.jots.clearJotsList()
+        @newTopic()
 
     @sortTopicsList false
 
@@ -331,6 +328,14 @@ class window.Topics extends LiteJot
     setTimeout(() =>
       elem.remove()
     , 350)
+
+  removeTopicFromDataById: (id) =>
+    topic_key = null
+    $.each @lj.app.topics, (index, topic) =>
+      if topic.id == id
+        topic_key = index
+        return false
+    @lj.app.topics.remove(topic_key)
 
   selectFirstTopic: =>
     next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]

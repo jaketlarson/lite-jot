@@ -29,25 +29,22 @@ class window.PushUI extends LiteJot
     # v_client represents client version of data
     v_client = $.extend [], @lj.app.jots
     v_client = @lj.app.jots
-    keys_to_delete = []
+    jots_to_delete = []
 
     # Check for modifications & deletes
     # If found, update client-side @app data.
     $.each v_client, (c_jot_key, c_jot) =>
       # c_jot => client side jot data
       # s_jot => server side jot data
+      if !c_jot # Check incase they're deleting while looping
+        return
+
       jot_updated = false
       s_jot = v_server.filter((jot_check) => jot_check.id == c_jot.id)
 
       if s_jot.length == 0
-
-        # If this is on the current topic, then remove from DOM
-        # @lj.jots.vanish will take care of the data removal.
-        if @lj.app.current_topic == c_jot.topic_id
-          @lj.jots.vanish c_jot.id
-        else
-          # @lj.jots.vanish won't help here, add to delete queue
-          keys_to_delete.push c_jot_key
+        # Add to delete queue
+        jots_to_delete.push c_jot.id
 
         return
 
@@ -67,47 +64,56 @@ class window.PushUI extends LiteJot
       # for brand new jots.
       s_jot.checked = true
 
-    if keys_to_delete.length > 0
-      $.each keys_to_delete, (index, key) =>
-        v_client.remove key
+    if jots_to_delete.length > 0
+      $.each jots_to_delete, (index, id) =>
+        jot = v_client.filter((jot) => jot.id == id)[0]
+
+        # If this is on the current topic, then remove from DOM
+        # @lj.jots.vanish will take care of the data removal.
+        if @lj.app.current_topic == jot.topic_id
+          @lj.jots.vanish id
+        else
+          @lj.jots.removeJotFromDataById id
 
     # Any jots without the property 'checked' in v_server means they are new
     # Append remaining jots to actual client-side @app data.
+    any_new = false
     $.each v_server, (key, s_jot) =>
-      any_new = false
       if !s_jot.checked
         any_new = true
         v_client.push s_jot
         if @lj.app.current_topic == s_jot.topic_id
           @lj.jots.insertJotElem s_jot
 
-      if any_new
-        @lj.jots.scrollJotsToBottom()
+    if any_new
+      @lj.jots.scrollJotsToBottom()
 
-        # Check if jots empty.. this function handles the empty message, etc.
-        @lj.jots.checkIfJotsEmpty()
+      # Check if jots empty.. this function handles the empty message, etc.
+      @lj.jots.checkIfJotsEmpty()
 
   mergeTopics: (v_server) =>
     # v_server represents server version of data
     # v_client represents client version of data
     v_client = $.extend [], @lj.app.topics
     v_client = @lj.app.topics
-    keys_to_delete = []
+    topics_to_delete = []
     topics_deleted = 0
 
     # Check for modifications & deletes
     # If found, update client-side @app data.
     $.each v_client, (c_topic_key, c_topic) =>
+      if !c_topic # Check incase they're deleting while looping
+        return
+
       # c_topic => client side topic data
       # s_topic => server side topic data
       topic_updated = false
       s_topic = v_server.filter((topic_check) => topic_check.id == c_topic.id)
 
       if s_topic.length == 0
-        # If this is on the current folder, then remove from DOM
-        # @lj.topics.vanish will take care of the data removal.
+        # Add to delete queue
         topics_deleted++
-        keys_to_delete.push c_topic_key
+        topics_to_delete.push c_topic.id
 
         return
 
@@ -129,15 +135,16 @@ class window.PushUI extends LiteJot
       # for brand new topics.
       s_topic.checked = true
 
-    if keys_to_delete.length > 0
-      $.each keys_to_delete, (index, key) =>
-        topic = v_client[key]
+    if topics_to_delete.length > 0
+      $.each topics_to_delete, (index, id) =>
+        topic = v_client.filter((topic) => topic.id == id)[0]
         # If this is on the current folder, then remove from DOM
         # @lj.topics.vanish will take care of the data removal.
+
         if @lj.app.current_folder == topic.folder_id
-          @lj.topics.vanish topic.id
+          @lj.topics.vanish id
         else
-          v_client.remove key
+          @lj.topics.removeTopicFromDataById id
 
     # Any topics without the property 'checked' in v_server means they are new
     # Append remaining topics to actual client-side @app data.
@@ -162,7 +169,7 @@ class window.PushUI extends LiteJot
     # v_client represents client version of data
     v_client = $.extend [], @lj.app.folders
     v_client = @lj.app.folders
-    keys_to_delete = []
+    folders_to_delete = []
     folders_deleted = 0
 
     # Check for modifications & deletes
@@ -170,12 +177,15 @@ class window.PushUI extends LiteJot
     $.each v_client, (c_folder_key, c_folder) =>
       # c_folder => client side folder data
       # s_folder => server side folder data
+      if !c_folder # Check incase they're deleting while looping
+        return
+
       folder_updated = false
       s_folder = v_server.filter((folder_check) => folder_check.id == c_folder.id)
 
       if s_folder.length == 0
         folders_deleted++
-        keys_to_delete.push c_folder_key
+        folders_to_delete.push c_folder.id
         return
 
       s_folder = s_folder[0]
@@ -203,8 +213,10 @@ class window.PushUI extends LiteJot
         @lj.folders.insertFolderElem s_folder
         @lj.folders.initFolderBinds s_folder.id
 
-    $.each keys_to_delete, (index, key) =>
-      @lj.folders.vanish v_client[key].id
+    if folders_to_delete.length > 0
+      $.each folders_to_delete, (index, id) =>
+        folder = v_client.filter((folder) => folder.id == id)[0]
+        @lj.folders.vanish id
 
     # Check if sortFolderList is necessary..
     any_folders_added_or_edited = v_server.filter((s_folder) => !s_folder.checked || s_folder.touched).length > 0
