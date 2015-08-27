@@ -9,7 +9,7 @@ class JotsController < ApplicationController
     # In case of errors and many_jots, the jots (content) and it's errors will be compiled for the user.
     # Even if it is a single jot submission (and it typically is), this jot is put into a one-item collection
     # and iterated through in a for loop to keep the code DRY and less complicated.
-
+    sleep(10)
     jot_collection = params[:jots]
     jots = []
 

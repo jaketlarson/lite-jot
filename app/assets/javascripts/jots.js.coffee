@@ -407,13 +407,13 @@ class window.Jots extends LiteJot
 
     return items
 
-  parseCheckListToHTML: (items) =>
+  parseCheckListToHTML: (items, disabled=false) =>
     items = JSON.parse(items)
     html = "<ul class='checklist-jot'>"
     $.each items, (index, item) =>
       toggled_text = if item.toggled_text then item.toggled_text else "Click to toggle checkbox."
       html += "<li class='checklist-item' title='#{toggled_text}'>"
-      html += "<div class='checkbox-wrap'><input type='checkbox'#{if item.checked then "checked" else ""}></div>"
+      html += "<div class='checkbox-wrap'><input type='checkbox'#{if item.checked then " checked" else ""}#{if disabled then " disabled" else ""}></div>"
       html += "#{item.value}"
       html += "</li>"
 
@@ -576,7 +576,7 @@ class window.Jots extends LiteJot
     @jot_temp_entry_template.find('li').append timestamp
 
     if jot_type == 'checklist'
-      @jot_temp_entry_template.find('li').append "<div class='content'>#{@parseCheckListToHTML(content)}</div>"
+      @jot_temp_entry_template.find('li').append "<div class='content'>#{@parseCheckListToHTML(content, disabled=true)}</div>"
     else
       @jot_temp_entry_template.find('li').append "<div class='content'>#{content}</div>"
 
@@ -608,8 +608,11 @@ class window.Jots extends LiteJot
                 </div>"
 
     elem.append to_insert
+    elem.find("input[type='checkbox']").prop('disabled', false)
     @setTimestamp jot
     @initJotBinds jot.id
+    if jot.jot_type == 'checklist'
+      @initJotElemChecklistBind jot.id
 
   insertJotElem: (jot, method='append') =>
     flagged_class = if jot.is_flagged then 'flagged' else ''
@@ -645,6 +648,7 @@ class window.Jots extends LiteJot
       @jots_list.append build_html
     else if method == 'prepend'
       @jots_list.prepend build_html
+
     @setTimestamp jot
     @initJotBinds jot.id
     if jot.jot_type == 'checklist'
@@ -745,7 +749,6 @@ class window.Jots extends LiteJot
       align: 'bottom'
     })
 
-
   handleCheckboxEvent: (e, elem, jot_id) =>
     # toggle checkbox
     parent_ul = elem.closest('ul')
@@ -758,7 +761,6 @@ class window.Jots extends LiteJot
     @toggleCheckJotItem jot_object, e, index
 
     return false
-
 
   toggleCheckJotItem: (jot, event, checkbox_index) =>
     if @lj.emergency_mode.active

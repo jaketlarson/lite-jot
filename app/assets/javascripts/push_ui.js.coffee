@@ -2,10 +2,7 @@
 
 class window.PushUI extends LiteJot
   constructor: (@lj) ->
-    @initVars()
 
-  initVars: =>
-    console.log 'load'
 
   mergeData: =>
     console.log 'merge'
@@ -23,6 +20,9 @@ class window.PushUI extends LiteJot
     @mergeTopics $.extend([], @lj.temp.topics)
     @mergeJots $.extend([], @lj.temp.jots)
     @mergeShares $.extend([], @lj.temp.shares)
+
+    # Destroy temp data
+    @lj.resetTempData()
 
   mergeJots: (v_server) =>
     # v_server represents server version of data

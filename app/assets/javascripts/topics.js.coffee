@@ -429,7 +429,7 @@ class window.Topics extends LiteJot
 
   showNewTopicForm: =>
     folder_object = @lj.app.folders.filter((folder) => folder.id == @lj.app.current_folder)[0]
-    if @lj.app.currentFolder && !folder_object.has_manage_permissions
+    if @lj.app.current_folder && !folder_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to create topics within this folder.', 'error')
       @lj.key_controls.keyToCurrentFolder()
       return

@@ -146,3 +146,10 @@ class window.LiteJot
 
   initPushUI: =>
     @pushUI = new PushUI(@)
+
+  resetTempData: =>
+    @temp.folders = null
+    @temp.topics = null
+    @temp.jots = null
+    @temp.shares = null
+    @temp.user = null
