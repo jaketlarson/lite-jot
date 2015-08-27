@@ -599,7 +599,8 @@ class window.Jots extends LiteJot
 
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
-    elem.removeClass('temp').attr('data-jot', jot.id)
+    elem.removeClass('temp').addClass('jot-elem')
+    .attr('data-jot', jot.id).attr('id', '').attr('title', '')
 
     to_insert = "<i class='fa fa-edit edit' title='Edit jot' />
                 <i class='fa fa-trash delete' title='Delete jot' />
