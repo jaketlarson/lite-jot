@@ -168,7 +168,6 @@ class window.Topics extends LiteJot
   selectTopic: (topic_id) =>
     @lj.jots.disableLoadOnScroll()
     @lj.jots.resetPageCounter()
-    @lj.forceHideAllTooltips()
 
     if topic_id == @lj.app.current_topic
       return

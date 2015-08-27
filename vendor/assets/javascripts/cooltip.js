@@ -9,6 +9,17 @@
  * jQuery plugin boilerplate used in this script can be found at
  * https://github.com/jquery-boilerplate/jquery-boilerplate/tree/master/src
 */
+/**
+ * Cooltip.js - Lightweight, jQuery tooltip plugin
+ * v0.5.1
+ * Docs: http://jaketlarson.github.io/cooltip/
+ *
+ * Copyright(c) 2015 Jake Larson <codereloadrepeat@gmail.com> <codereloadrepeat.com>
+ * MIT Licensed. http://www.opensource.org/licenses/mit-license.php
+ *
+ * jQuery plugin boilerplate used in this script can be found at
+ * https://github.com/jquery-boilerplate/jquery-boilerplate/tree/master/src
+*/
 (function($, window, document) {
   var Cooltip, defaults, pluginName;
   pluginName = 'cooltip';
@@ -19,6 +30,13 @@
     attr: 'title',
     "class": '',
     enabled: true
+  };
+  $.event.special.destroyed = {
+    remove: function(o) {
+      if (o.handler) {
+        o.handler();
+      }
+    }
   };
   Cooltip = function(target, options) {
     this.target = target;
@@ -35,6 +53,7 @@
       this._aligning_arrow_width = .8 * 16;
       this._initTip();
       this._bindTrigger();
+      this._addRemovalWatch();
     },
     _initTip: function() {
       this.$tip = $("<div/>", {
@@ -56,6 +75,14 @@
         left: position.left,
         top: position.top
       });
+    },
+    _addRemovalWatch: function() {
+      return this.$target.bind('destroyed', (function(_this) {
+        return function() {
+          console.log('test');
+          return _this.destroy();
+        };
+      })(this));
     },
     _calcPositionLeft: function() {
       var left;

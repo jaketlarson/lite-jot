@@ -69,7 +69,8 @@ class window.Folders extends LiteJot
       shared_icon_prefix = ""
 
     build_html = "<li data-folder='#{folder.id}' data-editing='false'>
-                    <span class='title'>#{shared_icon_prefix + folder.title}</span>
+                    #{shared_icon_prefix}
+                    <span class='title'>#{folder.title}</span>
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
@@ -90,14 +91,7 @@ class window.Folders extends LiteJot
 
   updateFolderElem: (folder, append = true) =>
     elem = @folders_list.find("li[data-folder='#{folder.id}']")
-    if !folder.has_manage_permissions
-      shared_icon_prefix = "<i class='fa fa-share-alt shared-icon-prefix'
-                            title='Shared with you by #{folder.owner_display_name}<br />&amp;lt;#{folder.owner_email}&amp;gt;'>
-                            </i>"
-    else
-      shared_icon_prefix = ""
-
-    elem.find('.title').html shared_icon_prefix + folder.title
+    elem.find('.title').html folder.title
 
   sortFolderData: =>
     @lj.app.folders.sort((a, b) =>
