@@ -3,6 +3,7 @@
 class window.Connection extends LiteJot
   constructor: (@lj) ->
     @initVars()
+    @initBinds()
 
   initVars: =>
     @connection_test_timer = null
@@ -29,7 +30,21 @@ class window.Connection extends LiteJot
     @data_load_timer = null
     @data_load_timer_seconds = 3
 
+  initBinds: =>
+    document.addEventListener "visibilitychange", @handleVisibilityChange, false
+
+  handleVisibilityChange: =>
+    if document.hidden
+      @abortPossibleDataLoadXHR()
+
+    else if @lj.init_data_loaded
+      @loadDataFromServer()
+
   loadDataFromServer: =>
+    # Avoid extra timers
+    if @data_loader_timer
+      clearTimeout @data_load_timer()
+
     @data_load_xhr = $.ajax(
       type: 'GET'
       url: '/load-data'

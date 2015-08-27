@@ -29,6 +29,7 @@ class window.Jots extends LiteJot
     @edit_overlay = $('#edit-overlay')
     @edit_notice = $('#edit-notice')
     @currently_editing_id = null
+    @scroll_top_before_editing = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
     
     # ignore_this_key_down is used when moving from the last jot to new jot area
@@ -36,6 +37,15 @@ class window.Jots extends LiteJot
     # doubles up with keyup event for the checklist item bind
     # This is a quick fix
     @ignore_this_key_down = false
+
+    # Number of jots per "page" or loaded batch
+    @jots_per_page = 15
+    @current_page = 1
+
+    # load_on_scroll is used by @lj.topics.selectTopic to turn off
+    # load-more functionality (loadMoreJots()) while jots list
+    # is populated
+    @load_on_scroll = false
 
   clearJotsList: =>
     @jots_list.html('')
@@ -51,12 +61,15 @@ class window.Jots extends LiteJot
     if @lj.search.current_terms.length > 0
       @jots_heading_text.prepend("<span class='search-result-info-test'>Searching </span>")
 
-  buildJotsList: =>
+  buildJotsList: (mode) =>
     @clearJotsList()
     @updateHeading()
     @jots_loading_icon.fadeOut()
+    @resetPageCounter()
+    @disableLoadOnScroll()
 
-    if @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length > 0
+    rel_jots = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic)
+    if rel_jots.length > 0
       @jots_empty_message_elem.hide()
 
       i = 0
@@ -66,6 +79,7 @@ class window.Jots extends LiteJot
         jots_scope = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
       else
         jots_scope = @lj.app.jots
+        jots_scope = rel_jots.slice(-1*@jots_per_page)
 
       $.each jots_scope, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
@@ -97,6 +111,22 @@ class window.Jots extends LiteJot
       @checkScrollPosition()
 
     @scrollJotsToBottom()
+    @enableLoadOnScroll()
+
+  buildUpwards: (to, from) =>
+    rel_jots = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic)
+    first_jot_pos = -1 * to
+    last_jot_pos = -1 * from
+    jots_scope = $.extend([], rel_jots.slice(first_jot_pos, last_jot_pos)).reverse()
+
+    total_height = 0
+    $.each jots_scope, (index, jot) =>
+      @insertJotElem jot, method='prepend'
+      total_height += @jots_list.find("li[data-jot='#{jot.id}']").outerHeight(true)
+
+    return total_height
+
+    # handle EM-stored jots
 
   newJotSubmit: =>
     if @new_jot_content.attr('data-editing') != 'true'
@@ -238,18 +268,25 @@ class window.Jots extends LiteJot
     if @new_jot_current_tab == 'checklist'
       @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').focus()
 
-  # addNewCheckListItem does some binding that would normally
-  # be done in key_controls.js, but since they are created in JS
-  # the binds were just added here.
+  # addNewCheckListItem / initChecklistItemBinds binding
+  # that would normally be done in key_controls.js, but
+  # since they are created in JS the binds were just added here.
   addNewCheckListItem: =>
+    scrollToBottom = @isScrolledToBottom()
     html = @new_jot_checklist_tab.find('li.template').html()
     id = "checklist-item-#{@randomKey()}"
     @new_jot_checklist_tab.find('ul.jot-checklist').append("<li id='#{id}'>#{html}</li>")
    
     elem = $("li##{id}")
-
     @initCheckListItemBinds elem
-    @scrollJotsToBottom()
+
+    # Using a timeout here because scrollJotsToBottmo
+    # seems to be quicker than the DOM
+    # Could be more elegant, possibly.
+    setTimeout(() =>
+      if scrollToBottom
+        @scrollJotsToBottom()
+    , 10)
 
   initCheckListItemBinds: (elem) =>
     elem.keyup (e) =>
@@ -313,25 +350,48 @@ class window.Jots extends LiteJot
     $.each @new_jot_checklist_tab.find('li:not(.template)'), (index, item) =>
       if $(item).find("input.checklist-value[data-blank='true']").length
         num++
-      if num > 1
-        $(item).remove()
+        if num > 1
+          $(item).remove()
       @lj.sizeUI()
 
   initScrollListeners: =>
-    @jots_wrapper.scroll () =>
+    @jots_wrapper.scroll =>
       @checkScrollPosition()
 
   checkScrollPosition: =>
     if @jots_wrapper.scrollTop() == 0
       @jots_heading.removeClass('is-scrolled-from-top')
+
+      if @load_on_scroll
+        @loadMoreJots()
+
     else
       @jots_heading.addClass('is-scrolled-from-top')
 
-    buffer = 1 # seems to be buggy in Chrome, so just add 1 to the test
-    if @jots_wrapper.scrollTop() + @jots_wrapper.outerHeight() + buffer >= @jots_wrapper[0].scrollHeight
+    if @isScrolledToBottom()
       @new_jot_wrap.removeClass('is-scrolled-from-bottom')
     else
       @new_jot_wrap.addClass('is-scrolled-from-bottom')
+
+  # Called when scrolling and attempting to shows more jots,
+  # if there are any more
+  loadMoreJots: =>
+    @current_page++
+    to = @jots_per_page*(@current_page-1) + @jots_per_page
+    from = @jots_per_page * (@current_page-1)
+
+    if from < @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
+      total_height = @buildUpwards to, from
+      @jots_wrapper.scrollTop total_height
+
+  enableLoadOnScroll: =>
+    @load_on_scroll = true
+
+  disableLoadOnScroll: =>
+    @load_on_scroll = false
+
+  resetPageCounter: =>
+    @current_page = 1
 
   serializeNewJotCheckList: =>
     items = []
@@ -551,7 +611,7 @@ class window.Jots extends LiteJot
     @setTimestamp jot
     @initJotBinds jot.id
 
-  insertJotElem: (jot) =>
+  insertJotElem: (jot, method='append') =>
     flagged_class = if jot.is_flagged then 'flagged' else ''
     heading_class = if jot.jot_type == 'heading' then 'heading' else ''
     break_class = if jot.break_from_top then 'break-from-top' else ''
@@ -581,7 +641,10 @@ class window.Jots extends LiteJot
     # parse possible links
     build_html = Autolinker.link build_html
 
-    @jots_list.append(build_html)
+    if method == 'append'
+      @jots_list.append build_html
+    else if method == 'prepend'
+      @jots_list.prepend build_html
     @setTimestamp jot
     @initJotBinds jot.id
     if jot.jot_type == 'checklist'
@@ -625,7 +688,12 @@ class window.Jots extends LiteJot
     elem.cooltip 'update'
 
   scrollJotsToBottom: =>
+    console.log @scrollJotsToBottom.caller
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
+
+  isScrolledToBottom: =>
+    buffer = 1 # seems to be buggy in Chrome, so just add 1 to the test
+    @jots_wrapper.scrollTop() + @jots_wrapper.outerHeight() + buffer >= @jots_wrapper[0].scrollHeight
 
   clearJotEntryTemplate: =>
     @jot_temp_entry_template.find('li').html('')
@@ -773,6 +841,7 @@ class window.Jots extends LiteJot
     @lj.connection.abortPossibleDataLoadXHR()
 
     @currently_editing_id = id
+    @scroll_top_before_editing = @jots_wrapper.scrollTop()
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
@@ -810,6 +879,11 @@ class window.Jots extends LiteJot
     if @currently_editing_id
       id = @currently_editing_id
       @currently_editing_id = null
+      if @scroll_top_before_editing
+        @jots_wrapper.scrolltop = @scroll_top_before_editing
+        console.log @scroll_top_before_editing
+        @scroll_top_before_editing = null
+
       elem = $("li[data-jot='#{id}']")
       content_elem = elem.find('.content')
       jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]

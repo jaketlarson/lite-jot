@@ -146,3 +146,6 @@ class window.LiteJot
 
   initPushUI: =>
     @pushUI = new PushUI(@)
+
+  forceHideAllTooltips: =>
+    $('.cooltip').hide()

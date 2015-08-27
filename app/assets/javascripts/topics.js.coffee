@@ -36,6 +36,7 @@ class window.Topics extends LiteJot
   buildTopicsList: (organize_dom=true) =>
     @topics_list.html('')
 
+
     if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
 
@@ -165,6 +166,10 @@ class window.Topics extends LiteJot
     })
 
   selectTopic: (topic_id) =>
+    @lj.jots.disableLoadOnScroll()
+    @lj.jots.resetPageCounter()
+    @lj.forceHideAllTooltips()
+
     if topic_id == @lj.app.current_topic
       return
       
@@ -174,6 +179,7 @@ class window.Topics extends LiteJot
     elem.addClass('current').attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()
+    @lj.jots.enableLoadOnScroll()
 
   editTopic: (id) =>
     if @lj.emergency_mode.active

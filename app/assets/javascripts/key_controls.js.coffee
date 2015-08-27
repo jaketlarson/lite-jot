@@ -158,7 +158,6 @@ class window.KeyControls extends LiteJot
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.jots).call()
 
     @lj.topics.topics_column.keydown (e) =>
-      console.log 'what'
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 

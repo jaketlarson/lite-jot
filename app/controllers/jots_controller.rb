@@ -205,10 +205,11 @@ class JotsController < ApplicationController
     # This method is an form of #update, but for flagging.
     # This allows flagging permissions to be extended shared users
     jot = Jot.find(params[:id])
+    folder = Folder.find(jot.folder_id)
 
     # Future update: move this into model.. it pretty much mirrors #check_box
     can_flag = false
-    if jot.user_id == current_user.id
+    if jot.user_id == current_user.id || folder.user_id == current_user.id
       can_flag = true
     else
       share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
@@ -236,10 +237,11 @@ class JotsController < ApplicationController
     # This method is an form of #update, but for checkboxes only.
     # This allows checkbox-checking permissions to be extended shared users
     jot = Jot.find(params[:id])
+    folder = Folder.find(jot.folder_id)
 
     # Future update: move this into model.. it pretty much mirrors #flag
     can_check = false
-    if jot.user_id == current_user.id
+    if jot.user_id == current_user.id || folder.user_id == current_user.id
       can_check = true
     else
       share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
