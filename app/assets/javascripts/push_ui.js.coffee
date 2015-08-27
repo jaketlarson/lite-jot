@@ -194,7 +194,8 @@ class window.PushUI extends LiteJot
           c_folder[key] = s_folder[key]
           s_folder.touched = true
 
-      @lj.folders.updateFolderElem c_folder
+      if s_folder.touched
+        @lj.folders.updateFolderElem c_folder
 
       # Since this server-side folder (s_folder) was scanned over,
       # a property 'checked' is added. This is less expensive
