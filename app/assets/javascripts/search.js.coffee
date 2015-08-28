@@ -120,7 +120,8 @@ class window.Search extends LiteJot
 
     @current_terms = ""
     @jots_in_search_results = []
-    $('li[data-jot].highlighted').removeClass('highlighted')
+    $('li[data-jot].highlighted').removeClass 'highlighted'
+    @lj.jots.updateHeading()
 
   restoreMasterData: (organize_dom=true) => # for search functionality
     if typeof @lj.app.store_master_folders != "undefined" && @lj.app.store_master_folders != null

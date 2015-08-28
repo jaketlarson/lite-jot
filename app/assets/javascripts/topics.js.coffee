@@ -340,7 +340,8 @@ class window.Topics extends LiteJot
       if topic.id == id
         topic_key = index
         return false
-    @lj.app.topics.remove(topic_key)
+    @lj.app.topics.remove topic_key
+    @lj.jots.removeJotsInTopicFromData id
 
   selectFirstTopic: =>
     next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]

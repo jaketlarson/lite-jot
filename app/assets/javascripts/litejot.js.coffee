@@ -25,6 +25,10 @@ window.unescapeHtml = (escapedStr) ->
   if child then child.nodeValue else ''
 
 $ ->
+  # hasScrollBar: http://stackoverflow.com/questions/4814398/how-can-i-check-if-a-scrollbar-is-visible
+  $.fn.hasScrollBar = ->
+    @get(0).scrollHeight > @height()
+
   window.autolinker = new Autolinker
   
   if $('body#pages-dashboard').length > 0
@@ -66,6 +70,13 @@ class window.LiteJot
     @temp = {} # used for merging server data with clientside (@app) data
 
     @setViewport()
+
+    # scroll_padding_factor is used for moving elements
+    # into view, and using the wrapper-height times
+    # scroll_padding_factor as a buffer. This is also
+    # used when determining when to load a new page of
+    # jots.
+    @scroll_padding_factor = .15
 
   setViewport: =>
     @viewport =
@@ -117,7 +128,7 @@ class window.LiteJot
       wrap_height = wrap.height()
       elem_height  = elem.height()
       from_top_of_wrap = elem.offset().top - wrap.offset().top
-      padding = .15*wrap_height
+      padding = @scroll_padding_factor*wrap_height
       if elem_height > wrap_height then padding = 0
 
       if from_top_of_wrap - padding < 0 # need to scroll up

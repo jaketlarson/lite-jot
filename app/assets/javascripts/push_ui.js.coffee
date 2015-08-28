@@ -20,6 +20,7 @@ class window.PushUI extends LiteJot
     @mergeTopics $.extend([], @lj.temp.topics)
     @mergeJots $.extend([], @lj.temp.jots)
     @mergeShares $.extend([], @lj.temp.shares)
+    @mergeUser @lj.temp.user
 
     # Destroy temp data
     @lj.resetTempData()
@@ -228,3 +229,11 @@ class window.PushUI extends LiteJot
 
   mergeShares: (v_server) =>
     @lj.app.shares = $.extend([], v_server)
+
+  mergeUser: (v_server) =>
+    if v_server.display_name != @lj.app.user.display_name
+      update_display_name = true
+      
+    @lj.app.user = v_server
+    if update_display_name
+      @lj.user_settings.updateHeaderDisplayName()

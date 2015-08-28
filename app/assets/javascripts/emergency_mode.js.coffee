@@ -149,6 +149,8 @@ class window.EmergencyMode extends LiteJot
           errorWhileAttemptingToSaveJots()
           @clearLocalStorage()
       )
+    else
+      @lj.connection.startDataLoadTimer()
 
     # unsavedJotsAlert fires upon savedStoredJots ajax success
     # but returns errors from the server

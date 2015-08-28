@@ -71,7 +71,11 @@ class window.Connection extends LiteJot
         @data_load_xhr = null
 
       error: (data) =>
-        # error handling.. seriously.
+        # Just restart it, as the connection test (separate routine
+        # XHR request) will catch network issues.
+        @startDataLoadTimer()
+        @data_load_xhr = null
+        # more error handling, maybe?
 
     )
 
@@ -89,10 +93,12 @@ class window.Connection extends LiteJot
       clearTimeout @data_load_timer
 
   startDataLoadTimer: =>
+    if @data_load_timer
+      clearTimeout @data_load_timer
+
     @data_load_timer = setTimeout(() =>
       @loadDataFromServer()
     , @data_load_timer_seconds*1000)
-
 
   startConnectionTestTimer: =>
     @connection_test_timer = setTimeout @testConnection, @connection_test_timing

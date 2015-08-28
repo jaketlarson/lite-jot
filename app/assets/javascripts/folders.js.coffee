@@ -431,7 +431,7 @@ class window.Folders extends LiteJot
       if folder.id == id
         folder_key = index
         return false
-    @lj.app.folders.remove(folder_key)
+    @lj.app.folders.remove folder_key
     @lj.topics.removeTopicsInFolderFromData id
 
   moveCurrentFolderToTop: =>

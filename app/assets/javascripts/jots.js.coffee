@@ -39,7 +39,7 @@ class window.Jots extends LiteJot
     @ignore_this_key_down = false
 
     # Number of jots per "page" or loaded batch
-    @jots_per_page = 15
+    @jots_per_page = 10
     @current_page = 1
 
     # load_on_scroll is used by @lj.topics.selectTopic to turn off
@@ -113,16 +113,39 @@ class window.Jots extends LiteJot
     @scrollJotsToBottom()
     @enableLoadOnScroll()
 
-  buildUpwards: (to, from) =>
-    rel_jots = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic)
+  buildPage: (to, from) =>
+    # rel_jots & jots scope is referring to jots stored in the app data, mirroring server
+    # rel_em_jots & all_em_jots refers to jots saved on the browser in emergency mode.
+    
+    # NOTE: at this time, EM-stored jots are not using pagination..
+    # they're just being built as a package on topic load in the
+    # @buildJotsList method.. This could be a future improvement
+    # to finish the (commented) attempt at making EM jots part of
+    # the pagination flow, instead of one big batch.
+
+    rel_jots = @lj.app.jots.filter((jot) =>
+      jot.topic_id == @lj.app.current_topic
+    )
+
+    # rel_em_jots = @lj.emergency_mode.getStoredJotsObject().filter((jot) => jot.topic_id == @lj.app_current_topic)
     first_jot_pos = -1 * to
     last_jot_pos = -1 * from
-    jots_scope = $.extend([], rel_jots.slice(first_jot_pos, last_jot_pos)).reverse()
 
+    jots_scope = $.extend([], rel_jots.slice(first_jot_pos, last_jot_pos)).reverse()
+    # em_jots_scope = $.extend([], rel_em_jots.slice(first_jot_pos, last_jot_pos)).reverse()
+
+    # remaining_space = @jots_per_page - rel_em_jots.length
+    # jots_scope = jots_scope.slice -1*remaining_space
     total_height = 0
+
+    # $.each em_jots_scope, (index, jot) =>
+    #   @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, method='prepend'
+    #   total_height += @jots_list.find("li##{jot.temp_key}").outerHeight()
+
     $.each jots_scope, (index, jot) =>
-      @insertJotElem jot, method='prepend'
-      total_height += @jots_list.find("li[data-jot='#{jot.id}']").outerHeight(true)
+      if $("li[data-jot='#{jot.id}']").length == 0
+        @insertJotElem jot, method='prepend'
+        total_height += @jots_list.find("li[data-jot='#{jot.id}']").outerHeight(true)
 
     return total_height
 
@@ -362,6 +385,7 @@ class window.Jots extends LiteJot
     if @jots_wrapper.scrollTop() == 0
       @jots_heading.removeClass('is-scrolled-from-top')
 
+    else if @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
       if @load_on_scroll
         @loadMoreJots()
 
@@ -373,16 +397,41 @@ class window.Jots extends LiteJot
     else
       @new_jot_wrap.addClass('is-scrolled-from-bottom')
 
+    # Do a quick check to see if more jots can be loaded to UI.
+    @enoughJotsLoaded()
+
   # Called when scrolling and attempting to shows more jots,
   # if there are any more
-  loadMoreJots: =>
+  loadMoreJots: (override=false) =>
+    # override param can be used if we don't want to waste
+    # time checking @allJotsLoaded() again, since it can
+    # and very possibly was, called by @enoughJotsLoadeD()
     @current_page++
     to = @jots_per_page*(@current_page-1) + @jots_per_page
     from = @jots_per_page * (@current_page-1)
 
-    if from < @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
-      total_height = @buildUpwards to, from
+    if override || !@allJotsLoaded()
+      total_height = @buildPage to, from
       @jots_wrapper.scrollTop total_height
+
+  # Called until enough jots are loaded so that the user has
+  # a scrollbar.
+  enoughJotsLoaded: =>
+    if !@jots_wrapper.hasScrollBar()
+      if !@allJotsLoaded()
+        @loadMoreJots true
+        @enoughJotsLoaded()
+
+  # Returns whether or not all jots are showing on screen already
+  allJotsLoaded: =>
+    jots_data = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic)
+    if jots_data.length > 0
+      if $("li[data-jot='#{jots_data[0].id}']").length == 1
+        return true
+      else
+        return false
+    else
+      return true
 
   enableLoadOnScroll: =>
     @load_on_scroll = true
@@ -566,7 +615,7 @@ class window.Jots extends LiteJot
   rollbackTempJot: =>
     @jots_list.find('li.temp').remove() # may need refinement
 
-  insertTempJotElem: (content, key, jot_type, break_from_top) =>
+  insertTempJotElem: (content, key, jot_type, break_from_top, method='append') =>
     content = content.replace /\n/g, '<br />'
     @jot_temp_entry_template.find('li')
     .attr('id', key)
@@ -591,11 +640,15 @@ class window.Jots extends LiteJot
     # parse possible links
     build_entry = Autolinker.link(build_entry)
 
-    @jots_list.append build_entry
+    if method == 'append'
+      @jots_list.append build_entry
+    else if method == 'prepend'
+      @jots_list.prepend build_entry
 
     # reset template where necessary (classes, content)
     @jot_temp_entry_template.find('li').removeClass('heading').removeClass('break-from-top')
     @jot_temp_entry_template.find('li .content').remove()
+    @jot_temp_entry_template.find('li .timestamp').remove()
 
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
@@ -693,7 +746,6 @@ class window.Jots extends LiteJot
     elem.cooltip 'update'
 
   scrollJotsToBottom: =>
-    console.log @scrollJotsToBottom.caller
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
 
   isScrolledToBottom: =>
@@ -734,6 +786,9 @@ class window.Jots extends LiteJot
     .cooltip({
       align: 'left'
     })
+
+    @jots_list.find("li[data-jot='#{jot_id}'] a").click (e) =>
+      e.stopPropagation()
 
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").click (e) => 
@@ -884,7 +939,6 @@ class window.Jots extends LiteJot
       @currently_editing_id = null
       if @scroll_top_before_editing
         @jots_wrapper.scrolltop = @scroll_top_before_editing
-        console.log @scroll_top_before_editing
         @scroll_top_before_editing = null
 
       elem = $("li[data-jot='#{id}']")
