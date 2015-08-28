@@ -79,7 +79,6 @@
     _addRemovalWatch: function() {
       return this.$target.bind('destroyed', (function(_this) {
         return function() {
-          console.log('test');
           return _this.destroy();
         };
       })(this));

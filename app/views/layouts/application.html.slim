@@ -13,7 +13,8 @@ body id="#{body_id}"
   == yield
 
   == render :partial => "status_bar"
-
+  == render :partial => "application/modals/support"
+  
   - if user_signed_in?
     == render :partial => "application/modals/app_info"
     == render :partial => "application/modals/user_settings"

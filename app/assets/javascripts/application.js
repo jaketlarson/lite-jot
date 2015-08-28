@@ -18,6 +18,7 @@
 //= require emergency_mode
 //= require connection
 //= require push_ui
+//= require support
 //= require Autolinker
 //= require cooltip
 //= require litejot
