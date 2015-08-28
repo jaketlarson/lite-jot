@@ -28,7 +28,7 @@ class window.Connection extends LiteJot
     # when cross-checking data.
     @data_load_xhr = null
     @data_load_timer = null
-    @data_load_timing = 5000
+    @data_load_timing = 3000
 
   initBinds: =>
     document.addEventListener "visibilitychange", @handleVisibilityChange, false
