@@ -16,6 +16,6 @@ class TopicSerializer < ActiveModel::Serializer
   end
 
   def updated_at_unix
-    object.updated_at.to_i
+    object.updated_at.to_f
   end
 end

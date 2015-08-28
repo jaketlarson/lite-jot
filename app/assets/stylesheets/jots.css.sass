@@ -284,6 +284,28 @@
 
       &[data-deleting='true']
         opacity: .4
+
+  .flash
+    animation-name: flash
+    animation-duration: 0.3s
+    -webkit-animation-name: flash
+    -webkit-animation-duration: 0.3s
+
+  @keyframes flash
+    from
+      background-color: $primary-color
+      color: $palette-white
+    to
+      background-color: transparent
+      color: $palette-black
+
+  @-webkit-keyframes flash
+    from
+      background-color: $primary-color
+      color: $palette-white
+    to
+      background-color: transparent
+      color: $palette-black
         
 #edit-overlay
   background-color: rgba(0, 0, 0, .70)

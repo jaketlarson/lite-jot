@@ -37,7 +37,7 @@ class FolderSerializer < ActiveModel::Serializer
 
   def updated_at_unix
     if object.user_id == scope.id
-      return object.updated_at.to_i
+      return object.updated_at.to_f
     else
       # This folder is shared with this user,
       # and since the updated_at_unix determines order
@@ -51,7 +51,7 @@ class FolderSerializer < ActiveModel::Serializer
       # this workaround is unnecessary.
       share = Share.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
       if share.is_all_topics
-        return object.updated_at.to_i
+        return object.updated_at.to_f
       else
         most_recent_topic = nil
         topics = share.specific_topics
@@ -59,11 +59,11 @@ class FolderSerializer < ActiveModel::Serializer
           topic = Topic.find(topic_id)
           if most_recent_topic.nil?
             most_recent_topic = topic
-          elsif most_recent_topic.updated_at.to_i < topic.updated_at.to_i
+          elsif most_recent_topic.updated_at.to_f < topic.updated_at.to_f
             most_recent_topic = topic
           end
         end
-        return most_recent_topic.updated_at.to_i
+        return most_recent_topic.updated_at.to_f
       end
     end
   end

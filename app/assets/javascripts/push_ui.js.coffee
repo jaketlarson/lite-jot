@@ -84,7 +84,22 @@ class window.PushUI extends LiteJot
         any_new = true
         v_client.push s_jot
         if @lj.app.current_topic == s_jot.topic_id
-          @lj.jots.insertJotElem s_jot
+          # Check to see that this jot is the newest, or if
+          # it should be inserted before the correct jot
+          older_jots = @lj.app.jots.filter((jot) =>
+            jot.created_at_unix > s_jot.created_at_unix && jot.topic_id == s_jot.topic_id
+          )
+
+          if older_jots.length > 0
+            succeeding_jot = older_jots[0]
+            elem = @lj.jots.jots_list.find("li[data-jot='#{succeeding_jot.id}']")
+            if elem.length == 1
+              @lj.jots.insertJotElem s_jot, method='before', before_id=succeeding_jot.id, flash=true
+
+            # Data stored to client is not in order.. resort
+            @lj.jots.sortJotData()
+          else
+            @lj.jots.insertJotElem s_jot, method='append', before_id=null, flash=true
 
     if any_new
       @lj.jots.scrollJotsToBottom()

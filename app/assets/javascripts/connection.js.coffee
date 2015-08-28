@@ -28,7 +28,7 @@ class window.Connection extends LiteJot
     # when cross-checking data.
     @data_load_xhr = null
     @data_load_timer = null
-    @data_load_timer_seconds = 3
+    @data_load_timing = 5000
 
   initBinds: =>
     document.addEventListener "visibilitychange", @handleVisibilityChange, false
@@ -98,7 +98,7 @@ class window.Connection extends LiteJot
 
     @data_load_timer = setTimeout(() =>
       @loadDataFromServer()
-    , @data_load_timer_seconds*1000)
+    , @data_load_timing)
 
   startConnectionTestTimer: =>
     @connection_test_timer = setTimeout @testConnection, @connection_test_timing

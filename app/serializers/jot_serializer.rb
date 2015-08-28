@@ -1,5 +1,5 @@
 class JotSerializer < ActiveModel::Serializer
-  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top, :temp_key, :author_display_name
+  attributes :id, :content, :topic_id, :created_at_short, :created_at_long, :created_at_unix, :updated_at, :is_flagged, :has_manage_permissions, :folder_id, :jot_type, :break_from_top, :temp_key, :author_display_name
   delegate :current_user, to: :scope
 
   def content
@@ -80,5 +80,9 @@ class JotSerializer < ActiveModel::Serializer
 
   def author_display_name
     return User.find(object.user_id).display_name
+  end
+
+  def created_at_unix
+    object.created_at.to_f
   end
 end

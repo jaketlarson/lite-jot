@@ -668,14 +668,15 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
 
-  insertJotElem: (jot, method='append') =>
+  insertJotElem: (jot, method='append', before_id=null, flash=false) =>
     flagged_class = if jot.is_flagged then 'flagged' else ''
     heading_class = if jot.jot_type == 'heading' then 'heading' else ''
     break_class = if jot.break_from_top then 'break-from-top' else ''
     #highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
+    flash_class = if flash then 'flash' else ''
 
-    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{break_class}'>"
+    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class}'>"
     build_html += "<div class='timestamp'></div>"
 
     if jot.has_manage_permissions
@@ -702,6 +703,11 @@ class window.Jots extends LiteJot
       @jots_list.append build_html
     else if method == 'prepend'
       @jots_list.prepend build_html
+    else if method == 'before'
+      # Uses passed param 'before_id' and inserts elem after the corresponding jot.
+      target = @jots_list.find("li[data-jot='#{before_id}']")
+      if target.length == 1
+        $(build_html).insertBefore target
 
     @setTimestamp jot
     @initJotBinds jot.id
@@ -729,6 +735,11 @@ class window.Jots extends LiteJot
     @setTimestamp jot
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
+
+  sortJotData: =>
+    @lj.app.jots.sort((a, b) =>
+      return a.created_at_unix - b.created_at_unix
+    )
 
   setTimestamp: (jot) =>
     elem = @jots_list.find("[data-jot='#{jot.id}'] .timestamp")
