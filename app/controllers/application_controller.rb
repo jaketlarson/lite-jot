@@ -62,6 +62,7 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.for(:account_update) << :current_password
     devise_parameter_sanitizer.for(:account_update) << :display_name
     devise_parameter_sanitizer.for(:account_update) << :is_viewing_key_controls
+    devise_parameter_sanitizer.for(:account_update) << :receives_email
   end
 
   def sign_up_params

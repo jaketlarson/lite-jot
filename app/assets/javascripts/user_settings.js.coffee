@@ -48,6 +48,7 @@ class window.UserSettings extends LiteJot
     clearTimeout(@success_text_timeout)
 
     @lj.connection.abortPossibleDataLoadXHR()
+    console.log @form.serialize()
     $.ajax(
       type: 'PATCH'
       url: @form.attr('action')
@@ -94,6 +95,7 @@ class window.UserSettings extends LiteJot
       user = @lj.app.user
       @form.find('#user_display_name').val user.display_name
       @form.find('#user_email').val user.email
+      @form.find('#user_receives_email').prop 'checked', user.receives_email
 
   clearPasswordFields: =>
     @form.find('#user_current_password').val ''
