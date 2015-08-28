@@ -48,7 +48,6 @@ class window.UserSettings extends LiteJot
     clearTimeout(@success_text_timeout)
 
     @lj.connection.abortPossibleDataLoadXHR()
-    console.log @form.serialize()
     $.ajax(
       type: 'PATCH'
       url: @form.attr('action')
