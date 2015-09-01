@@ -45,9 +45,15 @@ class window.Connection extends LiteJot
     if @data_loader_timer
       clearTimeout @data_load_timer()
 
+    timezone_segment = ""
+    if !@lj.init_data_loaded
+      # Include timezone in request to be set on user
+      timezone = jstz.determine().name()
+      timezone_segment = "?timezone=#{timezone}"
+
     @data_load_xhr = $.ajax(
       type: 'GET'
-      url: '/load-data'
+      url: "/load-data#{timezone_segment}"
       success: (data) =>
         if !@lj.init_data_loaded
           @lj.app.folders = data.folders

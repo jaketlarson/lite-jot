@@ -28,13 +28,27 @@ $ ->
   # hasScrollBar: http://stackoverflow.com/questions/4814398/how-can-i-check-if-a-scrollbar-is-visible
   $.fn.hasScrollBar = ->
     @get(0).scrollHeight > @height()
-
-  window.autolinker = new Autolinker
   
   if $('body#pages-dashboard').length > 0
     window.lj = {
       litejot: new window.LiteJot()
     }
+    $(document).foundation()
+  else
+    $(document).foundation(
+      "magellan-expedition": {
+        destination_threshold: 250
+    })
+
+    # This event listener is an override on Foundation's Magellan module
+    # The module buffers the anchor with the destination_threshold
+    # property, which makes the click-to-scroll functionality useless,
+    # since the section it scrolls to is only partly scrolled to.
+    $("[data-magellan-arrival]").click (e) ->
+      name = $(e.currentTarget).find('a').attr('href').replace(/#/, '')
+      buffer = 50
+      e.stopPropagation()
+      $('html,body').animate({scrollTop: $("a[name='#{name}']").offset().top - buffer},'slow')
 
 class window.LiteJot
   constructor: ->
@@ -50,7 +64,6 @@ class window.LiteJot
     @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
     @connection = new Connection(@)
-    @initFoundation()
     @initVars()
     @sizeUI()
     @setUIInterval()
@@ -63,9 +76,6 @@ class window.LiteJot
     @initTips()
     @support = new Support(@)
     @support = new JotRecovery(@)
-
-  initFoundation: =>
-    $(document).foundation()
 
   initVars: =>
     @app = {} # all loaded app data goes here

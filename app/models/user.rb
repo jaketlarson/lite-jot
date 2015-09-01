@@ -13,8 +13,8 @@ class User < ActiveRecord::Base
   validates :display_name, {
     :presence => true,
     :length => {
-      :minimum => 3,
-      :maximum => 16
+      :minimum => 1,
+      :maximum => 50
     }
   }
 
@@ -29,51 +29,52 @@ class User < ActiveRecord::Base
   end
 
   def self.find_for_google_oauth2(access_token)
-      data = access_token.info
-      user = User.where(:email => data['email']).first
+    data = access_token.info
+    user = User.where(:email => data['email']).first
 
-      unless user
-        user = User.create!(
-          :auth_provider => access_token['provider'],
-          :auth_provider_uid => access_token['uid'],
-          :auth_token => access_token['credentials']['token'],
-          :auth_refresh_token => access_token['credentials']['refresh_token'],
-          :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
-          :display_name => data['name'],
-          :email => data['email'],
-          :password => Devise.friendly_token[0,16]
-        )
+    unless user
+      user = User.create!(
+        :auth_provider => access_token['provider'],
+        :auth_provider_uid => access_token['uid'],
+        :auth_token => access_token['credentials']['token'],
+        :auth_refresh_token => access_token['credentials']['refresh_token'],
+        :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
+        :display_name => data['name'],
+        :email => data['email'],
+        :password => Devise.friendly_token[0,16]
+      )
+    else
+      unless access_token['credentials']['refresh_token'].nil?
+        auth_refresh_token = access_token['credentials']['refresh_token']
       else
-        unless access_token['credentials']['refresh_token'].nil?
-          auth_refresh_token = access_token['credentials']['refresh_token']
-        else
-          auth_refresh_token = user.auth_refresh_token
-        end
-
-        user.update!(
-          :auth_token => access_token['credentials']['token'],
-          :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
-          :auth_refresh_token => auth_refresh_token
-        )
+        auth_refresh_token = user.auth_refresh_token
       end
-      user
+
+      user.update!(
+        :auth_token => access_token['credentials']['token'],
+        :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
+        :auth_refresh_token => auth_refresh_token
+      )
+    end
+    user
   end
 
   def self.find_for_facebook(access_token)
-      data = access_token.info
-      user = User.where(:email => data['email']).first
+    ap access_token
+    data = access_token.info
+    user = User.where(:email => data['email']).first
 
-      # Uncomment the section below if you want users to be created if they don't exist
-      unless user
-        user = User.create!(
-          :auth_provider => access_token['provider'],
-          :auth_provider_uid => access_token['uid'],
-          :display_name => data['name'],
-          :email => data['email'],
-          :password => Devise.friendly_token[0,16]
-        )
-      end
-      user
+    # Uncomment the section below if you want users to be created if they don't exist
+    unless user
+      user = User.create!(
+        :auth_provider => access_token['provider'],
+        :auth_provider_uid => access_token['uid'],
+        :display_name => data['name'],
+        :email => data['email'],
+        :password => Devise.friendly_token[0,16]
+      )
+    end
+    user
   end
 
   def save_google_token(token, expiration)

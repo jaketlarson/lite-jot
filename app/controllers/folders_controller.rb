@@ -48,7 +48,7 @@ class FoldersController < ApplicationController
           folder.really_destroy!
         end
 
-        render :json => {:success => true, :message => "Folder and it's contents moved to trash."}
+        render :json => {:success => true, :message => "Folder and its contents moved to trash."}
       else
         render :json => {:success => false, :error => "Could not delete jot."}, :status => :bad_request
       end

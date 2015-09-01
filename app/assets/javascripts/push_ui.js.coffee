@@ -5,7 +5,6 @@ class window.PushUI extends LiteJot
 
 
   mergeData: =>
-    console.log 'merge'
     # Merge folders, topics, then jots.
     # This order is necessary, because when, during a merge,
     # a folder is flagged as deleted, it calls the vanish function.
@@ -55,7 +54,7 @@ class window.PushUI extends LiteJot
           c_jot[key] = s_jot[key]
           jot_updated = true
 
-      if jot_updated && @lj.app.current_topic == c_jot.topic_id
+      if jot_updated && @lj.app.current_topic == c_jot.topic_id && !@isSearching()
         @lj.jots.updateJotElem c_jot
 
       # Since this server-side jot (s_jot) was scanned over,
@@ -83,7 +82,7 @@ class window.PushUI extends LiteJot
       if !s_jot.checked
         any_new = true
         v_client.push s_jot
-        if @lj.app.current_topic == s_jot.topic_id
+        if @lj.app.current_topic == s_jot.topic_id && !@isSearching()
           # Check to see that this jot is the newest, or if
           # it should be inserted before the correct jot
           older_jots = @lj.app.jots.filter((jot) =>
@@ -169,14 +168,14 @@ class window.PushUI extends LiteJot
       if !s_topic.checked
         any_new = true
         v_client.push s_topic
-        if @lj.app.current_folder == s_topic.folder_id
+        if @lj.app.current_folder == s_topic.folder_id && !@isSearching()
           @lj.topics.insertTopicElem s_topic
           @lj.topics.initTopicBinds s_topic.id
 
     # Check if sortTopicList is necessary..
     any_topics_added_or_edited = v_server.filter((s_topic) => !s_topic.checked || s_topic.touched).length > 0
     any_topics_deleted = topics_deleted > 0
-    if any_topics_added_or_edited || any_topics_deleted
+    if (any_topics_added_or_edited || any_topics_deleted) && !@isSearching()
       # Make sure topic data is sorted by date
       @lj.topics.sortTopicsList true, true
 
@@ -210,7 +209,7 @@ class window.PushUI extends LiteJot
           c_folder[key] = s_folder[key]
           s_folder.touched = true
 
-      if s_folder.touched
+      if s_folder.touched && !@isSearching()
         @lj.folders.updateFolderElem c_folder
 
       # Since this server-side folder (s_folder) was scanned over,
@@ -227,8 +226,9 @@ class window.PushUI extends LiteJot
       if !s_folder.checked
         any_new = true
         v_client.push s_folder
-        @lj.folders.insertFolderElem s_folder
-        @lj.folders.initFolderBinds s_folder.id
+        if !@isSearching()
+          @lj.folders.insertFolderElem s_folder
+          @lj.folders.initFolderBinds s_folder.id
 
     if folders_to_delete.length > 0
       $.each folders_to_delete, (index, id) =>
@@ -238,7 +238,7 @@ class window.PushUI extends LiteJot
     # Check if sortFolderList is necessary..
     any_folders_added_or_edited = v_server.filter((s_folder) => !s_folder.checked || s_folder.touched).length > 0
     any_folders_deleted = folders_deleted > 0
-    if any_folders_added_or_edited || any_folders_deleted
+    if (any_folders_added_or_edited || any_folders_deleted) && !@isSearching()
       # Make sure folder data is sorted by date
       @lj.folders.sortFoldersList true, true
 
@@ -252,3 +252,6 @@ class window.PushUI extends LiteJot
     @lj.app.user = v_server
     if update_display_name
       @lj.user_settings.updateHeaderDisplayName()
+
+  isSearching: =>
+    @lj.search.current_terms.length > 0

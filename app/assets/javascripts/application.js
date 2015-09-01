@@ -1,4 +1,5 @@
 //= require jquery
+//= require jstz
 //= require jquery_ujs
 //= require turbolinks
 //= require vendor/modernizr

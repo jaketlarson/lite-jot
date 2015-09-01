@@ -2,10 +2,23 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+  around_filter :set_time_zone
+
+  def set_time_zone(&block)
+    time_zone = current_user.try(:timezone) || 'UTC'
+    Time.use_zone(time_zone, &block)
+  end
 
   include ActionController::Serialization
 
   def load_data
+    # Check if timezone was passed through
+    # If so, update it on current_user
+    if !params[:timezone].nil? && !params[:timezone].blank?
+      current_user.timezone = params[:timezone]
+      current_user.save!
+    end
+
     folders = current_user.owned_and_shared_folders
     topics = []
     jots = []

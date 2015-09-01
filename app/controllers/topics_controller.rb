@@ -65,7 +65,7 @@ class TopicsController < ApplicationController
           topic.really_destroy!
         end
 
-        render :json => {:success => true, :message => "Topic and it's contents moved to trash."}
+        render :json => {:success => true, :message => "Topic and its contents moved to trash."}
       else
         render :json => {:success => false, :error => "Could not delete topic."}, :status => :bad_request
       end

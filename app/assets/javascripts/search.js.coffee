@@ -13,6 +13,11 @@ class window.Search extends LiteJot
     @clicking_button = false
     @current_terms = ""
 
+    # Offset the time the search will be carried out from the time
+    # the search box is updated, to avoid lag and unnecessary processes.
+    @offset_timer = null
+    @offset_timing = 400
+
   initSearchListeners: =>
     @search_input.focus (e) =>
       @search_button.addClass('input-has-focus')
@@ -28,7 +33,7 @@ class window.Search extends LiteJot
         @clicking_button = false
 
     @search_input.keyup (e) =>
-      @handleSearchKeyUp()
+      @setSearchOffsetTimer()
 
     @search_button.click (e) =>
       @clicking_button = true
@@ -42,6 +47,14 @@ class window.Search extends LiteJot
         @lj.jots.buildJotsList()
       else
         @focusSearchInput()
+
+  setSearchOffsetTimer: =>
+    if @offset_timer
+      clearTimeout @offset_timer
+
+    @offset_timer = setTimeout(() =>
+      @handleSearchKeyUp()
+    , @offset_timing)
 
   handleSearchKeyUp: => # needs optimization
     @current_terms = @search_input.val().trim()

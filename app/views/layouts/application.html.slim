@@ -1,41 +1,53 @@
 doctype html
 html
-head
-  title Lite Jot
-  == stylesheet_link_tag 'litejot', media: 'all', 'data-turbolinks-track' => true 
-  == csrf_meta_tags
-  meta content='width=device-width, initial-scale=1.0' name='viewport'
-  link rel="shortcut icon" href="/favicon.ico"
+  head
+    title Lite Jot - Powerful, light-weight note-taking
+    == stylesheet_link_tag 'litejot', media: 'all', 'data-turbolinks-track' => true 
+    == csrf_meta_tags
+    meta content='width=device-width, initial-scale=1.0' name='viewport'
+    link rel="shortcut icon" href="/favicon.ico"
+    meta name='description' content='Take notes faster, easier, and more organized. Live note-taking at meetings, task-management, keyboard-optimized, and much more.'
 
-body id="#{body_id}"
-  == render :partial => "header"
+  body id="#{body_id}"
+    == render :partial => "header"
 
-  == yield
+    == yield
 
-  == render :partial => "status_bar"
-  == render :partial => "application/modals/support"
-  
-  - if user_signed_in?
-    == render :partial => "application/modals/app_info"
-    == render :partial => "application/modals/user_settings"
-    == render :partial => "application/modals/delete_folder"
-    == render :partial => "application/modals/delete_topic"
-    == render :partial => "application/modals/calendar_info"
-    == render :partial => "application/modals/shares"
-    == render :partial => "application/modals/emergency_mode_terms"
-    == render :partial => "application/modals/emergency_mode_unsaved_jots"
-    == render :partial => "application/modals/calendar_event_topic"
-    == render :partial => "application/modals/jot_recovery"
+    == render :partial => "status_bar"
+    == render :partial => "application/modals/support"
+    
+    - if user_signed_in?
+      == render :partial => "application/modals/app_info"
+      == render :partial => "application/modals/user_settings"
+      == render :partial => "application/modals/delete_folder"
+      == render :partial => "application/modals/delete_topic"
+      == render :partial => "application/modals/calendar_info"
+      == render :partial => "application/modals/shares"
+      == render :partial => "application/modals/emergency_mode_terms"
+      == render :partial => "application/modals/emergency_mode_unsaved_jots"
+      == render :partial => "application/modals/calendar_event_topic"
+      == render :partial => "application/modals/jot_recovery"
 
-    #notification-template
-      h1
-      section.description
-      a.close
-        i.fa.fa-close
+      #notification-template
+        h1
+        section.description
+        a.close
+          i.fa.fa-close
 
-      .new-topic-overlay
-        .new-topic-text
-          i.fa.fa-pencil-square-o
-          |jot for this event
+        .new-topic-overlay
+          .new-topic-text
+            i.fa.fa-pencil-square-o
+            |jot for this event
 
-  == javascript_include_tag 'application', 'data-turbolinks-track' => true
+    == javascript_include_tag 'application', 'data-turbolinks-track' => true
+
+    - if Rails.env.production?
+      javascript:
+        | (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        | (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        | m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        | })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        | ga('create', 'UA-65882834-1', 'auto');
+        | ga('send', 'pageview');
+
