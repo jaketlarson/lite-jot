@@ -113,7 +113,7 @@ class window.Connection extends LiteJot
       @startConnectionTestTimer()
       return true
 
-    ).fail(() =>
+    ).fail((jqXHR, error_textStatus, errorThrown) =>
       @consecutive_failures++
       if @consecutive_failures > @failures_before_emergency_mode 
         @lj.emergency_mode.activate()
@@ -135,6 +135,6 @@ class window.Connection extends LiteJot
       @lj.emergency_mode.deactivate()
       return true
 
-    ).fail(() =>
+    ).fail((jqXHR, error_textStatus, errorThrown) =>
       setTimeout @attemptReconnect, @connection_retest_timing
     )

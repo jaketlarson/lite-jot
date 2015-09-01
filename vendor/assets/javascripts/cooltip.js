@@ -1,17 +1,6 @@
 /**
  * Cooltip.js - Lightweight, jQuery tooltip plugin
- * v0.5.1
- * Docs: http://jaketlarson.github.io/cooltip/
- *
- * Copyright(c) 2015 Jake Larson <codereloadrepeat@gmail.com> <codereloadrepeat.com>
- * MIT Licensed. http://www.opensource.org/licenses/mit-license.php
- *
- * jQuery plugin boilerplate used in this script can be found at
- * https://github.com/jquery-boilerplate/jquery-boilerplate/tree/master/src
-*/
-/**
- * Cooltip.js - Lightweight, jQuery tooltip plugin
- * v0.5.1
+ * v0.5.3
  * Docs: http://jaketlarson.github.io/cooltip/
  *
  * Copyright(c) 2015 Jake Larson <codereloadrepeat@gmail.com> <codereloadrepeat.com>
@@ -30,13 +19,6 @@
     attr: 'title',
     "class": '',
     enabled: true
-  };
-  $.event.special.destroyed = {
-    remove: function(o) {
-      if (o.handler) {
-        o.handler();
-      }
-    }
   };
   Cooltip = function(target, options) {
     this.target = target;
@@ -66,6 +48,7 @@
       }
       this._enabled = !!this.options.enabled;
       this._matchArrowColor();
+      this._setZIndex();
     },
     _positionTip: function() {
       var position;
@@ -235,7 +218,12 @@
       }
       this.$tip.remove();
       if (tip_bg.length > 0) {
-        return this.$tip.css('border-color', tip_bg);
+        this.$tip.css('border-color', tip_bg);
+      }
+    },
+    _setZIndex: function() {
+      if (this.options.zIndex) {
+        this.$tip.css('z-index', this.options.zIndex);
       }
     },
     addClass: function(class_name) {
@@ -263,7 +251,7 @@
       return this._positionTip();
     }
   };
-  return $.fn[pluginName] = function(options, arg) {
+  $.fn[pluginName] = function(options, arg) {
     return this.each(function() {
       var instance;
       if (!$.data(this, 'plugin_' + pluginName)) {
@@ -288,5 +276,12 @@
         }
       }
     });
+  };
+  return $.event.special.destroyed = {
+    remove: function(o) {
+      if (o.handler) {
+        o.handler();
+      }
+    }
   };
 })(jQuery, window, document);

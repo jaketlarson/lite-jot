@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150828051624) do
+ActiveRecord::Schema.define(version: 20150829062516) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,7 +21,10 @@ ActiveRecord::Schema.define(version: 20150828051624) do
     t.string   "title"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
+
+  add_index "folders", ["deleted_at"], name: "index_folders_on_deleted_at", using: :btree
 
   create_table "jots", force: true do |t|
     t.integer  "folder_id"
@@ -34,7 +37,10 @@ ActiveRecord::Schema.define(version: 20150828051624) do
     t.datetime "updated_at"
     t.boolean  "break_from_top", default: false
     t.string   "jot_type",       default: "standard"
+    t.datetime "deleted_at"
   end
+
+  add_index "jots", ["deleted_at"], name: "index_jots_on_deleted_at", using: :btree
 
   create_table "preferences", force: true do |t|
     t.integer  "user_id"
@@ -62,7 +68,10 @@ ActiveRecord::Schema.define(version: 20150828051624) do
     t.string   "title"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
+
+  add_index "topics", ["deleted_at"], name: "index_topics_on_deleted_at", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                   default: "",    null: false

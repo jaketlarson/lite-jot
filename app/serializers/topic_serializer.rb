@@ -1,5 +1,13 @@
 class TopicSerializer < ActiveModel::Serializer
-  attributes :id, :title, :folder_id, :user_id, :has_manage_permissions, :updated_at_unix
+  attributes(
+    :id,
+    :title,
+    :folder_id,
+    :user_id,
+    :has_manage_permissions,
+    :updated_at_unix
+  )
+  
   delegate :current_user, to: :scope
 
   def has_manage_permissions

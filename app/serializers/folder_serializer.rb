@@ -1,5 +1,14 @@
 class FolderSerializer < ActiveModel::Serializer
-  attributes :id, :title, :has_manage_permissions, :share_id, :owner_email, :owner_display_name, :updated_at_unix
+  attributes(
+    :id,
+    :title,
+    :has_manage_permissions,
+    :share_id,
+    :owner_email,
+    :owner_display_name,
+    :updated_at_unix
+  )
+  
   delegate :current_user, to: :scope
 
   def has_manage_permissions

@@ -47,3 +47,7 @@ gem 'omniauth-google-oauth2', :git => 'https://github.com/zquestz/omniauth-googl
 gem 'google-api-client', :require => 'google/api_client'
 
 gem 'seed_dump'
+
+# Paranoia gem helps separate deleted (archived) jots from the view
+# and allows users to permanently delete their jots later
+gem 'paranoia', '~> 2.0'

@@ -25,7 +25,7 @@ class window.Jots extends LiteJot
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_temp_entry_template = $('#jot-temp-entry-template')
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
-    @jots_loading_icon = @jots_wrapper.find('i.loading')
+    @jots_loader = @jots_wrapper.find('.loader')
     @edit_overlay = $('#edit-overlay')
     @edit_notice = $('#edit-notice')
     @currently_editing_id = null
@@ -64,7 +64,7 @@ class window.Jots extends LiteJot
   buildJotsList: (mode) =>
     @clearJotsList()
     @updateHeading()
-    @jots_loading_icon.fadeOut()
+    @jots_loader.fadeOut()
     @resetPageCounter()
     @disableLoadOnScroll()
 
@@ -385,7 +385,7 @@ class window.Jots extends LiteJot
     if @jots_wrapper.scrollTop() == 0
       @jots_heading.removeClass('is-scrolled-from-top')
 
-    else if @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
+    if @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
       if @load_on_scroll
         @loadMoreJots()
 

@@ -24,6 +24,10 @@ Rails.application.routes.draw do
   patch 'jots/check_box/:id' => 'jots#check_box'
   resources :jots
 
+  post 'archived_jots/restore' => 'archived_jots#restore'
+  delete 'archived_jots' => 'archived_jots#destroy'
+  resources :archived_jots
+
   resources :shares
 
   get 'notifications/calendar' => 'notifications#calendar'

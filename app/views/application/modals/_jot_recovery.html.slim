@@ -1,0 +1,72 @@
+.reveal-modal#jot-recovery-modal data-reveal=true
+
+  .modal-template#jot-recovery-modal-template
+    h3
+      |Jot Recovery
+      a.modal-info title='Your deleted jots are archived here, and can be restored or permanently deleted.'
+        i.fa.fa-info-circle
+
+    .archived-jots-wrapper
+      .loader-wrap
+        .loader Loading...
+
+      .try-again-wrap
+        |There was an error while connecting to the server.
+        a.try-again Try again
+
+      .empty-wrap
+        |Your jot recovery bin is empty. Deleted jots will appear here for future restoration or permanent deletion.
+
+      table.archived-jots-table
+        thead
+          tr
+            th.col-checkbox
+              .recovery-checkbox-wrap
+                input#check-all-archived-jots type='checkbox'
+
+              span.check-all-text All
+
+            th.col-folder-topic Folder name / Topic name
+            th.col-jot-content Jot
+
+        tbody
+          tr.item-template
+            td
+              .recovery-checkbox-wrap
+                input type='checkbox'
+
+            td
+              span.folder-title
+              span.folder-topic-divider 
+                |/
+              span.topic-title
+
+            td
+              .content
+
+    .actions
+      button.secondary.cancel Close
+
+      .primary-action-buttons-wrap
+        button.primary.restore-selected.right disabled=true
+          |Restore Selected
+          |&nbsp;[
+          span.selected-count
+            |0
+          |]
+
+        button.primary.delete-selected.right disabled=true
+          |Delete Selected
+          |&nbsp;[
+          span.selected-count
+            |0
+          |]
+
+      .delete-confirmation-wrap
+        |Your jots will be permanently deleted. Are you sure?
+        br
+        a.confirm-delete Yes, I understand.
+        | 
+        a.cancel-delete No, do not delete.
+
+

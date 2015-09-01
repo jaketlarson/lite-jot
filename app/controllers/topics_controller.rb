@@ -55,8 +55,16 @@ class TopicsController < ApplicationController
   def destroy
     topic = Topic.find(params[:id])
 
+    # Do a check to see if there are no jots (including archived)
+    # existing in topic. If not, really_destroy! (paranoia gem) the topic
+    topic_empty = Jot.with_deleted.where('topic_id = ?', topic.id).empty? ? true : false
+
     if topic.user_id == current_user.id
       if topic.destroy
+        if topic_empty
+          topic.really_destroy!
+        end
+
         render :json => {:success => true, :message => "Topic and it's contents moved to trash."}
       else
         render :json => {:success => false, :error => "Could not delete topic."}, :status => :bad_request

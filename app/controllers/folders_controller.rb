@@ -34,8 +34,20 @@ class FoldersController < ApplicationController
   def destroy
     folder = Folder.find(params[:id])
 
+    # Do a check to see if there are no jots (including archived)
+    # existing in folder. If not, really_destroy! (paranoia gem) the topic
+    folder_empty = Jot.with_deleted.where('folder_id = ?', folder.id).empty? ? true : false
+
     if folder.user_id == current_user.id
       if folder.destroy
+
+        if folder_empty
+          folder.topics.each do |topic|
+            topic.really_destroy!
+          end
+          folder.really_destroy!
+        end
+
         render :json => {:success => true, :message => "Folder and it's contents moved to trash."}
       else
         render :json => {:success => false, :error => "Could not delete jot."}, :status => :bad_request

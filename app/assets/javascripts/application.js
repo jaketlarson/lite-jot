@@ -19,6 +19,7 @@
 //= require connection
 //= require push_ui
 //= require support
+//= require jot_recovery
 //= require Autolinker
 //= require cooltip
 //= require litejot

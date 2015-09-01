@@ -62,6 +62,7 @@ class window.LiteJot
     @emergency_mode.checkLocalStorageContents()
     @initTips()
     @support = new Support(@)
+    @support = new JotRecovery(@)
 
   initFoundation: =>
     $(document).foundation()
@@ -148,7 +149,7 @@ class window.LiteJot
 
   initTips: =>
     $('button.new-folder-button, button.new-topic-button').cooltip {direction: 'bottom'}
-    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link').cooltip {
+    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
       direction: 'bottom'
       align: 'left'
     }
