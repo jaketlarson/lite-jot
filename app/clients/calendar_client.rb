@@ -20,6 +20,8 @@ class CalendarClient
     if user.auth_token_expiration.nil? || user.auth_token_expiration < DateTime.now
       refresh_token(user)
     end
+    ap 'user from fetch_calendar_items'
+    ap user
 
     @client.authorization.access_token = user.auth_token
     @calendar_events = @client.execute(:api_method => @calendar.events.list,
@@ -39,18 +41,65 @@ class CalendarClient
     # Iterate through calendar items
     if items
       items.each do |item|
-        if item.start
-          # Choose events between now and two days later
-          if item.start.dateTime >= min_start_time && item.start.dateTime < max_start_time
-            start_dateTime_unix = item.start.dateTime.to_i
-            end_dateTime_unix = item.end.dateTime.to_i
 
-            if item.start.dateTime.today?
+        if item.start
+          if item.start.date
+            # All day event
+            start_segments = item.start.date.split('-')
+            start_year = start_segments[0].to_i
+            start_month = start_segments[1].to_i
+            start_day = start_segments[2].to_i
+            start_time = DateTime.new(start_year, start_month, start_day)
+          else
+            start_time = item.start.dateTime
+          end
+          if item.end.date
+            # All day event
+            end_segments = item.end.date.split('-')
+            end_year = end_segments[0].to_i
+            end_month = end_segments[1].to_i
+            end_day = end_segments[2].to_i
+            end_time = DateTime.new(end_year, end_month, end_day)
+          else
+            end_time = item.end.dateTime
+          end
+
+          # # Choose events between now and two days later
+          # if item.start.date
+          #   # If item.start.date is there, that means item.start.dateTime
+          #   # and item.end.DateTime will be absent because this is an
+          #   # all-day event.
+          #   # We can set the item.start.dateTime and item.end.dateTime
+          #   # ourselves
+
+          #   start_segments = item.start.date.split('-')
+          #   start_year = start_segments[0].to_i
+          #   start_month = start_segments[1].to_i
+          #   start_day = start_segments[2].to_i
+
+          #   end_segments = item.end.date.split('-')
+          #   end_year = end_segments[0].to_i
+          #   end_month = end_segments[1].to_i
+          #   end_day = end_segments[2].to_i
+
+          #   item.start.dateTime = DateTime.new(start_year, start_month, start_day)
+          #   item.end.dateTime = DateTime.new(end_year, end_month, end_day)
+          # end
+
+          ap 'times:'
+          ap start_time
+          ap end_time
+
+          if start_time >= min_start_time && start_time < max_start_time
+            start_dateTime_unix = start_time.to_i
+            end_dateTime_unix = end_time.to_i
+
+            if start_time.today?
               day = 'Today'
-            elsif item.start.dateTime.to_date == Date.tomorrow
+            elsif start_time.to_date == Date.tomorrow
               day = 'Tomorrow'
             else
-              day = item.start.dateTime.strftime("%A")
+              day = start_time.strftime("%A")
             end
 
             attendees = []
@@ -69,8 +118,8 @@ class CalendarClient
               }
             end
 
-            event_in_progress = item.start.dateTime < Time.now && item.end.dateTime > Time.now ? true : false
-            event_finished = item.end.dateTime < Time.now ? true : false
+            event_in_progress = start_time < Time.now && end_time > Time.now ? true : false
+            event_finished = end_time < Time.now ? true : false
 
             event = {
               :id => item.id,
@@ -79,11 +128,11 @@ class CalendarClient
               :location => item.location,
               :start => {
                 :day => day,
-                :dateTime => item.start.dateTime,
+                :dateTime => start_time,
                 :dateTime_unix => start_dateTime_unix
               },
               :end => {
-                :dateTime => item.end.dateTime,
+                :dateTime => end_time,
                 :dateTime_unix => end_dateTime_unix
               },
               :event_in_progress => event_in_progress,
@@ -106,6 +155,8 @@ class CalendarClient
 
       token_result = @client.authorization.fetch_access_token!
 
+      ap 'token result'
+      ap token_result
       user.save_google_token(
         token_result['access_token'],
         token_result['expires_in']

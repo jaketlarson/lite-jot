@@ -50,6 +50,10 @@ class User < ActiveRecord::Base
         auth_refresh_token = user.auth_refresh_token
       end
 
+      ap "find_for_google_oauth2"
+      ap auth_refresh_token
+      ap access_token
+
       user.update!(
         :auth_token => access_token['credentials']['token'],
         :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),

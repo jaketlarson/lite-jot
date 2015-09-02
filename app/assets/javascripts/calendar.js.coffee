@@ -6,7 +6,7 @@ class window.Calendar extends LiteJot
 
     if @cal_link.is(':visible')
       @initBinds()
-      @loadCalItems()
+      @loadCalItems(init=true)
 
   initVars: =>
     @cal_list_wrap = $('#cal-list-wrap')
@@ -21,6 +21,15 @@ class window.Calendar extends LiteJot
     @cal_notifications = []
     @event_topic_modal = $('#calendar-event-topic-modal')
     @event_topic_modal_template = $('#calendar-event-topic-template')
+    @cal_error_message = $('#cal-error-message')
+
+    @refresh_timer = null
+    @refresh_timing = 5*60*1000
+
+    # Contains id's of calendar events posted as notifications to client.
+    # This is a fix for event notification duplicates, and will still
+    # show the notifications on every instance opened (multiple tabs, etc.)
+    @cal_notifications_posted = []
 
   initBinds: =>
     @cal_link.click (event) =>
@@ -68,22 +77,33 @@ class window.Calendar extends LiteJot
       right: pos_right
     })
 
-  loadCalItems: =>
-    @showLoading()
+  loadCalItems: (init=false) =>
+    if init
+      @showLoading()
 
     $.ajax(
       type: 'GET'
       url: '/notifications/calendar'
       success: (data) =>
-        @user_email = data.user_email
+        @cal_error_message.hide()
+        if init
+          @hideLoading()
+        else
+          @resetNotificationTimers()
+
         @cal_loaded_data = $.parseJSON(data.calendar_items)
         @handleCalData()
-        @hideLoading()
+
+        @initRefreshTimer()
 
       error: (data) =>
+        @cal_error_message.show()
+        @hideLoading()
+        @initRefreshTimer()
     )
 
   handleCalData: =>
+    @cal_items = {}
     $.each @cal_loaded_data, (index, cal_item) =>
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
@@ -116,7 +136,7 @@ class window.Calendar extends LiteJot
           if cal_item.attendees
             $.each cal_item.attendees, (index, attendee) =>
               if attendee
-                if attendee.email == @user_email
+                if attendee.email == @lj.app.user.email
                   cal_item.attendees.remove(index)
                   return
 
@@ -194,17 +214,18 @@ class window.Calendar extends LiteJot
       if parseInt(cal_item.start.dateTime_unix)*1000 - @event_reminder_minutes*60000 > current_unix
         # if it's more than @event_reminder_minutes away, then set timer for notification show time
         @cal_notifications.push(setTimeout(() =>
-          new Notification @lj, cal_item.id, title, info, hide_at
+          new Notification @lj, cal_item.id, title, info, hide_at, @cal_notifications_posted
         , time_until))
       else
         # if notification would've shown by now, show it now.
-        new Notification @lj, cal_item.id, title, info, hide_at
+        new Notification @lj, cal_item.id, title, info, hide_at, @cal_notifications_posted
 
   resetNotificationTimers: =>
-    @cal_notifications.each (key, timer) =>
+    console.log @cal_notifications
+    $.each @cal_notifications, (key, timer) =>
       clearTimeout timer
     @cal_notifications = []
-
+    console.log @cal_notifications
 
   prettyTimestamp: (date) =>
     am_pm = if date.getHours() >= 12 then "pm" else "am"
@@ -291,6 +312,9 @@ class window.Calendar extends LiteJot
             @lj.topics.hideNewTopicForm()
             @closeEventTopicModal()
 
+            if @lj.folders.new_folder_title.val().trim().length == 0
+              @lj.folders.hideNewFolderForm()
+
           error: (data) =>
             # Re-enable form elements
             @event_topic_modal.find('select:disabled, input:disabled, button:disabled').attr('disabled', false)
@@ -318,4 +342,11 @@ class window.Calendar extends LiteJot
   closeEventTopicModal: =>
     @event_topic_modal.foundation 'reveal', 'close'
 
+  initRefreshTimer: =>
+    if @refresh_timer
+      clearTimeout @refresh_timer
 
+    setTimeout(() =>
+      @loadCalItems()
+    , @refresh_timing)
+      

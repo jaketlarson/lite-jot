@@ -6,6 +6,9 @@ Rails.application.routes.draw do
     :omniauth_callbacks => "users/omniauth_callbacks"
   }
 
+  get '/users/sign_in' => 'pages#welcome'
+  get '/users/sign_up' => 'pages#welcome'
+
   authenticated :user do
     root :to => "pages#dashboard", :as => "authenticated_root"
   end
@@ -36,6 +39,8 @@ Rails.application.routes.draw do
 
   get '/load-data' => 'application#load_data'
   get '/connection-test' => 'application#connection_test'
+  post '/transfer-data' => 'application#transfer_data'
+  get 'raw-data' => 'application#raw_data'
 
   get 'terms' => 'pages#terms'
   get 'privacy' => 'pages#privacy'

@@ -8,7 +8,7 @@ class ArchivedJotsController < ApplicationController
   # separate.
 
   def index
-    jots = current_user.jots.unscoped.only_deleted.order('deleted_at DESC')
+    jots = Jot.unscoped.where('user_id = ?', current_user.id).only_deleted.order('deleted_at DESC')
     serialized_jots = ActiveModel::ArraySerializer.new(jots, :each_serializer => ArchivedJotSerializer, :scope => current_user)
     render :json => {:archived_jots => serialized_jots}
   end

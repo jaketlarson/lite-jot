@@ -50,3 +50,5 @@ gem 'seed_dump'
 # Paranoia gem helps separate deleted (archived) jots from the view
 # and allows users to permanently delete their jots later
 gem 'paranoia', '~> 2.0'
+
+gem 'rails_12factor'

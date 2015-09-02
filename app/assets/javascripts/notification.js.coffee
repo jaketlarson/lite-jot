@@ -1,11 +1,20 @@
 #= require litejot
 
 class window.Notification extends LiteJot
-  constructor: (@lj, @notif_id, @title, @description, @time_to_show) ->
+  constructor: (@lj, @notif_id, @title, @description, @time_to_show, @check_against_posted_notif_ids) ->
     # If @time_to_show == 0, then it stays til user closes
-    @initVars()
-    @pushEventNotificationToScreen()
-    @setHideTimer()
+
+    # Feature needed by calendar.js to prevent multple notifications per event
+    # when the calendar refreshes.
+    # Checks against an array of notif_ids (or calendar item ids)
+    # and stores the notif_id in the given array (if defined)
+    if @check_against_posted_notif_ids.indexOf(@notif_id) == -1
+      @initVars()
+      @pushEventNotificationToScreen()
+      @setHideTimer()
+
+      if @check_against_posted_notif_ids
+        @check_against_posted_notif_ids.push @notif_id
 
   initVars: =>
     @notification_template = $('#notification-template')

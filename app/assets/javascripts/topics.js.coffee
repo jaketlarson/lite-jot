@@ -31,11 +31,14 @@ class window.Topics extends LiteJot
 
       else if e.keyCode == @lj.key_controls.key_codes.y
         id = $("li[data-keyed-over='true']").data('topic')
+        if !id
+          # Backup method: find topic_id in a hidden field in the modal
+          id = parseInt($(e.currentTarget).find('#topic_id').val())
+
         @confirmDeleteTopic id
 
   buildTopicsList: (organize_dom=true) =>
     @topics_list.html('')
-
 
     if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
@@ -252,18 +255,28 @@ class window.Topics extends LiteJot
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
     topic_object = @lj.app.topics.filter((topic) => topic.id == id)[0]
 
-    if !topic_object.has_manage_permissions
+    if topic_object && !topic_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to delete this topic.', 'error')
       return
 
     $('#delete-topic-modal').foundation 'reveal', 'open'
     $('#delete-topic-modal').html($('#delete-topic-modal-template').html())
-
     $('#delete-topic-modal .cancel').click =>
       @cancelDeleteTopic()
 
     $('#delete-topic-modal .confirm').click =>
       @confirmDeleteTopic id
+
+    # Focus on elem when shown.. using a timer for now
+    # Hopefully a modal-shown callback will be available soon.
+    setTimeout(() =>
+      $('#delete-topic-modal').focus()
+    , 250)
+
+    # Set hidden topic id field of topic to delete in modal instance
+    # This fixes the issue where a user could click the delete button,
+    # but use the keyboard shortcut to confirm deletion.
+    $('#delete-topic-modal #topic_id').val(id)
 
   confirmDeleteTopic: (id) =>
     $('#delete-topic-modal').foundation 'reveal', 'close'
@@ -278,7 +291,6 @@ class window.Topics extends LiteJot
   cancelDeleteTopic: =>
     $('#delete-topic-modal').attr('data-topic-id', '').foundation 'reveal', 'close'
     @topics_wrapper.focus()
-
 
   deleteTopic: (id) =>
     elem = $("li[data-topic='#{id}']")
@@ -438,17 +450,18 @@ class window.Topics extends LiteJot
     @new_topic_form_wrap.show().attr('data-hidden', 'false')
 
   hideNewTopicForm: =>
-    @new_topic_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
-    @sortTopicsList()
+    if @new_topic_form_wrap.is(':visible')
+      @new_topic_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
+      @sortTopicsList()
 
-    setTimeout(() =>
-      @new_topic_form_wrap.hide().css({
-        opacity: 1
-      })
+      setTimeout(() =>
+        @new_topic_form_wrap.hide().css({
+          opacity: 1
+        })
 
-      @new_topic_title.val('')
-      @lj.key_controls.clearKeyedOverData()
-    , 250)
+        @new_topic_title.val('')
+        @lj.key_controls.clearKeyedOverData()
+      , 250)
 
   moveCurrentTopicToTop: =>
     topic_key_to_move = null

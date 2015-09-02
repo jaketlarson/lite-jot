@@ -31,6 +31,9 @@ class window.Folders extends LiteJot
 
       else if e.keyCode == @lj.key_controls.key_codes.y
         id = $("li[data-keyed-over='true']").data('folder')
+        if !id
+          # Backup method: find folder_id in a hidden field in the modal
+          id = parseInt($(e.currentTarget).find('#folder_id').val())
         @confirmDeleteFolder id
 
   buildFoldersList: =>
@@ -251,16 +254,17 @@ class window.Folders extends LiteJot
     @new_folder_title.focus()
 
   hideNewFolderForm: =>
-    @new_folder_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
-    @sortFoldersList()
+    if @new_folder_form_wrap.is(':visible')
+      @new_folder_form_wrap.attr('data-hidden', 'true').css('opacity', 0)
+      @sortFoldersList()
 
-    setTimeout(() =>
-      @new_folder_form_wrap.hide().css({
-        opacity: 1
-      })
+      setTimeout(() =>
+        @new_folder_form_wrap.hide().css({
+          opacity: 1
+        })
 
-      @new_folder_title.val('')
-    , 250)
+        @new_folder_title.val('')
+      , 250)
 
   selectFolder: (folder_id) =>
     if folder_id == @lj.app.current_folder
@@ -348,7 +352,7 @@ class window.Folders extends LiteJot
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
     folder_object = @lj.app.folders.filter((folder) => folder.id == id)[0]
 
-    if !folder_object.has_manage_permissions
+    if folder_object && !folder_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to delete this folder.', 'error')
       return
 
@@ -360,6 +364,17 @@ class window.Folders extends LiteJot
 
     $('#delete-folder-modal .confirm').click =>
       @confirmDeleteFolder id
+
+    # Focus on elem when shown.. using a timer for now
+    # Hopefully a modal-shown callback will be available soon.
+    setTimeout(() =>
+      $('#delete-folder-modal').focus()
+    , 250)
+
+    # Set hidden folder id field of folder to delete in modal instance
+    # This fixes the issue where a user could click the delete button,
+    # but use the keyboard shortcut to confirm deletion.
+    $('#delete-folder-modal #folder_id').val(id)
 
   confirmDeleteFolder: (id) =>
     $('#delete-folder-modal').foundation 'reveal', 'close'

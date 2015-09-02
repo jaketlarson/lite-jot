@@ -661,6 +661,7 @@ class window.Jots extends LiteJot
                   <input type='text' class='input-edit' />
                 </div>"
 
+    console.log "this elems class is: "+ elem.attr('class')
     elem.append to_insert
     elem.find("input[type='checkbox']").prop('disabled', false)
     @setTimestamp jot
@@ -716,7 +717,7 @@ class window.Jots extends LiteJot
 
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
-    classes = ""
+    classes = "jot-elem "
     if jot.is_flagged then classes += "flagged "
     if jot.jot_type == 'heading' then classes += "heading "
     if jot.break_from_top then classes += "break-from-top "

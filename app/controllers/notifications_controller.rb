@@ -6,7 +6,7 @@ class NotificationsController < ApplicationController
     calendar_client = CalendarClient.new
     calendar_events = calendar_client.fetch_calendar_items(current_user)
 
-    render :json => {:calendar_items => calendar_events.to_json, :user_email => current_user.email}
+    render :json => {:calendar_items => calendar_events.to_json}
   end
 
   # notifications#acknowledge will mark a specific id, such as Google
