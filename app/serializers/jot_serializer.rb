@@ -36,7 +36,8 @@ class JotSerializer < ActiveModel::Serializer
         if item['toggled_by'] == scope.id
           display_name = scope.display_name
         else
-          display_name = User.find(item['toggled_by']).display_name
+          user = User.where('id = ?', item['toggled_by'])
+          display_name = !user.empty? ? user.display_name : "Unknown"
         end
         item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime)}."
       end

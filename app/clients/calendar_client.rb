@@ -91,8 +91,8 @@ class CalendarClient
           ap end_time
 
           if start_time >= min_start_time && start_time < max_start_time
-            start_dateTime_unix = start_time.to_i
-            end_dateTime_unix = end_time.to_i
+            start_time_unix = start_time.to_i
+            end_time_unix = end_time.to_i
 
             if start_time.today?
               day = 'Today'
@@ -129,11 +129,11 @@ class CalendarClient
               :start => {
                 :day => day,
                 :dateTime => start_time,
-                :dateTime_unix => start_dateTime_unix
+                :dateTime_unix => start_time_unix
               },
               :end => {
                 :dateTime => end_time,
-                :dateTime_unix => end_dateTime_unix
+                :dateTime_unix => end_time_unix
               },
               :event_in_progress => event_in_progress,
               :event_finished => event_finished

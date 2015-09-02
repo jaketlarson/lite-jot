@@ -63,7 +63,7 @@ nav.top-bar data-topbar='true' role='navigation' data-magellan-expedition='fixed
         li.show-for-large-up
           a#fullscreen-request title='Toggle Fullscreen'
             i.fa.fa-lg.fa-expand
-      - else
+      - if controller.controller_name == 'pages' && controller.action_name == 'welcome'
         li.active data-magellan-arrival='get-started'
           a href='#get-started' Get Started
         li.divider

@@ -1,13 +1,16 @@
 Rails.application.routes.draw do
 
+  get 'errors/file_not_found'
+
+  get 'errors/unprocessable'
+
+  get 'errors/internal_server_error'
+
   devise_for :users, :controllers => {
     :sessions => 'users/sessions',
     :registrations => 'users/registrations',
     :omniauth_callbacks => "users/omniauth_callbacks"
   }
-
-  get '/users/sign_in' => 'pages#welcome'
-  get '/users/sign_up' => 'pages#welcome'
 
   authenticated :user do
     root :to => "pages#dashboard", :as => "authenticated_root"
@@ -44,6 +47,13 @@ Rails.application.routes.draw do
 
   get 'terms' => 'pages#terms'
   get 'privacy' => 'pages#privacy'
+
+  match '/404', :to => 'errors#file_not_found', :via => :all
+  match '/422', :to => 'errors#unprocessable', :via => :all
+  match '/500', :to => 'errors#internal_server_error', :via => :all
+
+  match '/users/sign_in', :to => 'pages#welcome', :via => :all
+  match '/users/sign_up', :to => 'pages#welcome', :via => :all
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

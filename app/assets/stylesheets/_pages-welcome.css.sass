@@ -4,6 +4,11 @@ body#pages-welcome, body#users_registrations-create
     margin-bottom: 1rem
     font-size: 4.5rem
 
+
+    @media #{$small-only}
+      font-size: 2rem
+      line-height: 2.8rem
+
   .panel
     border: 0
     width: 100%
@@ -74,15 +79,13 @@ body#pages-welcome, body#users_registrations-create
         padding-left: 1rem
         padding-right: 1rem
 
-
-
       ul
         font-family: 'Monda'
         margin-top: 2rem
 
         li
           font-size: 1.35rem
-          padding: .8rem 0 .8rem 2.5rem
+          padding: .8rem 1rem .8rem 2.5rem
           position: relative
           
           i
@@ -93,4 +96,3 @@ body#pages-welcome, body#users_registrations-create
 
           i.fa.fa-ellipsis-h, i.fa.fa-tasks
             top: 1.35rem
-
