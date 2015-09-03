@@ -20,8 +20,6 @@ class CalendarClient
     if user.auth_token_expiration.nil? || user.auth_token_expiration < DateTime.now
       refresh_token(user)
     end
-    ap 'user from fetch_calendar_items'
-    ap user
 
     @client.authorization.access_token = user.auth_token
     @calendar_events = @client.execute(:api_method => @calendar.events.list,
@@ -86,11 +84,8 @@ class CalendarClient
           #   item.end.dateTime = DateTime.new(end_year, end_month, end_day)
           # end
 
-          ap 'times:'
-          ap start_time
-          ap end_time
-
-          if start_time >= min_start_time && start_time < max_start_time
+          # If start time is within the next two days, or the start time is before today but end time has not yet been approached.
+          if (start_time >= min_start_time && start_time < max_start_time) || (start_time < min_start_time && end_time >= min_start_time)
             start_time_unix = start_time.to_i
             end_time_unix = end_time.to_i
 
@@ -121,6 +116,19 @@ class CalendarClient
             event_in_progress = start_time < Time.now && end_time > Time.now ? true : false
             event_finished = end_time < Time.now ? true : false
 
+            # notif_time_span is used in event notifications
+            # In future, move some of this into a locale.
+            notif_time_span = "unset"
+            if end_time.to_i - start_time.to_i == 60*60*24
+              notif_time_span = "All day"
+            elsif end_time.today?
+              notif_time_span = "#{start_time.strftime("%l:%M%P")} - #{end_time.to_time.strftime("%l:%M%P")}"
+            elsif end_time.to_date == Date.tomorrow
+              notif_time_span = "#{start_time.strftime("%l:%M%P")} - Tomorrow @ #{end_time.to_time.strftime("%l:%M%P")}"
+            else
+              notif_time_span = "#{start_time.strftime("%l:%M%P")} - #{end_time.to_time.strftime("%b, %d @ %l:%M%P")}"
+            end
+
             event = {
               :id => item.id,
               :summary => (item.summary || "(No title)"),
@@ -129,14 +137,16 @@ class CalendarClient
               :start => {
                 :day => day,
                 :dateTime => start_time,
-                :dateTime_unix => start_time_unix
+                :dateTime_unix => start_time_unix,
+                :timestamp => I18n.l(start_time, :format => :short_today)
               },
               :end => {
                 :dateTime => end_time,
                 :dateTime_unix => end_time_unix
               },
               :event_in_progress => event_in_progress,
-              :event_finished => event_finished
+              :event_finished => event_finished,
+              :notif_time_span => notif_time_span
             }
             upcoming_events << event
 
@@ -155,8 +165,6 @@ class CalendarClient
 
       token_result = @client.authorization.fetch_access_token!
 
-      ap 'token result'
-      ap token_result
       user.save_google_token(
         token_result['access_token'],
         token_result['expires_in']

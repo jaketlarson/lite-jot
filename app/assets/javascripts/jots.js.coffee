@@ -717,7 +717,7 @@ class window.Jots extends LiteJot
 
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
-    classes = "jot-elem "
+    classes = "jot-item "
     if jot.is_flagged then classes += "flagged "
     if jot.jot_type == 'heading' then classes += "heading "
     if jot.break_from_top then classes += "break-from-top "

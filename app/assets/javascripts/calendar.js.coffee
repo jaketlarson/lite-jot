@@ -105,6 +105,7 @@ class window.Calendar extends LiteJot
   handleCalData: =>
     @cal_items = {}
     $.each @cal_loaded_data, (index, cal_item) =>
+      console.log cal_item
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
 
@@ -152,8 +153,6 @@ class window.Calendar extends LiteJot
                 attendees_text += ", "
 
           cal_item.attendees_text = attendees_text
-          cal_item.start_time_display = @prettyTimestamp new Date(cal_item.start.dateTime)
-          cal_item.end_time_display = @prettyTimestamp new Date(cal_item.end.dateTime)
 
           if cal_item.event_finished
             event_class = 'event-finished'
@@ -163,7 +162,7 @@ class window.Calendar extends LiteJot
             event_class = ''
 
           html += "<li class='#{event_class}'>"
-          html += "<section class='time'>#{cal_item.start_time_display}</section>"
+          html += "<section class='time'>#{cal_item.start.timestamp}</section>"
 
           html += "<h4>#{cal_item.summary}</h4>"
 
@@ -199,7 +198,7 @@ class window.Calendar extends LiteJot
     title = cal_item.summary
 
     # Build info
-    info = "<i class='fa fa-clock-o'></i> #{cal_item.start_time_display} - #{cal_item.end_time_display}"
+    info = "<i class='fa fa-clock-o'></i> #{cal_item.notif_time_span}"
     if cal_item.location
       info += "<br /><i class='fa fa-map-marker' /> #{cal_item.location}"
     if cal_item.attendees_text.length > 0
@@ -221,20 +220,9 @@ class window.Calendar extends LiteJot
         new Notification @lj, cal_item.id, title, info, hide_at, @cal_notifications_posted
 
   resetNotificationTimers: =>
-    console.log @cal_notifications
     $.each @cal_notifications, (key, timer) =>
       clearTimeout timer
     @cal_notifications = []
-    console.log @cal_notifications
-
-  prettyTimestamp: (date) =>
-    am_pm = if date.getHours() >= 12 then "pm" else "am"
-    hour = (date.getHours() % 12)
-    hour = if hour == 0 then 12 else hour
-    minutes = date.getMinutes()
-    minutes = if minutes == 0 then "00" else minutes
-
-    return "#{hour}:#{minutes}#{am_pm}"
 
   openEventTopicModal: (title) =>
     @event_topic_modal.foundation 'reveal', 'open'
