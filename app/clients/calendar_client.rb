@@ -40,6 +40,11 @@ class CalendarClient
     if items
       items.each do |item|
 
+        # Note that all day events don't have timezone offsets.. so there are
+        # some workarounds. Take the UTC offset and subtract it from a new
+        # DateTime object (based only off the current date, no time info).
+        timezone_utc_offset = ActiveSupport::TimeZone.new(user.timezone).now.utc_offset
+
         if item.start
           if item.start.date
             # All day event
@@ -47,7 +52,7 @@ class CalendarClient
             start_year = start_segments[0].to_i
             start_month = start_segments[1].to_i
             start_day = start_segments[2].to_i
-            start_time = DateTime.new(start_year, start_month, start_day)
+            start_time = (DateTime.new(start_year, start_month, start_day).to_time - timezone_utc_offset).to_datetime
           else
             start_time = item.start.dateTime.in_time_zone(user.timezone)
           end
@@ -57,7 +62,7 @@ class CalendarClient
             end_year = end_segments[0].to_i
             end_month = end_segments[1].to_i
             end_day = end_segments[2].to_i
-            end_time = DateTime.new(end_year, end_month, end_day)
+            end_time = (DateTime.new(end_year, end_month, end_day).to_time - timezone_utc_offset).to_datetime
           else
             end_time = item.end.dateTime.in_time_zone(user.timezone)
           end
@@ -116,8 +121,6 @@ class CalendarClient
 
             if end_time.to_i - start_time.to_i == 60*60*24
               notif_time_span = "All day"
-              ap start_time
-              ap end_time
             else
               notif_time_span = "#{notif_time_span_start} - #{notif_time_span_end}"
             end
@@ -128,7 +131,6 @@ class CalendarClient
             # for notifications to show earlier.
             time_until_display = 1000*(start_time.to_i - now.to_i - notif_display_buffer_minutes*60)
             time_until_hide = 1000*(end_time.to_i - now.to_i)
-
 
             event = {
               :id => item.id,
