@@ -4,7 +4,7 @@ class NotificationsController < ApplicationController
 
   def calendar
     calendar_client = CalendarClient.new
-    calendar_events = calendar_client.fetch_calendar_items(current_user)
+    calendar_events = calendar_client.fetch_calendar_items(current_user, notif_display_buffer_minutes=10)
 
     render :json => {:calendar_items => calendar_events.to_json}
   end

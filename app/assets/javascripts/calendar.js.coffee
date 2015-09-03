@@ -17,7 +17,6 @@ class window.Calendar extends LiteJot
     @month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     @cal_empty_message = $('#cal-empty-message')
     @cal_loading = $('#cal-loading')
-    @event_reminder_minutes = 10
     @cal_notifications = []
     @event_topic_modal = $('#calendar-event-topic-modal')
     @event_topic_modal_template = $('#calendar-event-topic-template')
@@ -105,6 +104,7 @@ class window.Calendar extends LiteJot
   handleCalData: =>
     @cal_items = {}
     $.each @cal_loaded_data, (index, cal_item) =>
+      console.log cal_item
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
 
@@ -121,13 +121,10 @@ class window.Calendar extends LiteJot
       html = ""
       
       $.each @cal_items, (key, items) =>
-        date = new Date(items[0].start.dateTime)
-        date_heading = "#{@month_names[date.getMonth()]} #{date.getDate()}"
-
         html += "<article id='cal-items-of-#{key.toLowerCase()}'>"
         html += "<h3>"
         html += "#{key}"
-        html += "<span class='date'>#{date_heading}</span>"
+        html += "<span class='date'>#{items[0].month_day_heading}</span>"
         html += "</h3>"
         html += "<ul>"
 
@@ -197,26 +194,22 @@ class window.Calendar extends LiteJot
     title = cal_item.summary
 
     # Build info
-    info = "<i class='fa fa-clock-o'></i> #{cal_item.notif_time_span}"
+    info = "<i class='fa fa-clock-o'></i> #{cal_item.notification.time_span}"
     if cal_item.location
       info += "<br /><i class='fa fa-map-marker' /> #{cal_item.location}"
     if cal_item.attendees_text.length > 0
       info += "<br /><i class='fa fa-group'></i> with #{cal_item.attendees_text}"
 
-    # Schedule notification
-    current_unix = new Date().valueOf()
-    time_until = parseInt(cal_item.start.dateTime_unix)*1000 - current_unix - @event_reminder_minutes*60000
-    hide_at = parseInt(cal_item.end.dateTime_unix)*1000 - current_unix
-
-    if parseInt(cal_item.end.dateTime_unix)*1000 > current_unix
-      if parseInt(cal_item.start.dateTime_unix)*1000 - @event_reminder_minutes*60000 > current_unix
+    # If hide-time hasn't already happened and finished
+    if parseInt(cal_item.notification.time_until_hide) > 0
+      if parseInt(cal_item.notification.time_until_display) > 0
         # if it's more than @event_reminder_minutes away, then set timer for notification show time
         @cal_notifications.push(setTimeout(() =>
-          new Notification @lj, cal_item.id, title, info, hide_at, @cal_notifications_posted
-        , time_until))
+          new Notification @lj, cal_item.id, title, info, cal_item.notification.time_until_hide, @cal_notifications_posted
+        , cal_item.notification.time_until_display))
       else
         # if notification would've shown by now, show it now.
-        new Notification @lj, cal_item.id, title, info, hide_at, @cal_notifications_posted
+        new Notification @lj, cal_item.id, title, info, cal_item.notification.time_until_hide, @cal_notifications_posted
 
   resetNotificationTimers: =>
     $.each @cal_notifications, (key, timer) =>
