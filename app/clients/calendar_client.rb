@@ -118,15 +118,27 @@ class CalendarClient
 
             # notif_time_span is used in event notifications
             # In future, move some of this into a locale.
-            notif_time_span = "unset"
+            notif_time_span_start = "unset"
+            notif_time_span_end = "unset"
+
+            if start_time.today?
+              notif_time_span_start = start_time.strftime("%l:%M%P")
+            else
+              notif_time_span_start = start_time.strftime("%b, %d @ %l:%M%P")
+            end
+
+            if end_time.today?
+              notif_time_span_end = end_time.strftime("%l:%M%P")
+            elsif end_time.to_date == Date.tomorrow
+              notif_time_span_end = end_time.strftime("Tomorrow @ %l:%M%P")
+            else
+              notif_time_span_end = end_time.strftime("%b, %d @ %l:%M%P")
+            end
+
             if end_time.to_i - start_time.to_i == 60*60*24
               notif_time_span = "All day"
-            elsif end_time.today?
-              notif_time_span = "#{start_time.strftime("%l:%M%P")} - #{end_time.to_time.strftime("%l:%M%P")}"
-            elsif end_time.to_date == Date.tomorrow
-              notif_time_span = "#{start_time.strftime("%l:%M%P")} - Tomorrow @ #{end_time.to_time.strftime("%l:%M%P")}"
             else
-              notif_time_span = "#{start_time.strftime("%l:%M%P")} - #{end_time.to_time.strftime("%b, %d @ %l:%M%P")}"
+              notif_time_span = "#{notif_time_span_start} - #{notif_time_span_end}"
             end
 
             event = {

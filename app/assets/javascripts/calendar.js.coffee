@@ -105,7 +105,6 @@ class window.Calendar extends LiteJot
   handleCalData: =>
     @cal_items = {}
     $.each @cal_loaded_data, (index, cal_item) =>
-      console.log cal_item
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
 
