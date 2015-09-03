@@ -5,8 +5,11 @@ class PagesController < ApplicationController
     @user_sign_in = User.new
   end
 
-  def panel
+  def dashboard
     @user = current_user
+    if params[:send_email] == "true"
+      UserNotifier.send_signup_email(@user).deliver
+    end
   end
 
   def terms

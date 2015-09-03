@@ -10,8 +10,10 @@ class ApplicationController < ActionController::Base
     # Check if timezone was passed through
     # If so, update it on current_user
     if !params[:timezone].nil? && !params[:timezone].blank?
-      current_user.timezone = params[:timezone]
-      current_user.save!
+      if current_user
+        current_user.timezone = params[:timezone]
+        current_user.save!
+      end
     end
 
     folders = current_user.owned_and_shared_folders

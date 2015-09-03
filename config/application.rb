@@ -26,5 +26,19 @@ module LiteJot
 
     # Errors
     config.exceptions_app = self.routes
+
+    config.serve_static_assets = true
+
+    # Email
+    ActionMailer::Base.smtp_settings = {
+      :address => Rails.application.secrets.smtp['address'],
+      :port => Rails.application.secrets.smtp['port'],
+      :user_name => Rails.application.secrets.smtp['user_name'],
+      :password => Rails.application.secrets.smtp['password'],
+      :domain => Rails.application.secrets.smtp['domain'],
+      :authentication => Rails.application.secrets.smtp['authentication'],
+      :enable_starttls_auto => Rails.application.secrets.smtp['enable_starttls_auto']
+    }
+    
   end
 end
