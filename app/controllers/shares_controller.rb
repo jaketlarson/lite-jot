@@ -13,22 +13,21 @@ class SharesController < ApplicationController
     if share.recipient_email != current_user.email
       if ownership_check.count > 0
         recip_user = User.where('email = ?', share.recipient_email).first
-        if !recip_user
-          render :json => {:success => false, :error => "No user exists for that email address."}, :status => :bad_request
-        else
-          dup_check = current_user.shares.where('recipient_id = ? AND folder_id = ?', recip_user.id, share.folder_id)
+        dup_check = current_user.shares.where('recipient_email = ? AND folder_id = ?', share.recipient_email, share.folder_id)
           
-          if dup_check.count > 0
-            render :json => {:success => false, :error => "You are already sharing this folder with #{share.recipient_email}."}, :status => :bad_request
-          else
+        if dup_check.count > 0
+          render :json => {:success => false, :error => "You are already sharing this folder with #{share.recipient_email}."}, :status => :bad_request
+        else
+          if recip_user
             share.recipient_id = recip_user.id
-            share.owner_id = current_user.id
+          end
 
-            if share.save
-              render :json => {:success => true, :share => ShareSerializer.new(share, :root => false)}
-            else
-              render :json => {:success => false, :error => "There was an error while sharing. Please contact us if this issue persists."}, :status => :bad_request
-            end
+          share.owner_id = current_user.id
+
+          if share.save
+            render :json => {:success => true, :share => ShareSerializer.new(share, :root => false)}
+          else
+            render :json => {:success => false, :error => "There was an error while sharing. Please contact us if this issue persists."}, :status => :bad_request
           end
         end
       else

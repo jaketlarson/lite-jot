@@ -12,13 +12,20 @@ class ShareSerializer < ActiveModel::Serializer
   )
 
   def recipient_email
-    user = User.where('id = ?', object.recipient_id).first
-    user.email
+    object.recipient_email
   end
 
   def recipient_display_name
-    user = User.where('id = ?', object.recipient_id).first
-    user.display_name
+    if object.recipient_id
+      user = User.where('id = ?', object.recipient_id).first
+      if user
+        user.display_name
+      else
+        ""
+      end
+    else
+      ""
+    end
   end
 
   def permissions_preview

@@ -86,25 +86,30 @@ class window.ShareSettings extends LiteJot
     list_elem.find('.delete-link').click =>
       @unshare share.id
 
-    $.each @lj.app.topics.filter((topic) => topic.folder_id == share.folder_id), (topic_index, topic) =>
-      new_row = $(@share_topic_row_template.html())
-      new_row.attr("data-share-topic", "#{share.id}-#{topic.id}")
-             .attr("title", "#{topic.title}")
-      new_row.find('.topic-check').attr("data-checked", "#{if $.inArray(String(topic.id), share.specific_topics) >= 0 then 'true' else 'false'}")
-              .attr("id", "share-check-#{share.id}-#{topic.id}")
-      new_row.find('span.topic-title').html(topic.title)
+    topics = @lj.app.topics.filter((topic) => topic.folder_id == share.folder_id)
+    if topics.length == 0
+      list_elem.find('.topics-empty-message').show()
 
-      list_elem.find('ul.topics').append new_row
+    else
+      $.each @lj.app.topics.filter((topic) => topic.folder_id == share.folder_id), (topic_index, topic) =>
+        new_row = $(@share_topic_row_template.html())
+        new_row.attr("data-share-topic", "#{share.id}-#{topic.id}")
+               .attr("title", "#{topic.title}")
+        new_row.find('.topic-check').attr("data-checked", "#{if $.inArray(String(topic.id), share.specific_topics) >= 0 then 'true' else 'false'}")
+                .attr("id", "share-check-#{share.id}-#{topic.id}")
+        new_row.find('span.topic-title').html(topic.title)
 
-      topic_elem = $("li[data-share-topic='#{share.id}-#{topic.id}']")
-      topic_elem.click (e) =>
-        check_elem = $(e.currentTarget).find('.topic-check')
-        if check_elem.attr('data-checked') == 'true'
-          check_elem.attr('data-checked', 'false')
-          @removeTopicFromShareList share.id, topic.id
-        else
-          check_elem.attr('data-checked', 'true')
-          @addTopicToShareList share.id, topic.id
+        list_elem.find('ul.topics').append new_row
+
+        topic_elem = $("li[data-share-topic='#{share.id}-#{topic.id}']")
+        topic_elem.click (e) =>
+          check_elem = $(e.currentTarget).find('.topic-check')
+          if check_elem.attr('data-checked') == 'true'
+            check_elem.attr('data-checked', 'false')
+            @removeTopicFromShareList share.id, topic.id
+          else
+            check_elem.attr('data-checked', 'true')
+            @addTopicToShareList share.id, topic.id
 
 
     list_elem.find('h4').click (e) =>

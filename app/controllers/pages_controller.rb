@@ -7,9 +7,6 @@ class PagesController < ApplicationController
 
   def dashboard
     @user = current_user
-    if params[:send_email] == "true"
-      UserNotifier.send_signup_email(@user).deliver
-    end
   end
 
   def terms

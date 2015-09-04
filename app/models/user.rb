@@ -22,10 +22,16 @@ class User < ActiveRecord::Base
 
   serialize :notifications_seen
 
+  after_create :send_signup_email
+
   attr_accessor :current_password
 
   def freeze_email
     errors.add(:email, 'cannot be changed') if self.email_changed?
+  end
+
+  def send_signup_email
+    UserNotifier.send_signup_email(self).deliver
   end
 
   def self.find_for_google_oauth2(access_token)
