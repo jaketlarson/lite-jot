@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
 
   serialize :notifications_seen
 
-  after_create :send_signup_email
+  after_create :send_signup_email, :update_associated_shares
 
   attr_accessor :current_password
 
@@ -32,6 +32,18 @@ class User < ActiveRecord::Base
 
   def send_signup_email
     UserNotifier.send_signup_email(self).deliver
+  end
+
+  def update_associated_shares
+    # This method sets the new user's id in any shares that were sent
+    # to their email before they registered.
+    shares = Share.where('recipient_email = ?', self.email)
+    if !shares.empty?
+      shares.each do |share|
+        share.recipient_id = self.id
+        share.save
+      end
+    end
   end
 
   def self.find_for_google_oauth2(access_token)
