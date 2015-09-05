@@ -1,4 +1,4 @@
-nav.top-bar data-topbar='true' role='navigation' data-magellan-expedition='fixed'
+nav.top-bar data-topbar='true' role='navigation'
   ul.title-area
     li.name
       == link_to "/" do
@@ -35,6 +35,11 @@ nav.top-bar data-topbar='true' role='navigation' data-magellan-expedition='fixed
             i.fa.fa-lg.fa-keyboard-o
 
         - if current_user.auth_provider == 'google_oauth2'
+          li.divider
+          li.show-for-medium-up
+            a#email-tagger-modal-link title='Email Tagger'
+              i.fa.fa-lg.fa-envelope
+
           li.divider
           li.show-for-medium-up
             a#calendar-link title='My Calendar'

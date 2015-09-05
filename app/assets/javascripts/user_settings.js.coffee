@@ -100,3 +100,6 @@ class window.UserSettings extends LiteJot
     @form.find('#user_current_password').val ''
     @form.find('#user_password').val ''
     @form.find('#user_password_confirmation').val ''
+
+  sawIntro: =>
+    $.get("/user/saw-intro")

@@ -5,7 +5,8 @@ class UserSerializer < ActiveModel::Serializer
     :email,
     :errors,
     :notifications_seen,
-    :receives_email
+    :receives_email,
+    :saw_intro
   )
   
   def errors

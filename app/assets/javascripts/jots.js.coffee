@@ -384,13 +384,12 @@ class window.Jots extends LiteJot
   checkScrollPosition: =>
     if @jots_wrapper.scrollTop() == 0
       @jots_heading.removeClass('is-scrolled-from-top')
-
-    if @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
-      if @load_on_scroll
-        @loadMoreJots()
-
     else
       @jots_heading.addClass('is-scrolled-from-top')
+
+    close_to_top = @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
+    if close_to_top && @load_on_scroll && @lj.search.current_terms.length == 0
+      @loadMoreJots()
 
     if @isScrolledToBottom()
       @new_jot_wrap.removeClass('is-scrolled-from-bottom')
@@ -661,7 +660,6 @@ class window.Jots extends LiteJot
                   <input type='text' class='input-edit' />
                 </div>"
 
-    console.log "this elems class is: "+ elem.attr('class')
     elem.append to_insert
     elem.find("input[type='checkbox']").prop('disabled', false)
     @setTimestamp jot

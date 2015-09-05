@@ -35,6 +35,7 @@ $ ->
     }
     $(document).foundation()
   else
+    $('nav').attr('data-magellan-expedition', 'fixed')
     $(document).foundation(
       "magellan-expedition": {
         destination_threshold: 250
@@ -159,13 +160,17 @@ class window.LiteJot
 
   initTips: =>
     $('button.new-folder-button, button.new-topic-button').cooltip {direction: 'bottom'}
-    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
+    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link, #email-tagger-modal-link').cooltip {
       direction: 'bottom'
       align: 'left'
     }
 
   initCalendar: =>
     @calendar = new Calendar(@)
+
+  initEmailTagger: =>
+    @email_tagger = new EmailTagger(@)
+    console.log 'go'
 
   initPushUI: =>
     @pushUI = new PushUI(@)
@@ -215,3 +220,8 @@ class window.LiteJot
           console.log 'no, sorry.'
 
       )
+
+  checkIfIntroduction: =>
+    if !@app.user.saw_intro
+      $(document).foundation 'joyride', 'start'
+      @user_settings.sawIntro()

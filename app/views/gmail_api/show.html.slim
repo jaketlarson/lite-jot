@@ -1,0 +1,20 @@
+- @gmail_thread['messages'].each do |message, key|
+  = "start"
+  /= message['payload']['parts'][0]['body']['data']
+
+  - body = message['payload']['body']['data']
+
+  - if !body
+    - body = message['payload']['parts'][0]['body']['data']
+    javascript:
+      var transform;
+
+      transform = atob("#{body}".replace(/-/g, '+').replace(/_/g, '/'))
+      document.write("<br><br>" + transform.replace(/(?:\r\n|\r|\n)/g, '<br />'));
+
+  - else
+    javascript:
+      var transform;
+
+      transform = atob("#{body}".replace(/-/g, '+').replace(/_/g, '/'))
+      document.write("<br><br>" + transform);

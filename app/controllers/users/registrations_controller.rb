@@ -61,6 +61,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
+  def saw_intro
+    current_user.intro_seen
+    render :nothing => true
+  end
+
   protected
 
   def update_resource_with_password(resource, params)

@@ -10,7 +10,14 @@ Rails.application.routes.draw do
     :sessions => 'users/sessions',
     :registrations => 'users/registrations',
     :omniauth_callbacks => "users/omniauth_callbacks"
+  }, :path_names => {
+    :sign_up => 'pages#welcome',
+    :sign_in => 'pages#welcome'
   }
+
+  devise_scope :user do
+    get '/user/saw-intro' => 'users/registrations#saw_intro'
+  end
 
   authenticated :user do
     root :to => "pages#dashboard", :as => "authenticated_root"
@@ -40,6 +47,8 @@ Rails.application.routes.draw do
   post 'notifications/acknowledge' => 'notifications#acknowledge'
   resources :notifications
 
+  resources :gmail_api
+
   get '/load-data' => 'application#load_data'
   get '/connection-test' => 'application#connection_test'
   post '/transfer-data' => 'application#transfer_data'
@@ -51,9 +60,6 @@ Rails.application.routes.draw do
   match '/404', :to => 'errors#file_not_found', :via => :all
   match '/422', :to => 'errors#unprocessable', :via => :all
   match '/500', :to => 'errors#internal_server_error', :via => :all
-
-  match '/users/sign_in', :to => 'pages#welcome', :via => :all
-  match '/users/sign_up', :to => 'pages#welcome', :via => :all
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

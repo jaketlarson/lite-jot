@@ -46,6 +46,11 @@ class User < ActiveRecord::Base
     end
   end
 
+  def intro_seen
+    self.saw_intro = true
+    self.save
+  end
+
   def self.find_for_google_oauth2(access_token)
     data = access_token.info
     user = User.where(:email => data['email']).first

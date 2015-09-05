@@ -58,3 +58,6 @@
     #edit-notice
       | Edit Jot
       i.fa.fa-hand-o-right
+
+  - if !current_user.saw_intro
+    = render :partial => 'joyride_introduction'

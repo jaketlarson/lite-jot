@@ -63,7 +63,9 @@ class window.Connection extends LiteJot
           @lj.app.user = data.user
           @lj.buildUI()
           @lj.initCalendar()
+          @lj.initEmailTagger()
           @lj.initPushUI()
+          @lj.checkIfIntroduction()
           @lj.init_data_loaded = true
         else
           @lj.temp.folders = data.folders

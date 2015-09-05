@@ -1,5 +1,13 @@
 #= require litejot
 
+# Note: keydown is much more responsive-feeling than keyup, but it doesn't
+# always fit the situation. There are cases such as keying from the new-jot
+# form to the jots wrapper, where the keydown arrow-up event will flood
+# into the next focused element scroll the arrow up.
+# The workaround is to use keyup in situations that this happens. It also
+# happened on the search bar, when keying down to the first jot. This
+# fix had to be implemented there, too.
+
 class window.KeyControls extends LiteJot
   constructor: (@lj) ->
     @initVars()
@@ -103,12 +111,15 @@ class window.KeyControls extends LiteJot
 
   initKeyBinds: =>
     # New Jot, standard content type
-    @lj.jots.new_jot_content.keydown (e) =>
+    # Workaround: Use keyup (vs keydown) to avoid up-arrow-pressing flooding
+    # into jots wrapper and moving the scrollbar.
+    @lj.jots.new_jot_content.keyup (e) =>
       jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
       if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToLastJot()
 
+    @lj.jots.new_jot_content.keydown (e) =>
       if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
@@ -120,12 +131,15 @@ class window.KeyControls extends LiteJot
         @keyToNewJotsTabs()
 
     # New Jot, heading type
-    @lj.jots.new_jot_heading.keydown (e) =>
+    # Workaround: Use keyup (vs keydown) to avoid up-arrow-pressing flooding
+    # into jots wrapper and moving the scrollbar.
+    @lj.jots.new_jot_heading.keyup (e) =>
       jots_count = @lj.app.jots.filter((jot) => jot.topic_id == @lj.app.current_topic).length
       if e.keyCode == @key_codes.up && $(e.currentTarget).val().trim().length == 0 && jots_count > 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToLastJot()
 
+    @lj.jots.new_jot_heading.keydown (e) =>
       if e.keyCode == @key_codes.left && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
@@ -135,8 +149,6 @@ class window.KeyControls extends LiteJot
 
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
         @keyToNewJotsTabs()
-
-
 
 
     @lj.jots.jots_wrapper.keydown (e) =>
@@ -215,7 +227,17 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.folders
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.folders).call()
 
-    @lj.search.search_input.keydown (e) =>
+    # Using key up here to avoid arrow keys flooding into
+    # different secitons. E.g., keying down to jots wrapper
+    # and then the jots wrapper scrolling from arrow pressing down.
+    # Could not find another fix to this.
+    # The event only needs to be applied to the key-to-first-jot
+    # directive, but it's cleaner to just catch all events by keyup,
+    # and the responsiveness isn't much of a concern as it's a low-
+    # traffic area.. and plus, it can take a second to realize the focus
+    # from one side of the page to another (like from search to new
+    # jot form).
+    @lj.search.search_input.keyup (e) =>
       if @isValidControl e.keyCode, @key_nav.search_jots
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.search_jots).call()
 
