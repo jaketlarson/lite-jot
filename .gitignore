@@ -41,8 +41,6 @@ build/
 /log/*.log
 /tmp
 
-public/assets
-
 *DS_Store
 
 config/secrets.yml

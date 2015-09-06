@@ -107,6 +107,19 @@ class JotsController < ApplicationController
       jot.folder_id = folder_id
       jot.topic_id = topic_id
 
+      # MOVE INTO SEPARATE MODEL METHOD
+      # If checklist, append random IDs.
+      if jot.jot_type == 'checklist'
+        checklist = JSON.parse(jot.content)
+        checklist.each do |item|
+          # Using a random ID generator for now..
+          # Move this into a separate method. Same for #update (same line)
+          rid = 16.times.map { [*'0'..'9', *'a'..'z', *'A'..'Z'].sample }.join
+          item['id'] = rid
+        end
+        jot.content = checklist.to_json
+      end
+
       if jot.save
         if new_topic && new_folder
           ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
@@ -167,6 +180,7 @@ class JotsController < ApplicationController
   end
 
   def update
+    params = jot_params
     jot = Jot.find(params[:id])
 
     topic = Topic.find(jot.topic_id)
@@ -183,7 +197,44 @@ class JotsController < ApplicationController
     end
 
     if can_modify
-      if jot.update(jot_params)
+
+      # Checklists need special attention as items have IDs
+      # We don't want to override an entire jot checklist's meta (such as the
+      # toggled-by information)
+      if jot.jot_type == 'checklist'
+        old_version = JSON.parse(jot['content'])
+        new_version = JSON.parse(params['content'])
+        new_version.each do |new_item|
+          ap 'checking: '
+          ap new_item
+          # This item is new! Let's give it an ID
+          if new_item['id'].length == 0
+            ap new_item['value'] +" is new!"
+            new_item['id'] = 16.times.map { [*'0'..'9', *'a'..'z', *'A'..'Z'].sample }.join
+            ap "new id: "+ new_item['id']
+          else
+            get_old = old_version.select {|old_item| old_item['id'] == new_item['id'] }[0]
+            # Carry over or update checkbox-toggled info
+            if new_item['checked'] != get_old['checked']
+              new_item['toggled_by'] = current_user.id
+              new_item['toggled_at'] = DateTime.now
+            else
+              new_item['toggled_by'] = get_old['toggled_by']
+              new_item['toggled_at'] = get_old['toggled_at']
+            end
+            # if get_old['value'] == new_item['value']
+            #   ap "So, we're not updating "+ new_item['value']
+            # else
+            #   ap 'updating '+ new_item['value']
+            #   new_item['value'] = get_old['value']
+            # end
+          end
+
+        end
+       params['content'] = new_version.to_json
+      end
+
+      if jot.update(params)
         if topic
           topic.touch
         end
@@ -253,10 +304,15 @@ class JotsController < ApplicationController
 
     if can_check
       checklist = JSON.parse(jot.content)
-      checklist[params[:checkbox_index].to_i]['checked'] = !checklist[params[:checkbox_index].to_i]['checked']
-      checklist[params[:checkbox_index].to_i]['toggled_by'] = current_user.id
-      checklist[params[:checkbox_index].to_i]['toggled_at'] = DateTime.now
+      item = checklist.find {|item| item['id'] == jot_params['checklist_item_id'] }
+      item['checked'] = !item['checked']
+      item['toggled_by'] = current_user.id
+      item['toggled_at'] = DateTime.now
+      ap item['toggled_at']
+      ap item
       jot.content = checklist.to_json
+
+      ap checklist
 
       if jot.save
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
@@ -299,6 +355,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :checkbox_index, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key])
+      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :checklist_item_id, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key])
     end
 end

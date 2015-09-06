@@ -291,7 +291,7 @@ class window.Jots extends LiteJot
     if @new_jot_current_tab == 'checklist'
       @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').focus()
 
-  # addNewCheckListItem / initChecklistItemBinds binding
+  # addNewCheckListItem / initCheckListItemBinds binding
   # that would normally be done in key_controls.js, but
   # since they are created in JS the binds were just added here.
   addNewCheckListItem: =>
@@ -444,11 +444,14 @@ class window.Jots extends LiteJot
   serializeNewJotCheckList: =>
     items = []
     $.each @new_jot_checklist_tab.find('li:not(.template)'), (index, item) =>
+      # id will only be set if editing.
+      id = $(item).find('input.checklist-item-id').val()
       is_checked = $(item).find("input[type='checkbox'].checklist-checkbox").is(':checked')
       value = $(item).find('input.checklist-value').val()
 
       if value.trim().length > 0
         item_hash =
+          id: id
           checked: is_checked
           value: value
         items.push item_hash
@@ -460,7 +463,7 @@ class window.Jots extends LiteJot
     html = "<ul class='checklist-jot'>"
     $.each items, (index, item) =>
       toggled_text = if item.toggled_text then item.toggled_text else "Click to toggle checkbox."
-      html += "<li class='checklist-item' title='#{toggled_text}'>"
+      html += "<li class='checklist-item' data-checklist-item-id='#{item.id}' title='#{toggled_text}'>"
       html += "<div class='checkbox-wrap'><input type='checkbox'#{if item.checked then " checked" else ""}#{if disabled then " disabled" else ""}></div>"
       html += "#{item.value}"
       html += "</li>"
@@ -492,7 +495,8 @@ class window.Jots extends LiteJot
 
     return items
 
-
+  # populateCheckList is used for editing and re-populating checklist
+  # upon a submit-new-jot error.
   populateCheckList: (content) =>
     items = JSON.parse(content)
     template = @new_jot_checklist_tab.find('li.template')
@@ -506,6 +510,9 @@ class window.Jots extends LiteJot
       elem = $("li##{id}")
       elem.find('input.checklist-checkbox').prop('checked', item.checked)
       elem.find('input.checklist-value').val(item.value).attr('data-blank', false)
+      if item.id
+        console.log item.id
+        elem.find('input.checklist-item-id').val(item.id).attr('data-blank', false)
 
       @initCheckListItemBinds elem
 
@@ -560,6 +567,7 @@ class window.Jots extends LiteJot
           url: "/jots/"
           data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}&jot_type=#{jot_type}&break_from_top=#{@new_jot_break_value}"
           success: (data) =>
+            console.log 'success'
             @lj.connection.startDataLoadTimer()
             @lj.app.jots.push data.jot
             @integrateTempJot data.jot, key
@@ -584,6 +592,7 @@ class window.Jots extends LiteJot
             @checkIfJotsEmpty()
 
           error: (data) =>
+            console.log 'error'
             @lj.connection.startDataLoadTimer()
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
               new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -818,17 +827,18 @@ class window.Jots extends LiteJot
   handleCheckboxEvent: (e, elem, jot_id) =>
     # toggle checkbox
     parent_ul = elem.closest('ul')
-    index = parent_ul.find("li.checklist-item").index elem
+    id = elem.attr 'data-checklist-item-id'
     jot_object = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
     content = JSON.parse(jot_object.content)
-    content[index].checked = !content[index].checked
+    item = content.filter((item) => item.id == id)[0]
+    item.checked = !item.checked
     jot_object.content = JSON.stringify content
 
-    @toggleCheckJotItem jot_object, e, index
+    @toggleCheckJotItem jot_object, e, id
 
     return false
 
-  toggleCheckJotItem: (jot, event, checkbox_index) =>
+  toggleCheckJotItem: (jot, event, checklist_item_id) =>
     if @lj.emergency_mode.active
       event.preventDefault()
       @lj.emergency_mode.feature_unavailable_notice()
@@ -840,13 +850,15 @@ class window.Jots extends LiteJot
     $.ajax(
       type: 'PATCH'
       url: "/jots/check_box/#{jot.id}"
-      data: "content=#{jot.content}&checkbox_index=#{checkbox_index}"
+      data: "content=#{jot.content}&checklist_item_id=#{checklist_item_id}"
 
       success: (data) =>
         @lj.connection.startDataLoadTimer()
 
         # all actions carried out on correct assumption that action would pass
-        checkbox.closest('li').attr 'title', JSON.parse(data.jot.content)[checkbox_index].toggled_text
+        updated_item = JSON.parse(data.jot.content).filter((item) => item.id == checklist_item_id)[0]
+        toggled_text = updated_item.toggled_text
+        checkbox.closest('li').attr 'title', toggled_text
         .cooltip('update')
       error: (data) =>
         @lj.connection.startDataLoadTimer()
@@ -958,6 +970,7 @@ class window.Jots extends LiteJot
       raw_content = window.unescapeHtml(jot_object.content)
 
       updated_content = window.escapeHtml @getJotContent()
+      console.log updated_content
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       @edit_overlay.hide()
@@ -980,6 +993,8 @@ class window.Jots extends LiteJot
         jot_object.jot_type = @new_jot_current_tab
         if jot_object.jot_type == 'checklist'
           content_elem.html Autolinker.link(@parseCheckListToHTML(updated_content))
+          $.each elem.find('li'), (key, item_elem) =>
+            @initJotElemChecklistBind id
         else
           content_elem.html Autolinker.link(updated_content.replace(/\n/g, '<br />'))
 
@@ -1005,7 +1020,7 @@ class window.Jots extends LiteJot
             jot_object.created_at_long = data.jot.created_at_long
             jot_object.created_at_short = data.jot.created_at_short
             jot_object.updated_at = data.jot.updated_at
-            @setTimestamp jot_object
+            @updateJotElem jot_object
 
             new HoverNotice(@lj, 'Jot updated.', 'success')
 

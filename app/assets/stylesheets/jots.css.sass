@@ -162,6 +162,13 @@
               input[type='checkbox']
                 margin: .25rem
 
+            &:hover
+              color: $primary-color
+
+              .checkbox-wrap
+                background-color: $primary-color
+
+
       &.jot-item
         border: 1px solid transparent
 
@@ -272,9 +279,12 @@
         .timestamp, .content, i
           color: $palette-white
 
-        li.checklist-item:hover
-          .checkbox-wrap
-            background-color: $palette-white
+        ul
+          li.checklist-item:hover
+            color: $palette-white
+            
+            .checkbox-wrap
+              background-color: $palette-white
 
       &[data-deleted='true']
         margin-left: -200px

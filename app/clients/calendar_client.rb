@@ -52,7 +52,7 @@ class CalendarClient
             start_year = start_segments[0].to_i
             start_month = start_segments[1].to_i
             start_day = start_segments[2].to_i
-            start_time = (DateTime.new(start_year, start_month, start_day).to_time - timezone_utc_offset).to_datetime
+            start_time = (DateTime.new(start_year, start_month, start_day).to_time - timezone_utc_offset).to_datetime.in_time_zone(user.timezone)
           else
             start_time = item.start.dateTime.in_time_zone(user.timezone)
           end
@@ -62,7 +62,7 @@ class CalendarClient
             end_year = end_segments[0].to_i
             end_month = end_segments[1].to_i
             end_day = end_segments[2].to_i
-            end_time = (DateTime.new(end_year, end_month, end_day).to_time - timezone_utc_offset).to_datetime
+            end_time = (DateTime.new(end_year, end_month, end_day).to_time - timezone_utc_offset).to_datetime.in_time_zone(user.timezone)
           else
             end_time = item.end.dateTime.in_time_zone(user.timezone)
           end
@@ -72,6 +72,8 @@ class CalendarClient
           if (start_time >= min_start_time && start_time < max_start_time) || (start_time < min_start_time && end_time >= min_start_time)
             start_time_unix = start_time.to_i
             end_time_unix = end_time.to_i
+
+            ap start_time
 
             if start_time.today?
               day = 'Today'

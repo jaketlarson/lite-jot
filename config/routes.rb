@@ -1,23 +1,15 @@
 Rails.application.routes.draw do
 
-  get 'errors/file_not_found'
-
-  get 'errors/unprocessable'
-
-  get 'errors/internal_server_error'
-
   devise_for :users, :controllers => {
     :sessions => 'users/sessions',
     :registrations => 'users/registrations',
     :omniauth_callbacks => "users/omniauth_callbacks"
-  }, :path_names => {
-    :sign_up => 'pages#welcome',
-    :sign_in => 'pages#welcome'
   }
 
   devise_scope :user do
     get '/user/saw-intro' => 'users/registrations#saw_intro'
   end
+
 
   authenticated :user do
     root :to => "pages#dashboard", :as => "authenticated_root"
