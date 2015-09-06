@@ -215,10 +215,15 @@ class window.JotRecovery extends LiteJot
       data: { ids: ids }
       success: (data) =>
         @xhr_waiting = false
-        new HoverNotice(@lj, 'Jot(s) restored. Changes will appear momentarily.', 'success')
         @loader.hide()
-        @removeArchivedJotElems ids
+        @removeArchivedJotElems data.ids
         @checkIfEmpty()
+
+        if data.all_jots_restored
+          new HoverNotice(@lj, 'Jot(s) restored. Changes will appear momentarily.', 'success')
+        else
+          new HoverNotice(@lj, 'More than one jot could not be restored: no permission.', 'error')
+
 
       error: (data) =>
         @xhr_waiting = false

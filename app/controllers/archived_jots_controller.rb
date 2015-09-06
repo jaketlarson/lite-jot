@@ -68,31 +68,61 @@ class ArchivedJotsController < ApplicationController
   end
 
   def restore
-    ids = archived_jot_params[:ids]
+    ids_requested = archived_jot_params[:ids]
+    ids_actually_restored = []
 
     # Restore any topics or folders that were also archived
-    ids.each do |id|
+    ids_requested.each do |id|
       jot = Jot.only_deleted.where("id = ?", id)
 
       if !jot.empty?
         jot = jot[0]
-        topic = Topic.only_deleted.where("id = ?", jot.topic_id)
-        folder = Folder.only_deleted.where("id = ?", jot.folder_id)
+        # Check if folder and topic even exist. Also check if shared folder
+        # (vs owned folder)
+        topic_check = Topic.with_deleted.where('id = ?', jot.topic_id)
+        folder_check = Folder.with_deleted.where('id = ?', jot.folder_id)
 
-        if !topic.empty?
-          Topic.restore(topic[0].id)
+        # Check if folder is shared with user
+        if !folder_check.empty? && !topic_check.empty? && folder_check[0].user_id != current_user.id
+          # It is shared with them.. so let's make sure they
+          # still have access to this folder
+          share = Share.where('recipient_id = ? AND folder_id = ?', current_user.id, folder_check[0].id)
+          if share.empty?
+            # They are not shared with this folder any longer..
+            # We can't restore this jot.
+            next
+          end
+        elsif folder_check.empty? || topic_check.empty?
+          # Folder or topic doesn't exist.
+          next
         end
 
-        if !folder.empty?
-          Folder.restore(folder[0].id)
+        # While restoring jot, make sure folder and topic are also active.
+        deleted_topic = Topic.only_deleted.where("id = ?", jot.topic_id)
+        deleted_folder = Folder.only_deleted.where("id = ?", jot.folder_id)
+        if !deleted_topic.empty?
+          Topic.restore(deleted_topic[0].id)
+        end
+        if !deleted_folder.empty?
+          Folder.restore(deleted_folder[0].id)
         end
       end
+
+      # This jot will be restored
+      ids_actually_restored << id
     end
 
-    # Restore all jots in id list.
-    Jot.restore(ids)
+    # Restore jots
+    Jot.restore(ids_actually_restored)
 
-    render :status => 200, :nothing => true
+    if ids_actually_restored.count == ids_requested.count
+      # All the jots requested were successfully deleted.
+      render :status => 200, :json => {:all_restored => true, :ids => ids_actually_restored}
+    else
+      # More than one jot not restored, probably due to no-longer-shared-with
+      # -folder situation.
+      render :status => 207, :json => {:all_restored => false, :ids => ids_actually_restored}
+    end
   end
 
   protected
