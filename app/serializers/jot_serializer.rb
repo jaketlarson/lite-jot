@@ -38,10 +38,9 @@ class JotSerializer < ActiveModel::Serializer
           display_name = scope.display_name
         else
           user = User.where('id = ?', item['toggled_by'])
-          ap user
           display_name = !user.empty? ? user[0].display_name : "Unknown"
         end
-        item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime)}."
+        item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime.in_time_zone(scope.timezone))}."
       end
     end
     return checklist.to_json

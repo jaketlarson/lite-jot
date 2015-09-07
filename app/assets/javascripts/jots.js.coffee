@@ -402,6 +402,10 @@ class window.Jots extends LiteJot
   # Called when scrolling and attempting to shows more jots,
   # if there are any more
   loadMoreJots: (override=false) =>
+    # Don't load more if searching (yet, eventually will be programmed)
+    if @lj.search.current_terms.length > 0
+      return
+
     # override param can be used if we don't want to waste
     # time checking @allJotsLoaded() again, since it can
     # and very possibly was, called by @enoughJotsLoadeD()
@@ -416,6 +420,10 @@ class window.Jots extends LiteJot
   # Called until enough jots are loaded so that the user has
   # a scrollbar.
   enoughJotsLoaded: =>
+    # Don't load more if searching (yet, eventually will be programmed)
+    if @lj.search.current_terms.length > 0
+      return
+
     if !@jots_wrapper.hasScrollBar()
       if !@allJotsLoaded()
         @loadMoreJots true
