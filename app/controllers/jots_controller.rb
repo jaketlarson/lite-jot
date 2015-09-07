@@ -120,6 +120,8 @@ class JotsController < ApplicationController
         jot.content = checklist.to_json
       end
 
+      jot.content = ActionView::Base.full_sanitizer.sanitize(jot.content)
+
       if jot.save
         if new_topic && new_folder
           ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
@@ -234,6 +236,7 @@ class JotsController < ApplicationController
        params['content'] = new_version.to_json
       end
 
+      jot.content = ActionView::Base.full_sanitizer.sanitize(jot.content)
       if jot.update(params)
         if topic
           topic.touch
@@ -349,7 +352,28 @@ class JotsController < ApplicationController
     else
       render :json => {:success => false, :error => "You do not have permission to delete this jot."}, :status => :bad_request
     end
+  end
 
+  def create_email_tag
+    email_id = params[:email_id]
+    subject = ActionView::Base.full_sanitizer.sanitize("#{params[:subject]}")
+    topic_id = params[:topic_id]
+    folder_id = Topic.find(topic_id).folder_id
+
+    jot = current_user.jots.new(
+      :content => subject,
+      :tagged_email_id => email_id,
+      :topic_id => topic_id,
+      :folder_id => folder_id,
+      :jot_type => 'email_tag'
+    )
+
+    if jot.save
+      ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
+      render :json => {:success => true, :jot => ser_jot}
+    else
+      render :json => {:success => false, :error => "Could not tag email."}, :status => :bad_request
+    end
   end
 
   protected

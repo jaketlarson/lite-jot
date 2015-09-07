@@ -1,4 +1,5 @@
-.reveal-modal#email-tagger-modal data-reveal=true tabindex='5'
+.reveal-modal#email-tagger-modal data-reveal=true
+.reveal-modal#email-viewer-modal data-reveal=true data-options="multiple_opened: true;"
 
 .modal-template#email-tagger-modal-template
   h3
@@ -6,47 +7,63 @@
     a.modal-info title="Your emails are pulled from Gmail and displayed below. You can choose an email thread you'd like to keep track of, and tag it in a topic."
       i.fa.fa-info-circle
 
+  h4 
+    |Tagging emails for topic &ldquo;
+    .topic-title
+    |&rdquo;
+
+  p.error
+    |There was an error while retrieving your Gmail information.&nbsp;
+    a.try-again Click here
+    |&nbsp;to try again. If trying again does not work, logging in again may help. Please contact us for further assistance at&nbsp;
+    a href="mailto:litejot@gmail.com" target="_blank" litejot@gmail.com.
+
   .threads-wrapper
-    .loader-wrap
-      .loader Loading...
+    .loader Loading...
+    .load-more Load more
 
     ul.threads-list
-
-    .disclaimer
-      |Note: By tagging an email, you grant us permission to save the snippet text (the short preview of the email). In shared folders, others will <strong>not</strong> see these snippets; they are hidden for privacy. All other information is streamed from Gmail per request. 
 
   .actions
+    .disclaimer
+      |Note: In shared folders, other users <strong>cannot</strong> see email tags; they are hidden for privacy. All other information is streamed from Gmail per request. We do not save email data that you do not submit yourself.
+
     button.secondary.cancel.right Close
-
-.reveal-modal#email-tagger-modal data-reveal=true tabindex='5'
-
-  .threads-wrapper
-
-    ul.threads-list
-
 
 #email-thread-template
   li
-    h4
-      span.snippet
+    h5
+      span.subject
       a.tag title='Tag this email in my notes'
-        i.fa.fa-tag
+        i.fa.fa-tag.tag-icon
+        i.fa.fa-cog.fa-spin.load-icon
+        i.fa.fa-check.tagged-icon
       a.view-thread title='See more of this email thread'
+        i.fa.fa-binoculars
         |read more
-        i.fa.fa-caret-down
 
-#email-thread-viewer-template
+.modal-template#email-viewer-modal-template
   h3
     |Email Thread View (beta)
 
-  .loader-wrap
-    .loader Loading...
+  .loader Loading
 
-  .thread-viewer-wrap
-    iframe.thread-viewer
-
-  .disclaimer
-    |Note: Emails are loaded directly from Gmail. It is possible some information was lost along the way, and may not be what you see on Gmail's view.
+  .thread-view-wrap
+    iframe.thread-view
 
   .actions
-    button.secondary.cancel.right Close
+    .disclaimer
+      |Note: Emails are loaded directly from Gmail. It is possible some information was lost along the way, and may not be what you see on Gmail's view.
+
+    button.close.right Close
+
+#email-tag-overlay-template
+  .email-tag-prompt
+    form
+      .tag-title-wrap
+        label for='tag-title' Tag Title
+        input id='tag-title' class='tag-title' type='text' placeholder='Enter a title for this tag'
+
+      .button-wrap
+        button
+          .submit-text Save

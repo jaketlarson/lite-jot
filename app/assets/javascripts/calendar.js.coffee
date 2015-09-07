@@ -104,7 +104,6 @@ class window.Calendar extends LiteJot
   handleCalData: =>
     @cal_items = {}
     $.each @cal_loaded_data, (index, cal_item) =>
-      console.log cal_item
       if !@cal_items[cal_item.start.day]
         @cal_items[cal_item.start.day] = []
 
@@ -286,8 +285,8 @@ class window.Calendar extends LiteJot
           data: "folder_id=#{folder_id}&title=#{encodeURIComponent(filtered_content)}"
           success: (data) =>
             new HoverNotice @lj, 'Topic created.', 'success'
-            @lj.key_controls.clearKeyedOverData()
             @lj.folders.selectFolder data.topic.folder_id
+            @lj.key_controls.clearKeyedOverData()
             @lj.topics.pushTopicIntoData data.topic
             @lj.topics.hideNewTopicForm()
             @closeEventTopicModal()

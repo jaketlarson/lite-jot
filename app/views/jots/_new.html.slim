@@ -26,7 +26,12 @@
       i.fa.fa-th-list
       |Checklist
 
-    li#break-option.right
+    - if current_user.auth_provider == 'google_oauth2'
+      li#jot-toolbar-email-tag
+        i.fa.fa-lg.fa-envelope
+        |Email Tag
+
+    li#jot-toolbar-break-option.right
       .is-checked
         i.fa.fa-check-square-o
       .not-checked

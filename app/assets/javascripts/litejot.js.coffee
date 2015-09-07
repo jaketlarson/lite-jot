@@ -34,6 +34,7 @@ $ ->
       litejot: new window.LiteJot()
     }
     $(document).foundation()
+
   else
     $('nav').attr('data-magellan-expedition', 'fixed')
     $(document).foundation(
@@ -160,7 +161,7 @@ class window.LiteJot
 
   initTips: =>
     $('button.new-folder-button, button.new-topic-button').cooltip {direction: 'bottom'}
-    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link, #email-tagger-modal-link').cooltip {
+    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
       direction: 'bottom'
       align: 'left'
     }
@@ -181,45 +182,6 @@ class window.LiteJot
     @temp.jots = null
     @temp.shares = null
     @temp.user = null
-
-  dataTransfer: =>
-    overlay = $("<div><div style='position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 2000;background-color: rgba(20, 20, 20, 0.8);'></div>")
-    prompt = $("<div><div style='position: absolute;top: 50;left: calc(50% - 20%);width: 40%;margin: 0 auto;z-index: 2001;padding: 2rem;background-color: white'>
-        <h2 style='margin-top: 0'>Upload data</h2>
-        <textarea id='data-transfer-box' placeholder='Enter JSON data here'></textarea>
-        <input id='data-transfer-password' placeholder='Passcode'>
-        <button id='data-transfer-button'>Upload</button>
-      </div></div>")
-
-    $('body').append overlay.html()
-    $('body').append prompt.html()
-
-    $.ajax(
-      type: 'GET'
-      url: '/raw-data'
-      success: (data) ->
-        $('#data-transfer-box').val(JSON.stringify(data))
-    )
-
-    $('button#data-transfer-button').click ->
-      passcode = $('#data-trasnfer-password').val()
-      transfer_data = JSON.parse($('#data-transfer-box').val())
-      folders = transfer_data.folders
-      topics = transfer_data.topics
-      jots = transfer_data.jots
-      console.log folders
-      console.log topics
-      console.log jots
-      $.ajax(
-        type: 'POST'
-        url: "/transfer-data"
-        data: "passcode=#{passcode}&folders=#{encodeURIComponent(JSON.stringify(folders))}&topics=#{encodeURIComponent(JSON.stringify(topics))}&jots=#{encodeURIComponent(JSON.stringify(jots))}"
-        success: (data) ->
-          console.log 'wow!'
-        error: (data) ->
-          console.log 'no, sorry.'
-
-      )
 
   checkIfIntroduction: =>
     if !@app.user.saw_intro

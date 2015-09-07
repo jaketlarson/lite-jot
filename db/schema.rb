@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150905012021) do
+ActiveRecord::Schema.define(version: 20150907001225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,14 +30,15 @@ ActiveRecord::Schema.define(version: 20150905012021) do
     t.integer  "folder_id"
     t.integer  "topic_id"
     t.integer  "user_id"
-    t.boolean  "is_flagged",     default: false
+    t.boolean  "is_flagged",      default: false
     t.integer  "order"
     t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "break_from_top", default: false
-    t.string   "jot_type",       default: "standard"
+    t.boolean  "break_from_top",  default: false
+    t.string   "jot_type",        default: "standard"
     t.datetime "deleted_at"
+    t.string   "tagged_email_id"
   end
 
   add_index "jots", ["deleted_at"], name: "index_jots_on_deleted_at", using: :btree

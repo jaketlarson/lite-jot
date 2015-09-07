@@ -31,7 +31,37 @@ class GmailClient
                           },
                         :headers => {'Content-Type' => 'application/json'})
 
-    return @gmail_threads.data.threads
+    data = []
+
+    @gmail_threads.data.threads.each do |thread|
+      # Since subjects don't come through, we need to poll the thread (get) for the
+      # subject header. This also gives us the chance to remove Google Hangout
+      # chat transcripts by ignoring threads with messages that lack subjects.
+      get_thread = @client.execute(:api_method => @gmail.users.threads.get,
+                        :parameters => {
+                          'userId' => user.email,
+                          'id' => thread.id,
+                          'fields' => 'messages/payload'
+                          },
+                        :headers => {'Content-Type' => 'application/json'})
+
+      thread_data = get_thread.data
+      headers = thread_data['messages'][0]['payload']['headers']
+      find_subject = headers.detect {|header| header['name'] == 'Subject'}
+      if !find_subject
+        next
+      end
+      subject = find_subject['value']
+
+      data << {
+        :id => thread.id,
+        :subject => subject
+      }
+      ap data
+
+    end
+
+    return { :threads => data, :nextPageToken => @gmail_threads.data.nextPageToken }
   end
 
   def fetch_thread(user, thread_id)
@@ -44,14 +74,67 @@ class GmailClient
     @gmail_thread = @client.execute(:api_method => @gmail.users.threads.get,
                         :parameters => {
                           'userId' => user.email,
-                          'id' => thread_id
+                          'id' => thread_id,
+                          'fields' => 'messages/payload'
                           },
                         :headers => {'Content-Type' => 'application/json'})
 
-    ap @gmail_thread
+    data = []
+    @gmail_thread.data.messages.each do |message|
+      headers = message['payload']['headers']
+      from = headers.detect {|header| header['name'] == 'From'}
+      to = headers.detect {|header| header['name'] == 'To'}
+      subject = headers.detect {|header| header['name'] == 'Subject'}
+      date = headers.detect {|header| header['name'] == 'Date'}
 
+      body = message['payload']['body']
+      ap body
+      has_parts = false
+      if !body || !body['data']
+        ap 'here is the problem'
+        body = message['payload']['parts'][message['payload']['parts'].length-1]['body']
+        ap body
+        has_parts = true
+      end
 
-    return @gmail_thread.data.to_json
+      # Check again, sometimes the array gets a little ridiculous
+      # This has proven to get calendar even updates.
+      if (!body || !body['data']) && message['payload']['parts'][0]['parts']
+        body = message['payload']['parts'][0]['parts'][1]['body']
+      end
+
+      if body['data']
+        body['data'].gsub!("\n\r", "_breakhere_")
+        body['data'].gsub!("\n", "_breakhere_")
+        body['data'].gsub!("\r", "_breakhere_")
+        # Sometimes multple breaklines should just be one breakilne
+        body['data'].gsub!("_breakhere__breakline_", "_breakhere_")
+      end
+
+      ap to['value']
+      if to['value']
+        to['value'].gsub!("<", "&lt;")
+        to['value'].gsub!(">", "&gt;")
+      end
+
+      if from['value']
+        from['value'].to_s.gsub!("<", "&lt;")
+        from['value'].to_s.gsub!(">", "&gt;")
+      end
+
+      data << {
+        :from => from['value'],
+        :to => to['value'],
+        :subject => subject['value'],
+        :date => date['value'],
+        :body => body,
+        :has_parts => has_parts
+      }
+    end
+
+    ap data
+
+    return data.to_json
   end
 
   private

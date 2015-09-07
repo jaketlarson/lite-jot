@@ -222,7 +222,7 @@ class window.JotRecovery extends LiteJot
         if data.all_jots_restored
           new HoverNotice(@lj, 'Jot(s) restored. Changes will appear momentarily.', 'success')
         else
-          new HoverNotice(@lj, 'More than one jot could not be restored: no permission.', 'error')
+          new HoverNotice(@lj, 'One or more jots could not be restored: no permission.', 'error')
 
 
       error: (data) =>

@@ -15,7 +15,8 @@ class JotSerializer < ActiveModel::Serializer
     :temp_key,
     :author_display_name,
     :deleted_at,
-    :deleted_at_unix
+    :deleted_at_unix,
+    :tagged_email_id
   )
 
   delegate :current_user, to: :scope

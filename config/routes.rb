@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
   patch 'jots/flag/:id' => 'jots#flag'
   patch 'jots/check_box/:id' => 'jots#check_box'
+  post 'jots/create_email_tag' => 'jots#create_email_tag'
   resources :jots
 
   post 'archived_jots/restore' => 'archived_jots#restore'

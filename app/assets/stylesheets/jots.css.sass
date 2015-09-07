@@ -142,6 +142,7 @@
         line-height: 1.5rem
         -webkit-user-select: none
         user-select: none
+        cursor: pointer
 
         .flag-icon
           display: none
@@ -168,6 +169,11 @@
               .checkbox-wrap
                 background-color: $primary-color
 
+        i.fa
+          margin-right: .5rem
+
+          &.email-tag-icon
+            cursor: pointer
 
       &.jot-item
         border: 1px solid transparent
@@ -178,6 +184,9 @@
 
         i.edit, i.delete
           display: block
+
+        i.email-tag-icon
+          color: $primary-color
 
       a:hover
         text-decoration: underline

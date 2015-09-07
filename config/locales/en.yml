@@ -28,3 +28,11 @@ en:
       short_this_week: "%a"
       short_today: "%l:%M%P"
 
+
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            display_name:
+              too_short: "is too short (minimum %{count} character)"

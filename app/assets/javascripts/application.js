@@ -22,6 +22,7 @@
 //= require support
 //= require jot_recovery
 //= require email_tagger
+//= require email_viewer
 //= require Autolinker
 //= require cooltip
 //= require litejot

@@ -16,7 +16,7 @@ class window.Jots extends LiteJot
     @new_jot_checklist_tab = @new_jot_wrap.find('.tab-wrap#jot-checklist-tab')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
-    @new_jot_break_option_wrap = @new_jot_toolbar.find('#break-option')
+    @new_jot_break_option_wrap = @new_jot_toolbar.find('#jot-toolbar-break-option')
     @new_jot_break_value = false
 
     @jots_heading = $('h2#jots-heading')
@@ -677,27 +677,38 @@ class window.Jots extends LiteJot
       @initJotElemChecklistBind jot.id
 
   insertJotElem: (jot, method='append', before_id=null, flash=false) =>
+    # improve this class code stuff.. make it an array and then join by spaces.
     flagged_class = if jot.is_flagged then 'flagged' else ''
     heading_class = if jot.jot_type == 'heading' then 'heading' else ''
+    email_tag_class = if jot.jot_type == 'email_tag' then 'email-tag' else ''
     break_class = if jot.break_from_top then 'break-from-top' else ''
-    #highlighted_class = if (jot.id in @jots_in_search_results) then 'highlighted' else ''
     jot_content = jot.content.replace /\n/g, '<br />'
     flash_class = if flash then 'flash' else ''
+    content_title = if jot.jot_type == 'email_tag' then 'Click to open email thread transcript' else ''
 
-    build_html = "<li data-jot='#{jot.id}' class='jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class}'>"
+    build_html = "<li data-jot='#{jot.id}'
+                  class='jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}'
+                  data-tagged-email-id='#{jot.tagged_email_id}'>"
     build_html += "<div class='timestamp'></div>"
 
     if jot.has_manage_permissions
-      build_html += "<i class='fa fa-edit edit' title='Edit jot' />
-                    <i class='fa fa-trash delete' title='Delete jot' />
+      if @canEdit id=null, jot=jot
+        build_html += "<i class='fa fa-edit edit' title='Edit jot' />
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
 
-    build_html += "<div class='content'>"
+      build_html += "<i class='fa fa-trash delete' title='Delete jot' />"
+
+
+    build_html += "<div class='content' title='#{content_title}'>"
 
     if jot.jot_type == 'checklist'
       build_html += @parseCheckListToHTML jot.content
+    else if jot.jot_type == 'email_tag'
+      build_html += "<i class='fa fa-eye private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
+                     <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
+                     #{jot_content}"
     else
       build_html += jot_content
 
@@ -784,30 +795,48 @@ class window.Jots extends LiteJot
     return build_key;
 
   initJotBinds: (jot_id) =>
-    @jots_list.find("li[data-jot='#{jot_id}'] .content").click (e) =>
-      e.stopPropagation()
-      @editJot jot_id
+    jot = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
+    elem = @jots_list.find("li[data-jot='#{jot_id}']")
 
-    @jots_list.find("li[data-jot='#{jot_id}'] .timestamp").click (e) =>
-      e.stopPropagation()
+    elem.find(".content").click (e) =>
+      e.stopPropagation() # is this necessary?
+      if @canEdit id=null, jot
+        @editJot jot_id
+
+    elem.find(".timestamp").click (e) =>
+      e.stopPropagation() # is this necessary?
       @flagJot jot_id
 
-    @jots_list.find("li[data-jot='#{jot_id}'] i.edit").click (e) =>
-      @editJot(jot_id)
-      return false
-    .cooltip({
-      align: 'left'
-    })
+    if @canEdit id=null, jot
+      elem.find("i.edit").click (e) =>
+        @editJot(jot_id)
+        return false
+      .cooltip({
+        align: 'left'
+      })
 
-    @jots_list.find("li[data-jot='#{jot_id}'] i.delete").click (e) =>
-      e.stopPropagation()
+    elem.find("i.delete").click (e) =>
+      e.stopPropagation() # is this necessary?
       @deleteJot jot_id
     .cooltip({
       align: 'left'
     })
 
-    @jots_list.find("li[data-jot='#{jot_id}'] a").click (e) =>
+    elem.find("a").click (e) =>
       e.stopPropagation()
+
+    elem.find(".private-jot-icon").cooltip()
+
+    if jot.jot_type == 'email_tag'
+      elem.find(".email-tag-icon").cooltip()
+      elem.find('.content').click =>
+        email_id = elem.attr('data-tagged-email-id')
+        new window.EmailViewer @lj, email_id
+      .cooltip({
+        direction: 'left'
+        align: 'bottom'
+        zIndex: 1000
+      })
 
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").click (e) => 
@@ -929,6 +958,10 @@ class window.Jots extends LiteJot
 
     if !jot_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to edit this jot.', 'error')
+      return
+
+    if jot_object.jot_type == 'email_tag'
+      new HoverNotice(@lj, 'At this time, email tags cannot be edited.', 'error')
       return
 
     if jot_object.jot_type == 'heading'
@@ -1130,3 +1163,12 @@ class window.Jots extends LiteJot
 
     $.each jot_keys.reverse(), (array_key, topic_key) =>
       @lj.app.jots.remove topic_key
+
+  canEdit: (id, jot) => # allow jot id or jot object.
+    if !jot
+      jot = @lj.app.jots.filter((jot) => jot.id == id)
+    if jot.length == 0 then return false
+    if !jot.has_manage_permissions then return false
+    if jot.jot_type == 'email_tag' then return false
+    return true
+
