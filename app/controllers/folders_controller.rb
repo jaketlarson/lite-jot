@@ -2,7 +2,7 @@ class FoldersController < ApplicationController
 
   def create
     folder = current_user.folders.new(folder_params)
-    folder.content = ActionView::Base.full_sanitizer.sanitize(folder.content)
+    folder.title = ActionView::Base.full_sanitizer.sanitize(folder.title)
 
     if folder.save
       ser_folder = FolderSerializer.new(folder, :root => false, :scope => current_user)
@@ -14,7 +14,7 @@ class FoldersController < ApplicationController
 
   def update
     folder = Folder.find(params[:id])
-    folder.content = ActionView::Base.full_sanitizer.sanitize(folder.content)
+    folder.title = ActionView::Base.full_sanitizer.sanitize(folder.title)
 
     # temporarily turn off since updated_at controls order of folders in UI
     Folder.record_timestamps = false

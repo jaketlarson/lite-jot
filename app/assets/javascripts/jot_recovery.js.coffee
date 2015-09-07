@@ -122,6 +122,8 @@ class window.JotRecovery extends LiteJot
       else if item.jot_type == 'heading'
         elem.find('.content').addClass 'heading'
         content = item.content
+      else if item.jot_type == 'email_tag'
+        content = "<i class='fa fa-envelope email-tag-icon'></i>#{item.content}"
       else
         content = item.content
 
@@ -219,6 +221,7 @@ class window.JotRecovery extends LiteJot
         @removeArchivedJotElems data.ids
         @checkIfEmpty()
 
+        console.log data.all_jots_restored
         if data.all_jots_restored
           new HoverNotice(@lj, 'Jot(s) restored. Changes will appear momentarily.', 'success')
         else

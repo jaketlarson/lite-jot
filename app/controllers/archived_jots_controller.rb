@@ -117,11 +117,11 @@ class ArchivedJotsController < ApplicationController
 
     if ids_actually_restored.count == ids_requested.count
       # All the jots requested were successfully deleted.
-      render :status => 200, :json => {:all_restored => true, :ids => ids_actually_restored}
+      render :status => 200, :json => {:all_jots_restored => true, :ids => ids_actually_restored}
     else
       # More than one jot not restored, probably due to no-longer-shared-with
       # -folder situation.
-      render :status => 207, :json => {:all_restored => false, :ids => ids_actually_restored}
+      render :status => 207, :json => {:all_jots_restored => false, :ids => ids_actually_restored}
     end
   end
 
