@@ -33,17 +33,7 @@ html
       == render :partial => "application/modals/calendar_event_topic"
       == render :partial => "application/modals/jot_recovery"
       == render :partial => "application/modals/email_tagger"
-
-      #notification-template
-        h1
-        section.description
-        a.close
-          i.fa.fa-close
-
-        .new-topic-overlay
-          .new-topic-text
-            i.fa.fa-pencil-square-o
-            |jot for this event
+      == render :partial => "notifications/show"
 
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
     == javascript_include_tag 'application', 'data-turbolinks-track' => true

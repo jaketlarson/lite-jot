@@ -42,7 +42,6 @@ class window.EmailTagger extends LiteJot
     @email_tag_prompt = null
 
   initInfoTooltip: =>
-    console.log @modal_info
     @modal_info.cooltip({
       direction: 'right'
       align: 'bottom'
@@ -67,7 +66,7 @@ class window.EmailTagger extends LiteJot
 
   openModal: =>
     @topic = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0]
-    console.log @lj.app.current_topic
+
     if @lj.emergency_mode.active
       @lj.emergency_mode.feature_unavailable_notice()
       return
@@ -94,7 +93,6 @@ class window.EmailTagger extends LiteJot
       type: "GET"
       url: "/gmail_api?next_page_token=#{@next_page_token}"
       success: (data) =>
-        console.log data
         @loader.hide()
         @buildThreads data.threads
         @checkAlreadyTaggedList()
@@ -137,7 +135,7 @@ class window.EmailTagger extends LiteJot
   # tagged in this topic.
   checkAlreadyTaggedList: =>
     jots = @lj.app.jots.filter((jot) => jot.topic_id == @topic.id && jot.tagged_email_id)
-    console.log jots
+
     $.each jots, (key, jot) =>
       if @already_tagged.indexOf(jot.tagged_email_id) == -1
         @already_tagged.push jot.tagged_email_id
@@ -170,6 +168,7 @@ class window.EmailTagger extends LiteJot
         @lj.jots.insertJotElem data.jot
         @closeOverlayPrompt()
         @markTagged id
+        new HoverNotice(@lj, 'Email tag added to topic.', 'success')
 
       error: (data) =>
         new HoverNotice(@lj, 'Could not save email tag.', 'error')

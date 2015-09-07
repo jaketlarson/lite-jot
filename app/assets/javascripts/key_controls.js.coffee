@@ -31,7 +31,7 @@ class window.KeyControls extends LiteJot
       y: 89
       b: 66
 
-    # virtual architecture user is navigating w/ keyboard
+    # Virtual architecture user is navigating w/ keyboard
     @key_nav = {}
 
     @key_nav.folders =

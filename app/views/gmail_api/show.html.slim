@@ -26,4 +26,3 @@
 
       transform = atob("#{message['body']['data']}".replace(/-/g, '+').replace(/_/g, '/')).replace(/_breakhere_/g, '<br />').replace(/\n\r/g, '<br />')
       $("article##{{i}} section.content").html(transform)
-

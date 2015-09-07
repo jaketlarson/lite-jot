@@ -9,12 +9,11 @@ class window.Connection extends LiteJot
     @connection_test_timer = null
     @connection_test_timing = 2000
     @connection_test_url = '/connection-test'
-    #@connection_test_url = "https://qrng.anu.edu.au/API/jsonI.php?length=1&type=uint8"
 
-    # if the connection test fails, and there are allowed
+    # If the connection test fails, and there are allowed
     # retrials, this timer will be used to more quickly
     # retest the connection.
-    # also used in reattempt to reconnect
+    # Also used in reattempt to reconnect
     @connection_retest_timing = 500
 
     # Number of times the connect test fails

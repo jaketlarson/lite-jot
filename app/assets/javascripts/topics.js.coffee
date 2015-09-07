@@ -139,7 +139,7 @@ class window.Topics extends LiteJot
 
     if sort_dom
       setTimeout(() =>
-        topic_elems = @lj.topics.topics_list.children('li')
+        topic_elems = @lj.topics.topics_list.children('li:not(.new-topic-form-wrap)')
         topic_elems.detach().sort (a, b) =>
             return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
 

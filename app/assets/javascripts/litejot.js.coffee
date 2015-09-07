@@ -171,7 +171,6 @@ class window.LiteJot
 
   initEmailTagger: =>
     @email_tagger = new EmailTagger(@)
-    console.log 'go'
 
   initPushUI: =>
     @pushUI = new PushUI(@)

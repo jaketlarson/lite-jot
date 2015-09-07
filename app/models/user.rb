@@ -73,10 +73,6 @@ class User < ActiveRecord::Base
         auth_refresh_token = user.auth_refresh_token
       end
 
-      ap "find_for_google_oauth2"
-      ap auth_refresh_token
-      ap access_token
-
       user.update!(
         :auth_token => access_token['credentials']['token'],
         :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
@@ -87,7 +83,6 @@ class User < ActiveRecord::Base
   end
 
   def self.find_for_facebook(access_token)
-    ap access_token
     data = access_token.info
     user = User.where(:email => data['email']).first
 
@@ -114,5 +109,4 @@ class User < ActiveRecord::Base
   def owned_and_shared_folders
     Folder.includes(:shares).where("user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at DESC').references(:shares)
   end
-
 end

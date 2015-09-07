@@ -174,10 +174,6 @@ class JotsController < ApplicationController
 
     if many_jots
       render :json => {:success => true, :error_list => error_list, :jots => ser_jots, :folder => ser_folder, :topic => ser_topic}
-      ap error_list
-      ap ser_topic
-      ap ser_folder
-      ap ser_jots
     end
   end
 
@@ -207,13 +203,9 @@ class JotsController < ApplicationController
         old_version = JSON.parse(jot['content'])
         new_version = JSON.parse(params['content'])
         new_version.each do |new_item|
-          ap 'checking: '
-          ap new_item
           # This item is new! Let's give it an ID
           if new_item['id'].length == 0
-            ap new_item['value'] +" is new!"
             new_item['id'] = 16.times.map { [*'0'..'9', *'a'..'z', *'A'..'Z'].sample }.join
-            ap "new id: "+ new_item['id']
           else
             get_old = old_version.select {|old_item| old_item['id'] == new_item['id'] }[0]
             # Carry over or update checkbox-toggled info
@@ -224,12 +216,6 @@ class JotsController < ApplicationController
               new_item['toggled_by'] = get_old['toggled_by']
               new_item['toggled_at'] = get_old['toggled_at']
             end
-            # if get_old['value'] == new_item['value']
-            #   ap "So, we're not updating "+ new_item['value']
-            # else
-            #   ap 'updating '+ new_item['value']
-            #   new_item['value'] = get_old['value']
-            # end
           end
 
         end
@@ -311,11 +297,7 @@ class JotsController < ApplicationController
       item['checked'] = !item['checked']
       item['toggled_by'] = current_user.id
       item['toggled_at'] = DateTime.now
-      ap item['toggled_at']
-      ap item
       jot.content = checklist.to_json
-
-      ap checklist
 
       if jot.save
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)

@@ -57,8 +57,6 @@ class GmailClient
         :id => thread.id,
         :subject => subject
       }
-      ap data
-
     end
 
     return { :threads => data, :nextPageToken => @gmail_threads.data.nextPageToken }
@@ -88,12 +86,10 @@ class GmailClient
       date = headers.detect {|header| header['name'] == 'Date'}
 
       body = message['payload']['body']
-      ap body
+
       has_parts = false
       if !body || !body['data']
-        ap 'here is the problem'
         body = message['payload']['parts'][message['payload']['parts'].length-1]['body']
-        ap body
         has_parts = true
       end
 
@@ -111,7 +107,6 @@ class GmailClient
         body['data'].gsub!("_breakhere__breakline_", "_breakhere_")
       end
 
-      ap to['value']
       if to['value']
         to['value'].gsub!("<", "&lt;")
         to['value'].gsub!(">", "&gt;")
@@ -131,8 +126,6 @@ class GmailClient
         :has_parts => has_parts
       }
     end
-
-    ap data
 
     return data.to_json
   end

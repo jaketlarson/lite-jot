@@ -124,7 +124,7 @@ class window.Folders extends LiteJot
 
     if sort_dom
       setTimeout(() =>
-        folder_elems = @lj.folders.folders_list.children('li')
+        folder_elems = @lj.folders.folders_list.children('li:not(.new-folder-form-wrap)')
         folder_elems.detach().sort (a, b) =>
           return parseInt($(a).attr('data-sort')) - parseInt($(b).attr('data-sort'))
 

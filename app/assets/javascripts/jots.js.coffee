@@ -511,7 +511,6 @@ class window.Jots extends LiteJot
       elem.find('input.checklist-checkbox').prop('checked', item.checked)
       elem.find('input.checklist-value').val(item.value).attr('data-blank', false)
       if item.id
-        console.log item.id
         elem.find('input.checklist-item-id').val(item.id).attr('data-blank', false)
 
       @initCheckListItemBinds elem
@@ -567,7 +566,6 @@ class window.Jots extends LiteJot
           url: "/jots/"
           data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}&jot_type=#{jot_type}&break_from_top=#{@new_jot_break_value}"
           success: (data) =>
-            console.log 'success'
             @lj.connection.startDataLoadTimer()
             @lj.app.jots.push data.jot
             @integrateTempJot data.jot, key
@@ -592,7 +590,6 @@ class window.Jots extends LiteJot
             @checkIfJotsEmpty()
 
           error: (data) =>
-            console.log 'error'
             @lj.connection.startDataLoadTimer()
             unless !data.responseJSON || typeof data.responseJSON.error == 'undefined'
               new HoverNotice(@lj, data.responseJSON.error, 'error')
@@ -739,18 +736,23 @@ class window.Jots extends LiteJot
     if jot.is_flagged then classes += "flagged "
     if jot.jot_type == 'heading' then classes += "heading "
     if jot.break_from_top then classes += "break-from-top "
-    #if (jot.id in @jots_in_search_results) then classes += "highlighted "
     elem.attr 'class', classes
 
     jot_content = jot.content.replace /\n/g, '<br />'
 
     if jot.jot_type == 'checklist'
       jot_content = @parseCheckListToHTML jot_content
+    else if jot.jot_type == 'email_tag'
+      jot_content = "<i class='fa fa-eye private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
+                     <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
+                     #{jot_content}"
 
     # parse possible links
     jot_content = Autolinker.link jot_content
 
     elem.find('.content').html jot_content
+    @initPrivateAndEmailTagBinds jot
+
     @setTimestamp jot
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
@@ -825,6 +827,10 @@ class window.Jots extends LiteJot
     elem.find("a").click (e) =>
       e.stopPropagation()
 
+    @initPrivateAndEmailTagBinds jot
+
+  initPrivateAndEmailTagBinds: (jot) =>
+    elem = @jots_list.find("li[data-jot='#{jot.id}']")
     elem.find(".private-jot-icon").cooltip()
 
     if jot.jot_type == 'email_tag'
@@ -1003,7 +1009,6 @@ class window.Jots extends LiteJot
       raw_content = window.unescapeHtml(jot_object.content)
 
       updated_content = window.escapeHtml @getJotContent()
-      console.log updated_content
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       @edit_overlay.hide()

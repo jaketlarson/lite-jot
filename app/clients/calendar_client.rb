@@ -73,8 +73,6 @@ class CalendarClient
             start_time_unix = start_time.to_i
             end_time_unix = end_time.to_i
 
-            ap start_time
-
             if start_time.today?
               day = 'Today'
             elsif start_time.to_date == Date.tomorrow
