@@ -371,7 +371,7 @@ class window.Topics extends LiteJot
     @new_topic_title.blur (e) =>
       topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
       topic_title_length = @new_topic_title.val().trim().length
-      
+
       if topics_count > 0 && topic_title_length == 0
         @hideNewTopicForm()
 
