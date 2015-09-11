@@ -678,8 +678,14 @@ class window.Jots extends LiteJot
     elem.find("input[type='checkbox']").prop('disabled', false)
     @setTimestamp jot
     @initJotBinds jot.id
+
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
+      content = JSON.parse(jot.content)
+
+      # Can assume checkboxe elems are in order of object
+      $.each elem.find('li.checklist-item'), (key, checklist_item) =>
+        $(checklist_item).attr 'data-checklist-item-id', content[key].id
 
   insertJotElem: (jot, method='append', before_id=null, flash=false) =>
     # improve this class code stuff.. make it an array and then join by spaces.
@@ -711,7 +717,7 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'checklist'
       build_html += @parseCheckListToHTML jot.content
     else if jot.jot_type == 'email_tag'
-      build_html += "<i class='fa fa-eye private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
+      build_html += "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
     else

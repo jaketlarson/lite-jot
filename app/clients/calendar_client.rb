@@ -23,7 +23,7 @@ class CalendarClient
 
     @client.authorization.access_token = user.auth_token
     @calendar_events = @client.execute(:api_method => @calendar.events.list,
-                        :parameters => {'calendarId' => user.email},
+                        :parameters => {'calendarId' => user.email, :timeMin => Time.now.iso8601, :singleEvents => true, :orderBy => 'startTime', :maxResults => 20},
                         :headers => {'Content-Type' => 'application/json'})
     items = @calendar_events.data.items
     upcoming_events = []
