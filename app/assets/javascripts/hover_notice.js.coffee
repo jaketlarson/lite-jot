@@ -18,7 +18,7 @@ class window.HoverNotice extends LiteJot
     @elem = $("#hover-notice-#{random_suffix}")
     @elem.html(@message)
 
-    set_left = $('body').width()/2 - @elem.width()/2
+    set_left = $('body').width()/2 - @elem.outerWidth()/2
 
     @elem.css(
       left: set_left
