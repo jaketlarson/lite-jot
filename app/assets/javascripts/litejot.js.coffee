@@ -63,7 +63,6 @@ class window.LiteJot
     @topics = new Topics(@)
     @jots = new Jots(@)
     @search = new Search(@)
-    @key_controls = new KeyControls(@)
     @user_settings = new UserSettings(@)
     @connection = new Connection(@)
     @initVars()
@@ -165,6 +164,9 @@ class window.LiteJot
       direction: 'bottom'
       align: 'left'
     }
+
+  initKeyControls: =>
+    @key_controls = new KeyControls(@)
 
   initCalendar: =>
     @calendar = new Calendar(@)

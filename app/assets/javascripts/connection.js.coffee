@@ -61,6 +61,7 @@ class window.Connection extends LiteJot
           @lj.app.shares = data.shares
           @lj.app.user = data.user
           @lj.buildUI()
+          @lj.initKeyControls()
           @lj.initCalendar()
           @lj.initEmailTagger()
           @lj.initPushUI()
