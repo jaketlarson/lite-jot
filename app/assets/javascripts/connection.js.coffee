@@ -38,6 +38,7 @@ class window.Connection extends LiteJot
 
     else if @lj.init_data_loaded
       @loadDataFromServer()
+      @lj.jots.determineFocusForNewJot()
 
   loadDataFromServer: =>
     # Avoid extra timers
