@@ -96,8 +96,10 @@ class window.Topics extends LiteJot
                       <input type='text' class='input-edit' />
                     </div>"
     if topic.has_manage_permissions
-      build_html += "<i class='fa fa-pencil edit' data-edit title='Edit topic' />
-                    <i class='fa fa-trash delete' data-delete title='Delete topic' />"
+      build_html += "<div class='options'>
+                      <i class='fa fa-pencil edit' data-edit title='Edit topic' />
+                      <i class='fa fa-trash delete' data-delete title='Delete topic' />
+                    </div>"
     
     build_html += "</li>"
 
@@ -178,7 +180,7 @@ class window.Topics extends LiteJot
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
-    elem.addClass('current').attr('data-keyed-over', true)
+    elem.addClass('current')#.attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()
     @lj.jots.enableLoadOnScroll()

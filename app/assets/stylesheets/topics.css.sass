@@ -7,18 +7,15 @@
   padding: 0
 
   &:hover, &:focus
-    background-color: $primary-color
-
-    h2#topics-heading, li
-      color: $palette-white
-
-    li.current, li:hover, li[data-keyed-over='true']
-      background-color: $palette-lightest-gray
-      color: $palette-black
 
     li:hover, li[data-keyed-over='true']
       box-shadow: 0px 0px 5px rgba(30,30,30,0.9)
       z-index: 4
+      background-color: $primary-color
+      color: $palette-white
+
+      .options
+        background-color: $primary-color
 
 #pages-dashboard h2#topics-heading
   position: relative
@@ -29,24 +26,22 @@
     box-shadow: $default-box-shadow
 
   button.new-topic-button
-    border-radius: 50%
-    background-color: $primary-color
-    width: 30px
+    background-color: transparent
     line-height: 30px
     text-align: center
     position: absolute
     top: 1.25rem
     right: 1rem
-    color: $palette-white
     padding: 0
     margin: 0
     transition: none
+    color: $palette-black
 
     i
-      font-size: 1rem
+      margin-right: .5rem
 
     &:hover
-      background-color: $palette-black
+      color: $primary-color
 
 #new-topic-template
   display: none
@@ -89,28 +84,27 @@ ul#topics-list
             padding-left: .8rem
             padding-right: .8rem
 
-    i.edit, i.delete
-      font-size: .8rem
-      position: absolute
-      display: none
-      top: 13%
-      background-color: $primary-color
-      border-radius: 50%
-      padding: .5rem
-      color: $palette-lightest-gray
-      width: rem-calc(29)
+    .options
       height: rem-calc(29)
-      text-align: center
+      display: none
+      position: absolute
+      top: 13%
+      right: 0
+      padding-right: .5rem
+      background-color: $primary-color
 
-      &:hover
-        background-color: $palette-black
-        cursor: pointer
+      i.edit, i.delete
+        font-size: .8rem
+        border-radius: 50%
+        padding: .5rem
+        color: $palette-lightest-gray
+        width: rem-calc(29)
+        height: rem-calc(29)
+        text-align: center
 
-    i.delete
-      right: .4rem
-
-    i.edit
-      right: 2.5rem
+        &:hover
+          background-color: $palette-black
+          cursor: pointer
 
     .input-edit-wrap
       position: absolute
@@ -129,9 +123,8 @@ ul#topics-list
         padding-right: .75rem
 
     &.current
-      background-color: $primary-color
+      border-left: .5rem solid $primary-color
       cursor: pointer
-      color: $palette-white
       z-index: 2
 
     &:hover
@@ -139,7 +132,7 @@ ul#topics-list
       cursor: pointer
       color: $palette-white
 
-      i.edit, i.delete
+      .options
         display: block
 
     &[data-editing='true']
@@ -148,6 +141,7 @@ ul#topics-list
 
     &[data-keyed-over='true']
       background-color: $keyover-color
+      color: $palette-white
 
     &[data-deleted='true']
       margin-left: -200px
