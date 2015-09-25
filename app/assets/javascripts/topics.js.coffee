@@ -153,6 +153,7 @@ class window.Topics extends LiteJot
     @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>   
       @lj.key_controls.clearKeyedOverData()
       @selectTopic($(e.currentTarget).data('topic'))
+      $(e.currentTarget).attr('data-keyed-over', true)
 
     @topics_list.find("li[data-topic='#{topic_id}'] [data-edit]").click (e) =>
       @editTopic(topic_id)
