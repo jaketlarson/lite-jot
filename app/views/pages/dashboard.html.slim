@@ -42,19 +42,18 @@
         i.fa.fa-times.active-icon
       input#search-input placeholder="search for jots"
 
-  #jots-wrapper tabindex='3'
-    .loading.loader Loading...
-
+  #jots-wrapper
     .empty-message
       i.fa.fa-pencil-square-o
       p Start typing to keep track of your notes and organize them into topics and folders as you like!
 
-    ul#jots-list
+    ul#jots-list tabindex='3'
+    
+    = render :partial => 'jots/new'
 
   #jot-temp-entry-template
     li.temp.jot-item
 
-  = render :partial => 'jots/new'
 
   #edit-overlay
     #edit-notice
@@ -63,3 +62,6 @@
 
   - if !current_user.saw_intro
     = render :partial => 'joyride_introduction'
+
+  #dash-loading-overlay
+    .loading.loader Loading...

@@ -1,30 +1,91 @@
 #new-jot-wrap
-  background-color: $palette-light-gray
-  padding: .3rem .1rem .1rem .1rem
   -webkit-user-select: none
   user-select: none
   outline: 0
   position: relative
+  padding-left: 4.5rem
+
+  #jot-palette-icon-wrap
+    float: left
+    margin: .5rem 0 0 -1.5rem
+
+  #jot-palette
+    display: none
+    position: fixed
+    background-color: $palette-white
+    box-shadow: $default-box-shadow
+
+    ul
+      margin: .25rem
+      overflow: hidden
+      width: 10rem
+      list-style: none
+
+      li
+        margin: .25rem
+        padding: 0
+        border-radius: 50%
+        border: .25rem solid #000
+        background-color: transparent
+        float: left
+        width: 2rem
+        height: 2rem
+        cursor: pointer
+
+        &.color-default
+          border-color: $palette-black
+          &:hover, &.active
+            background-color: $palette-black
+
+        &.color-gray
+          border-color: $palette-user-gray
+          &:hover, &.active
+            background-color: $palette-user-gray
+
+        &.color-red
+          border-color: $palette-user-red
+          &:hover, &.active
+            background-color: $palette-user-red
+
+        &.color-orange
+          border-color: $palette-user-orange
+          &:hover, &.active
+            background-color: $palette-user-orange
+
+        &.color-yellow
+          border-color: $palette-user-yellow
+          &:hover, &.active
+            background-color: $palette-user-yellow
+
+        &.color-green
+          border-color: $palette-user-green
+          &:hover, &.active
+            background-color: $palette-user-green
+
+        &.color-blue
+          border-color: $palette-user-blue
+          &:hover, &.active
+            background-color: $palette-user-blue
+
+        &.color-purple
+          border-color: $palette-user-purple
+          &:hover, &.active
+            background-color: $palette-user-purple
 
   ul#jot-toolbar
     width: 100%
     line-height: 2rem
     margin: 0
     font-family: 'Monda'
-    background-color: $palette-light-gray
-    color: $palette-black
+    color: $palette-dark-gray
     outline: 0
-
-    &:focus
-      background-color: $primary-color
-      color: $palette-white
 
     li
       display: inline-block
       padding: 0 1rem
       cursor: pointer
       margin-right: 1px
-      font-size: .9rem
+      font-size: .8rem
       vertical-align: top
 
       i
@@ -32,13 +93,11 @@
 
       &.tab
         &.active
-          background-color: $palette-white
           color: $palette-black
 
         &:not(.active)
           &:hover
-            background-color: $primary-color
-            color: $palette-white
+            color: $palette-black
 
       &#jot-toolbar-break-option
         font-size: .8rem
@@ -56,8 +115,12 @@
 
       &#jot-toolbar-break-option, &#jot-toolbar-email-tag
         &:hover
-          color: $palette-white
-          background-color: $primary-color
+          color: $palette-black
+
+    &:focus
+      li.active
+        color: $primary-color
+        border-bottom: .2rem solid $primary-color
 
   .tab-wrap
     display: none
@@ -69,29 +132,39 @@
       input#jot_heading
         width: 100%
         border: 0
+        border-bottom: 1px solid $palette-black
         font-size: 1.3rem
         font-weight: 600
-        background-color: $palette-white
+        background-color: transparent
         box-shadow: none
         margin-bottom: 0
-        padding: 0 1rem
-        line-height: 4rem
-        height: 4rem
+        padding: 0 .75rem
+        line-height: 2.5rem
+        height: 2.5rem
+        transition: none
+
+        &:focus
+          border-bottom: 1px solid $primary-color
+          background-color: $palette-white
 
     &#jot-standard-tab
       textarea#jot_content
-        min-height: 7rem
+        min-height: 1.6rem
+        max-height: 20rem
         margin-bottom: 0
         border: 0
+        border-bottom: 1px solid $palette-black
         transition: none
         resize: none
-        background-color: $palette-white
+        background-color: transparent
         box-shadow: none
         padding: .5rem .75rem
 
+        &:focus
+          border-bottom: 1px solid $primary-color
+          background-color: $palette-white
+
     &#jot-checklist-tab
-      background-color: $palette-white
-      padding: 1rem
       max-height: 20rem
       overflow: auto
 
@@ -109,19 +182,27 @@
         input[type='text'].checklist-value
           max-width: 87%
           border: 0
-          border-bottom: 1px solid $palette-gray
+          border-bottom: 1px solid $palette-black
+          background-color: transparent
           box-shadow: none
           display: inline-block
           transition: none
+          margin-bottom: 0
 
           &:focus
             border-bottom-color: $primary-color
+            background-color: $palette-white
 
-  &.is-scrolled-from-bottom
-    box-shadow: 0px -1px 4px rgba(0,0,0,0.5)
+          &:not(:last-child)
+            margin-bottom: .25rem
 
   &[data-editing='true']
     z-index: 4
+    background-color: $palette-lightest-gray
+    padding-right: .25rem
+    padding-top: .25rem
+    position: fixed
 
   &.active
-    background-color: $primary-color
+    //background-color: $primary-color
+

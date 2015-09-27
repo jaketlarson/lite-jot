@@ -12,6 +12,7 @@ class JotSerializer < ActiveModel::Serializer
     :folder_id,
     :jot_type,
     :break_from_top,
+    :color,
     :temp_key,
     :author_display_name,
     :deleted_at,

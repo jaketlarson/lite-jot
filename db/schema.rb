@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150907001225) do
+ActiveRecord::Schema.define(version: 20150926203250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20150907001225) do
     t.string   "jot_type",        default: "standard"
     t.datetime "deleted_at"
     t.string   "tagged_email_id"
+    t.string   "color"
   end
 
   add_index "jots", ["deleted_at"], name: "index_jots_on_deleted_at", using: :btree
@@ -100,6 +101,7 @@ ActiveRecord::Schema.define(version: 20150907001225) do
     t.boolean  "receives_email",          default: true
     t.string   "timezone"
     t.boolean  "saw_intro",               default: false
+    t.text     "preferences"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

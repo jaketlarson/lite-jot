@@ -1,9 +1,23 @@
 #new-jot-wrap
+  #jot-palette-icon-wrap
+    i.fa.fa-paint-brush
+
+  #jot-palette
+    ul
+      li.color-default.active data-color='default'
+      li.color-gray data-color='gray'
+      li.color-red data-color='red'
+      li.color-orange data-color='orange'
+      li.color-yellow data-color='yellow'
+      li.color-green data-color='green'
+      li.color-blue data-color='blue'
+      li.color-purple data-color='purple'
+
   div#jot-heading-tab.tab-wrap data-tab='heading'
     input#jot_heading type='text' placeholder='Enter a heading jot here. Press Return to save.'
 
   div#jot-standard-tab.tab-wrap.active data-tab='standard'
-    textarea#jot_content placeholder='Press Return to save. Shift + Return for new line.'
+    textarea#jot_content placeholder='Type here to create a new jot. Press Return to save or Shift + Return for new line.'
 
   div#jot-checklist-tab.tab-wrap data-tab='checklist'
     ul.jot-checklist

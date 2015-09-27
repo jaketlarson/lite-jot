@@ -67,6 +67,8 @@ class window.Connection extends LiteJot
           @lj.initEmailTagger()
           @lj.initPushUI()
           @lj.checkIfIntroduction()
+          #@lj.user_settings.applyPreferences()
+          @lj.hideLoader()
           @lj.init_data_loaded = true
         else
           @lj.temp.folders = data.folders

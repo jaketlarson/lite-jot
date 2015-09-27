@@ -103,3 +103,11 @@ class window.UserSettings extends LiteJot
 
   sawIntro: =>
     $.get("/user/saw-intro")
+
+  # applyPreferences: =>
+  #   @useJotColorPreference()
+
+  # useJotColorPreference: =>
+  #   if @lj.app.user.preferences.jot_color
+  #     console.log @lj.app.user.preferences.jot_color
+

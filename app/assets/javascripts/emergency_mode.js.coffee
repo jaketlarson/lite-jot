@@ -87,7 +87,7 @@ class window.EmergencyMode extends LiteJot
     new HoverNotice(@lj, 'This feature is unavailable while in Emergency Mode.', 'error')
     return
 
-  storeJot: (content, key, jot_type, break_from_top) =>
+  storeJot: (content, key, jot_type, break_from_top, color) =>
     jot = 
       content: content
       is_temp: true
@@ -96,6 +96,7 @@ class window.EmergencyMode extends LiteJot
       folder_id: @lj.app.current_folder
       jot_type: jot_type
       break_from_top: break_from_top
+      color: color
 
     stored_jots = @getStoredJotsObject()
     stored_jots.push jot

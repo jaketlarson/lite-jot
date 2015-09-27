@@ -55,6 +55,7 @@ $ ->
 class window.LiteJot
   constructor: ->
     @init_data_loaded = false
+    @initVars()
 
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
@@ -65,7 +66,6 @@ class window.LiteJot
     @search = new Search(@)
     @user_settings = new UserSettings(@)
     @connection = new Connection(@)
-    @initVars()
     @sizeUI()
     @setUIInterval()
     @connection.loadDataFromServer()
@@ -91,6 +91,19 @@ class window.LiteJot
     # jots.
     @scroll_padding_factor = .15
 
+    # Color name to hex mapping
+    @colors =
+      'default': '#333333'
+      'gray': '#7f8c8d'
+      'red': '#e74c3c'
+      'orange': '#e67e22'
+      'yellow': '#f1c40f'
+      'green': '#27ae60'
+      'blue': '#2980b9'
+      'purple': '#8e44ad'
+
+    @dash_loading_overlay = $('#dash-loading-overlay')
+
   setViewport: =>
     @viewport =
       width: window.innerWidth
@@ -105,7 +118,7 @@ class window.LiteJot
     topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - @jots.new_jot_wrap.outerHeight(true)
+    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - 0*@jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()
@@ -187,3 +200,8 @@ class window.LiteJot
     if !@app.user.saw_intro
       $(document).foundation 'joyride', 'start'
       @user_settings.sawIntro()
+
+  hideLoader: =>
+    setTimeout(() =>
+      @dash_loading_overlay.fadeOut(500).css { marginLeft: -1*@dash_loading_overlay.width() }
+    , 500)

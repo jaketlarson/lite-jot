@@ -13,11 +13,17 @@ class window.Jots extends LiteJot
     @new_jot_toolbar = $('#new-jot-wrap #jot-toolbar')
     @new_jot_heading = @new_jot_wrap.find('input#jot_heading')
     @new_jot_content = @new_jot_wrap.find('textarea#jot_content')
+    @new_jot_content_original_height = @new_jot_content.outerHeight()
     @new_jot_checklist_tab = @new_jot_wrap.find('.tab-wrap#jot-checklist-tab')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
     @new_jot_break_option_wrap = @new_jot_toolbar.find('#jot-toolbar-break-option')
     @new_jot_break_value = false
+    @palette_icon = $('#jot-palette-icon-wrap')
+    @palette = $('#jot-palette')
+    @palette_hide_timer = null
+    @palette_hide_timer_length = 250
+    @palette_current = 'default'
 
     @jots_heading = $('h2#jots-heading')
     @jots_heading_text = $('h2#jots-heading .heading-text')
@@ -25,9 +31,9 @@ class window.Jots extends LiteJot
     @jots_list = @jots_wrapper.find('ul#jots-list')
     @jot_temp_entry_template = $('#jot-temp-entry-template')
     @jots_empty_message_elem = @jots_wrapper.find('.empty-message')
-    @jots_loader = @jots_wrapper.find('.loader')
     @edit_overlay = $('#edit-overlay')
     @edit_notice = $('#edit-notice')
+    @remember_palette_while_editing = null
     @currently_editing_id = null
     @scroll_top_before_editing = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
@@ -49,7 +55,6 @@ class window.Jots extends LiteJot
 
   clearJotsList: =>
     @jots_list.html('')
-    @jots_empty_message_elem.show()
 
   updateHeading: =>
     if !@lj.app.current_topic
@@ -64,7 +69,6 @@ class window.Jots extends LiteJot
   buildJotsList: (mode) =>
     @clearJotsList()
     @updateHeading()
-    @jots_loader.fadeOut()
     @resetPageCounter()
     @disableLoadOnScroll()
 
@@ -105,12 +109,16 @@ class window.Jots extends LiteJot
 
       $.each em_jots_scope, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
-          @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break
+          @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, jot.color
 
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
       @checkScrollPosition()
 
-    @scrollJotsToBottom()
+    # Use a timeout til scroll otherwise scrollbar wouldn't hit bottom
+    setTimeout(() =>
+      @scrollJotsToBottom()
+    , 10)
+
     @enableLoadOnScroll()
 
   buildPage: (to, from) =>
@@ -139,7 +147,7 @@ class window.Jots extends LiteJot
     total_height = 0
 
     # $.each em_jots_scope, (index, jot) =>
-    #   @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, method='prepend'
+    #   @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, jot.color method='prepend'
     #   total_height += @jots_list.find("li##{jot.temp_key}").outerHeight()
 
     $.each jots_scope, (index, jot) =>
@@ -157,6 +165,9 @@ class window.Jots extends LiteJot
 
   initJotFormListeners: =>
     @new_jot_content.keydown (e) =>
+      if !@currently_editing_id
+        @listenToJotContentChanges e
+
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
         e.preventDefault()
         if @currently_editing_id # if this is set, we're editing
@@ -194,6 +205,23 @@ class window.Jots extends LiteJot
     @edit_overlay.click =>
       @finishEditing()
 
+    @palette_icon.mouseenter =>
+      @showPalette()
+
+    @palette_icon.mouseleave =>
+      @hidePalette()
+
+    @palette.mouseenter =>
+      @showPalette()
+
+    @palette.mouseleave =>
+      @hidePalette()
+
+    @palette.find('[data-color]').click (e) =>
+      @palette.hide()
+      @determineFocusForNewJot()
+      @chooseColor e
+
   determineFocusForNewJot: =>
     if @new_jot_current_tab == 'standard'
       @new_jot_content.focus()
@@ -201,6 +229,8 @@ class window.Jots extends LiteJot
       @new_jot_heading.focus()
     else if @new_jot_current_tab == 'checklist'
       @lj.key_controls.keyToLastNewJotListItem()
+
+    @scrollJotsToBottom()
 
   newJotWrapActive: =>
     @new_jot_wrap.addClass('active')
@@ -278,6 +308,7 @@ class window.Jots extends LiteJot
   clearJotInputs: =>
     @new_jot_heading.val('')
     @new_jot_content.val('')
+    @new_jot_content.css 'height', @new_jot_content_original_height
     @cleanCheckListTab()
 
   cleanCheckListTab: =>
@@ -303,7 +334,7 @@ class window.Jots extends LiteJot
     elem = $("li##{id}")
     @initCheckListItemBinds elem
 
-    # Using a timeout here because scrollJotsToBottmo
+    # Using a timeout here because scrollJotsToBottom
     # seems to be quicker than the DOM
     # Could be more elegant, possibly.
     setTimeout(() =>
@@ -390,11 +421,6 @@ class window.Jots extends LiteJot
     close_to_top = @jots_wrapper.scrollTop() - @lj.scroll_padding_factor*@jots_wrapper.height() <= 0
     if close_to_top && @load_on_scroll && @lj.search.current_terms.length == 0
       @loadMoreJots()
-
-    if @isScrolledToBottom()
-      @new_jot_wrap.removeClass('is-scrolled-from-bottom')
-    else
-      @new_jot_wrap.addClass('is-scrolled-from-bottom')
 
     # Do a quick check to see if more jots can be loaded to UI.
     @enoughJotsLoaded()
@@ -554,13 +580,13 @@ class window.Jots extends LiteJot
       @lj.search.endSearchState false
 
       key = @randomKey()
-      @insertTempJotElem content, key, jot_type, @new_jot_break_value
+      @insertTempJotElem content, key, jot_type, @new_jot_break_value, @palette_current
       @jots_empty_message_elem.hide()
       @scrollJotsToBottom()
 
       # If emergency mode is on, then store the jot in local storage. Otherwise send to server
       if @lj.emergency_mode.active
-        @lj.emergency_mode.storeJot content, key, jot_type, @new_jot_break_value
+        @lj.emergency_mode.storeJot content, key, jot_type, @new_jot_break_value, @palette_current
         # reset new jot inputs
         @clearJotInputs()
 
@@ -570,9 +596,10 @@ class window.Jots extends LiteJot
 
         @lj.connection.abortPossibleDataLoadXHR()
         $.ajax(
-          type: 'POST'
-          url: "/jots/"
-          data: "content=#{encodeURIComponent(content)}&folder_id=#{@lj.app.current_folder}&topic_id=#{@lj.app.current_topic}&jot_type=#{jot_type}&break_from_top=#{@new_jot_break_value}"
+          type: 'POST',
+          url: "/jots/",
+          data: { content: content, folder_id: @lj.app.current_folder, topic_id: @lj.app.current_topic, jot_type: jot_type, break_from_top: @new_jot_break_value, color: @palette_current }
+
           success: (data) =>
             @lj.connection.startDataLoadTimer()
             @lj.app.jots.push data.jot
@@ -628,8 +655,9 @@ class window.Jots extends LiteJot
   rollbackTempJot: =>
     @jots_list.find('li.temp').remove() # may need refinement
 
-  insertTempJotElem: (content, key, jot_type, break_from_top, method='append') =>
+  insertTempJotElem: (content, key, jot_type, break_from_top, color, method='append') =>
     content = content.replace /\n/g, '<br />'
+    color = if color && color.length > 0 then @lj.colors[color] else @lj.colors['default']
     @jot_temp_entry_template.find('li')
     .attr('id', key)
     .attr("title", "submitting jot...")
@@ -638,9 +666,9 @@ class window.Jots extends LiteJot
     @jot_temp_entry_template.find('li').append timestamp
 
     if jot_type == 'checklist'
-      @jot_temp_entry_template.find('li').append "<div class='content'>#{@parseCheckListToHTML(content, disabled=true)}</div>"
+      @jot_temp_entry_template.find('li').append "<div class='content' style='color: #{color}'>#{@parseCheckListToHTML(content, disabled=true)}</div>"
     else
-      @jot_temp_entry_template.find('li').append "<div class='content'>#{content}</div>"
+      @jot_temp_entry_template.find('li').append "<div class='content' style='color: #{color}'>#{content}</div>"
 
     if jot_type == 'heading'
       @jot_temp_entry_template.find('li').addClass('heading')
@@ -668,7 +696,7 @@ class window.Jots extends LiteJot
     elem.removeClass('temp').addClass('jot-item')
     .attr('data-jot', jot.id).attr('id', '').attr('title', '')
 
-    to_insert = "<i class='fa fa-edit edit' title='Edit jot' />
+    to_insert = "<i class='fa fa-pencil edit' title='Edit jot' />
                 <i class='fa fa-trash delete' title='Delete jot' />
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
@@ -704,7 +732,7 @@ class window.Jots extends LiteJot
 
     if jot.has_manage_permissions
       if @canEdit id=null, jot=jot
-        build_html += "<i class='fa fa-edit edit' title='Edit jot' />
+        build_html += "<i class='fa fa-pencil edit' title='Edit jot' />
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
@@ -744,6 +772,10 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
 
+    # handle coloring
+    if jot.color && jot.color.length > 0
+      @jots_list.find("li[data-jot='#{jot.id}'] .content").css 'color', @lj.colors[jot.color]
+
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
     classes = "jot-item "
@@ -771,6 +803,10 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
 
+    # handle coloring
+    if jot.color && jot.color.length > 0
+      @jots_list.find("li[data-jot='#{jot.id}'] .content").css 'color', @lj.colors[jot.color]
+
   sortJotData: =>
     @lj.app.jots.sort((a, b) =>
       return a.created_at_unix - b.created_at_unix
@@ -785,7 +821,7 @@ class window.Jots extends LiteJot
                     Created on #{jot.created_at_long}.<br>
                     Last updated on #{jot.updated_at}.<br>
                     Click to toggle flag.")
-    $(elem).cooltip({direction: 'left', align: 'bottom', class: 'timestamp'})
+    $(elem).cooltip({direction: 'left', class: 'timestamp'})
 
     # Update timestamp tooltip,
     # just in case this method call was to update the jot elem
@@ -870,7 +906,6 @@ class window.Jots extends LiteJot
 
     .cooltip({
       direction: 'left'
-      align: 'bottom'
     })
 
   handleCheckboxEvent: (e, elem, jot_id) =>
@@ -984,6 +1019,19 @@ class window.Jots extends LiteJot
       new HoverNotice(@lj, 'At this time, email tags cannot be edited.', 'error')
       return
 
+    @edit_overlay.show()
+    @edit_overlay.find('#edit-notice').css(
+      bottom: (@new_jot_wrap.height()/2 - @edit_notice.height()/2)
+      left: @new_jot_wrap.offset().left - @edit_notice.width()
+    )
+    elem.attr('data-editing', 'true')
+    @jots_list.css 'paddingBottom', @new_jot_wrap.outerHeight()
+    @new_jot_wrap.attr('data-editing', 'true').css(
+      width: elem.width()
+      right: @new_jot_wrap.offset().right
+      bottom: 0
+    )
+
     if jot_object.jot_type == 'heading'
       @switchTab 'heading'
       @new_jot_heading.val(raw_content).focus()
@@ -1000,13 +1048,11 @@ class window.Jots extends LiteJot
     else
       @jotBreakOff()
 
-    @edit_overlay.show()
-    @edit_overlay.find('#edit-notice').css(
-      bottom: (@new_jot_wrap.height()/2 - @edit_notice.height()/2)
-      left: @new_jot_wrap.offset().left - @edit_notice.width()
-    )
-    elem.attr('data-editing', 'true')
-    @new_jot_wrap.attr('data-editing', 'true')
+    if jot_object.color && jot_object.color.length > 0
+      @remember_palette_while_editing = @palette_current
+      @applyPaletteColor jot_object.color
+    else
+      @applyPaletteColor 'default'
 
   finishEditing: =>
     if @currently_editing_id
@@ -1026,19 +1072,27 @@ class window.Jots extends LiteJot
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       @edit_overlay.hide()
-      @new_jot_wrap.attr('data-editing', 'false')
+      @new_jot_wrap.attr('data-editing', 'false').css { width: '100%', right: 0 }
+      @jots_list.css 'paddingBottom', 0
+
       jot_length = @newJotLength()
       @clearJotInputs()
       elem.attr('data-editing', 'false')
       
       # return keyboard controls
-      @jots_wrapper.focus()
+      @jots_list.focus()
       @lj.key_controls.clearKeyedOverData()
       elem.attr('data-keyed-over', 'true')
 
-      # only update folder/topic order & send server request if the user
-      # changed the content field of the jot
-      if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type)
+      # return to old palette color
+      if @remember_palette_while_editing
+        jot_color = @palette_current
+        @palette_current = @remember_palette_while_editing
+        @remember_palette_while_editing = null
+        @applyPaletteColor @palette_current
+
+      # only update folder/topic order & send server request if the user changed the jot
+      if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type) || @palette_current != jot_color
         @lj.folders.moveCurrentFolderToTop()
         @lj.topics.moveCurrentTopicToTop()
 
@@ -1061,10 +1115,13 @@ class window.Jots extends LiteJot
         else
           elem.removeClass 'heading'
 
+        # update color
+        jot_object.color = jot_color
+
         $.ajax(
           type: 'PATCH'
           url: "/jots/#{id}"
-          data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}&jot_type=#{@new_jot_current_tab}"
+          data: "content=#{encodeURIComponent(updated_content)}&break_from_top=#{@new_jot_break_value}&jot_type=#{@new_jot_current_tab}&color=#{jot_color}"
 
           success: (data) =>
             @lj.connection.startDataLoadTimer()
@@ -1153,7 +1210,7 @@ class window.Jots extends LiteJot
   checkIfJotsEmpty: =>
     if @lj.app.jots.filter((jot) => if(jot) then (jot.topic_id == @lj.app.current_topic) else false).length == 0
       @determineFocusForNewJot()
-      @jots_empty_message_elem.show()
+      #@jots_empty_message_elem.show()
       @positionEmptyMessage()
       return true
     else
@@ -1190,4 +1247,43 @@ class window.Jots extends LiteJot
     if !jot.has_manage_permissions then return false
     if jot.jot_type == 'email_tag' then return false
     return true
+
+  showPalette: =>
+    @palette.show()
+    @positionPalette()
+
+    if @palette_hide_timer
+      clearTimeout @palette_hide_timer
+
+  hidePalette: =>
+    @palette_hide_timer = setTimeout(() =>
+      @palette.hide()
+    , @palette_hide_timer_length)
+
+  positionPalette: =>
+    pal_top = @palette_icon.offset().top - @palette.height() + @palette_icon.height()/2
+    pal_left = @palette_icon.offset().left + @palette_icon.width()
+
+    @palette.css({
+      top: pal_top
+      left: pal_left
+    })
+
+  chooseColor: (event) =>
+    color = $(event.currentTarget).attr('data-color')
+    @applyPaletteColor color
+
+  applyPaletteColor: (color) =>
+    @palette_current = color
+    @palette.find('li.active').removeClass('active')
+    @palette.find("[data-color='#{color}']").addClass 'active'
+
+    @new_jot_content.css 'color', @lj.colors[color]
+    @new_jot_heading.css 'color', @lj.colors[color]
+    @new_jot_checklist_tab.find("input[type='text']").css 'color', @lj.colors[color]
+    @palette_icon.css 'color', @lj.colors[color]
+
+  listenToJotContentChanges: (event) =>
+    @new_jot_content.css 'height', @new_jot_content[0].scrollHeight
+    @scrollJotsToBottom()
 

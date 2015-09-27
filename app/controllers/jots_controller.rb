@@ -361,6 +361,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :checklist_item_id, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key])
+      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :color, :checklist_item_id, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key, :color])
     end
 end

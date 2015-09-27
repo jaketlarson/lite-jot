@@ -116,7 +116,6 @@
   padding-left: .5rem
   padding-right: .5rem
   margin: 0
-  outline: 0
 
   i.loading
     display: block
@@ -146,6 +145,8 @@
   ul#jots-list
     list-style: none
     margin-left: 0
+    margin-bottom: 0
+    outline: 0
 
     li
       position: relative
@@ -157,6 +158,9 @@
       word-wrap: break-word
       font-size: .95rem
       overflow: auto
+
+      &:last-child
+        margin-bottom: 1rem
 
       .timestamp
         font-family: FontAwesome, Open Sans
@@ -207,7 +211,7 @@
 
       &:hover
         &.jot-item
-          border: 1px solid $primary-color
+          box-shadow: $default-box-shadow
 
         i.edit, i.delete
           display: block
@@ -297,30 +301,11 @@
             display: none
 
       &.temp
-        color: $palette-darker-gray
         cursor: default
 
       &[data-keyed-over='true']
-        background-color: $keyover-color
-
-        a
-          color: $palette-lightest-gray
-
-        i.edit, i.delete
-          background-color: $primary-color
-
-          &:hover
-            color: $palette-lightest-gray
-
-        .timestamp, .content, i
-          color: $palette-white
-
-        ul
-          li.checklist-item:hover
-            color: $palette-white
-            
-            .checkbox-wrap
-              background-color: $palette-white
+        border-left: .25rem solid $primary-color
+        border-right: .25rem solid $primary-color
 
       &[data-deleted='true']
         margin-left: -200px

@@ -151,11 +151,11 @@ class window.KeyControls extends LiteJot
         @keyToNewJotsTabs()
 
 
-    @lj.jots.jots_wrapper.keydown (e) =>
+    @lj.jots.jots_list.keydown (e) =>
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 
-      is_editing = if @lj.jots.jots_wrapper.find("li[data-editing='true']").length > 0 then true else false
+      is_editing = if @lj.jots.jots_list.find("li[data-editing='true']").length > 0 then true else false
 
       if is_editing
         if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
@@ -241,6 +241,11 @@ class window.KeyControls extends LiteJot
       if @isValidControl e.keyCode, @key_nav.search_jots
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.search_jots).call()
 
+    # This listener (notice it's `keydown`, not `keyup`, which is next) is soley to stop scrolling of jots wrapper on arrow key up
+    @lj.jots.new_jot_toolbar.keydown (e) =>
+      if @isValidControl e.keyCode, @key_nav.jot_toolbar
+        e.preventDefault()
+
     @lj.jots.new_jot_toolbar.keyup (e) =>
       if @isValidControl e.keyCode, @key_nav.jot_toolbar
         e.stopImmediatePropagation()
@@ -265,7 +270,7 @@ class window.KeyControls extends LiteJot
       if @lj.topics.topics_column.find('[data-keyed-over=true]').length == 0
         @clearKeyedOverData()
 
-    @lj.jots.jots_wrapper.focus (e) =>
+    @lj.jots.jots_list.focus (e) =>
       @curr_pos = 'jots'
       @switchKeyboardShortcutsPane()
       @clearKeyedOverData()
@@ -295,7 +300,7 @@ class window.KeyControls extends LiteJot
     @lj.topics.topics_column.blur (e) =>
       @clearKeyboardShortcutsPane()
 
-    @lj.jots.jots_wrapper.blur (e) =>
+    @lj.jots.jots_list.blur (e) =>
       @clearKeyboardShortcutsPane()
       @clearKeyedOverData()
 
@@ -395,38 +400,35 @@ class window.KeyControls extends LiteJot
 
   keyToLastJot: =>
     @clearKeyedOverData()
-    @lj.jots.jots_wrapper.focus()
-    # Using a delay due to issues with chrome not scrolling to bottom immediately
-    setTimeout(() =>
-      @lj.jots.scrollJotsToBottom()
-    , 1)
+    @lj.jots.jots_list.focus()
+    @lj.jots.scrollJotsToBottom()
 
-    if @lj.jots.jots_wrapper.find('li.jot-item').length > 0
-      elem = $(@lj.jots.jots_wrapper.find('li.jot-item')[@lj.jots.jots_wrapper.find('li.jot-item').length - 1])
+    if @lj.jots.jots_list.find('li.jot-item').length > 0
+      elem = $(@lj.jots.jots_list.find('li.jot-item')[@lj.jots.jots_list.find('li.jot-item').length - 1])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
-      @curr_pos_index = @lj.jots.jots_wrapper.find('li').length - 1
+      @curr_pos_index = @lj.jots.jots_list.find('li').length - 1
 
   keyToFirstJot: =>
     @clearKeyedOverData()
-    @lj.jots.jots_wrapper.focus()
+    @lj.jots.jots_list.focus()
 
-    if @lj.jots.jots_wrapper.find('li').length > 0
-      elem = $(@lj.jots.jots_wrapper.find('li')[0])
+    if @lj.jots.jots_list.find('li').length > 0
+      elem = $(@lj.jots.jots_list.find('li')[0])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @cur_pos_index = 0
-      @lj.moveElemIntoView elem, @lj.jots.jots_wrapper
+      @lj.moveElemIntoView elem, @lj.jots.jots_list
 
   keyToFirstJotOrNew: =>
-    if @lj.jots.jots_wrapper.find('li').length > 0
+    if @lj.jots.jots_list.find('li').length > 0
       @keyToFirstJot()
 
     else
       @keyToNewJot()
 
   keyToNextJotUp: =>
-    if @lj.jots.jots_wrapper.find("li[data-keyed-over='true']").length > 0
+    if @lj.jots.jots_list.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
       
       if elem.index() > 0
@@ -435,22 +437,22 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.prev()
         nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_list
 
       else
         @keyToLastJot()
 
   keyToNextJotDown: =>
-    if @lj.jots.jots_wrapper.find("li.jot-item[data-keyed-over='true']").length > 0
+    if @lj.jots.jots_list.find("li.jot-item[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-     if elem.index() < @lj.jots.jots_wrapper.find('li.jot-item').length - 1
+     if elem.index() < @lj.jots.jots_list.find('li.jot-item').length - 1
         @cur_pos = 'jot'
         @cur_pos_index = elem.index()
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_list
 
       else
         @lj.jots.ignore_this_key_down = true
@@ -470,15 +472,15 @@ class window.KeyControls extends LiteJot
     @lj.jots.determineFocusForNewJot()
 
   flagJotKeyedAt: =>
-    id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
+    id = $(@lj.jots.jots_list.find("li[data-keyed-over='true']")[0]).attr('data-jot')
     @lj.jots.flagJot parseInt(id)
 
   editJotKeyedAt: =>
-    id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
+    id = $(@lj.jots.jots_list.find("li[data-keyed-over='true']")[0]).attr('data-jot')
     @lj.jots.editJot parseInt(id)
 
   deleteJotKeyedAt: =>
-    id = $(@lj.jots.jots_wrapper.find("li[data-keyed-over='true']")[0]).attr('data-jot')
+    id = $(@lj.jots.jots_list.find("li[data-keyed-over='true']")[0]).attr('data-jot')
     @lj.jots.deleteJot parseInt(id)
     @keyToNextJotUp()
 
