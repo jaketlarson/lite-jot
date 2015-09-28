@@ -164,10 +164,11 @@ class window.Jots extends LiteJot
       @submitNewJot()
 
   initJotFormListeners: =>
-    @new_jot_content.keydown (e) =>
-      if !@currently_editing_id
+    @new_jot_content.keyup (e) =>
+      if !@currently_editing_id || true
         @listenToJotContentChanges e
 
+    @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
         e.preventDefault()
         if @currently_editing_id # if this is set, we're editing
@@ -252,6 +253,7 @@ class window.Jots extends LiteJot
 
     if tab == 'standard'
       @new_jot_content.val(carry_over_value)
+      @sizeJotContent()
     else if tab == 'heading'
       @new_jot_heading.val(carry_over_value.replace(/\n/g, ' '))
     else if tab == 'checklist'
@@ -1024,7 +1026,7 @@ class window.Jots extends LiteJot
       bottom: (@new_jot_wrap.height()/2 - @edit_notice.height()/2)
       left: @new_jot_wrap.offset().left - @edit_notice.width()
     )
-    elem.attr('data-editing', 'true')
+    #elem.attr('data-editing', 'true')
     @jots_list.css 'paddingBottom', @new_jot_wrap.outerHeight()
     @new_jot_wrap.attr('data-editing', 'true').css(
       width: elem.width()
@@ -1042,15 +1044,17 @@ class window.Jots extends LiteJot
     else
       @switchTab 'standard'
       @new_jot_content.val(raw_content).focus()
+      @sizeJotContent()
 
     if jot_object.break_from_top
       @jotBreakOn()
     else
       @jotBreakOff()
 
+    @remember_palette_while_editing = @palette_current
     if jot_object.color && jot_object.color.length > 0
-      @remember_palette_while_editing = @palette_current
-      @applyPaletteColor jot_object.color
+      @palette_current = jot_object.color
+      @applyPaletteColor @palette_current
     else
       @applyPaletteColor 'default'
 
@@ -1085,14 +1089,15 @@ class window.Jots extends LiteJot
       elem.attr('data-keyed-over', 'true')
 
       # return to old palette color
-      if @remember_palette_while_editing
-        jot_color = @palette_current
-        @palette_current = @remember_palette_while_editing
-        @remember_palette_while_editing = null
-        @applyPaletteColor @palette_current
+      jot_color = @palette_current
+      @palette_current = @remember_palette_while_editing
+      @remember_palette_while_editing = null
+      @applyPaletteColor @palette_current
+
+      console.log jot_color
 
       # only update folder/topic order & send server request if the user changed the jot
-      if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type) || @palette_current != jot_color
+      if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type) || jot_color != jot_object.color
         @lj.folders.moveCurrentFolderToTop()
         @lj.topics.moveCurrentTopicToTop()
 
@@ -1284,6 +1289,10 @@ class window.Jots extends LiteJot
     @palette_icon.css 'color', @lj.colors[color]
 
   listenToJotContentChanges: (event) =>
-    @new_jot_content.css 'height', @new_jot_content[0].scrollHeight
-    @scrollJotsToBottom()
+    @sizeJotContent()
+
+  sizeJotContent: =>
+    if @new_jot_content[0].scrollHeight > @new_jot_content_original_height
+      @new_jot_content.css 'height', @new_jot_content[0].scrollHeight+1
+      @scrollJotsToBottom()
 

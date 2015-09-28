@@ -418,7 +418,7 @@ class window.KeyControls extends LiteJot
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
       @cur_pos_index = 0
-      @lj.moveElemIntoView elem, @lj.jots.jots_list
+      @lj.moveElemIntoView elem, @lj.jots.jots_wrapper
 
   keyToFirstJotOrNew: =>
     if @lj.jots.jots_list.find('li').length > 0
@@ -437,7 +437,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.prev()
         nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.jots.jots_list
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
 
       else
         @keyToLastJot()
@@ -452,7 +452,7 @@ class window.KeyControls extends LiteJot
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.jots.jots_list
+        @lj.moveElemIntoView nextElem, @lj.jots.jots_wrapper
 
       else
         @lj.jots.ignore_this_key_down = true
