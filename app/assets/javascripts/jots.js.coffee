@@ -1119,6 +1119,7 @@ class window.Jots extends LiteJot
         @lj.topics.moveCurrentTopicToTop()
 
         jot_object.jot_type = @new_jot_current_tab
+
         if jot_object.jot_type == 'checklist'
           content_elem.html Autolinker.link(@parseCheckListToHTML(updated_content))
           @sizeText jot_object.id

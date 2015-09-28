@@ -199,8 +199,12 @@ class JotsController < ApplicationController
       # Checklists need special attention as items have IDs
       # We don't want to override an entire jot checklist's meta (such as the
       # toggled-by information)
-      if jot.jot_type == 'checklist'
-        old_version = JSON.parse(jot['content'])
+      if params['jot_type'] == 'checklist'
+        begin
+          old_version = JSON.parse(jot['content'])
+        rescue # Could be converted to a checklist from a different type
+          old_version = jot['content']
+        end
         new_version = JSON.parse(params['content'])
         new_version.each do |new_item|
           # This item is new! Let's give it an ID
