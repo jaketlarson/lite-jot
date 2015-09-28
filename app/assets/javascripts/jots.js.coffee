@@ -824,7 +824,7 @@ class window.Jots extends LiteJot
     if jot.color && jot.color.length > 0
       @jots_list.find("li[data-jot='#{jot.id}'] .content").css 'color', @lj.colors[jot.color]
 
-    @sizeJotContent jot.id
+    @sizeText jot.id
 
   sortJotData: =>
     @lj.app.jots.sort((a, b) =>
