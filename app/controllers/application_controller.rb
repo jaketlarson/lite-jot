@@ -20,7 +20,6 @@ class ApplicationController < ActionController::Base
     topics = []
     jots = []
 
-    #topics = current_user.topics.order('updated_at desc')
     # collect topics & jots
     folders.each do |folder|
       folder.topics.each do |topic|

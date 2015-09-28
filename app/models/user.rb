@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
   validate :freeze_email, :on => :update
 
   serialize :notifications_seen
+  serialize :preferences
 
   after_create :send_signup_email, :update_associated_shares
 
@@ -48,6 +49,18 @@ class User < ActiveRecord::Base
 
   def intro_seen
     self.saw_intro = true
+    self.save
+  end
+
+  def set_preference(pref_name, value = value.to_s)
+    if self.preferences.nil? || self.preferences.blank?
+      preferences = {}
+    else
+      preferences = JSON.parse(self.preferences)
+    end
+
+    preferences[pref_name] = value.to_s
+    self.preferences = preferences.to_json
     self.save
   end
 

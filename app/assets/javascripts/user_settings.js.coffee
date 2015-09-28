@@ -111,3 +111,13 @@ class window.UserSettings extends LiteJot
   #   if @lj.app.user.preferences.jot_color
   #     console.log @lj.app.user.preferences.jot_color
 
+  updatePreference: (preference, value) =>
+    if !@lj.app.user.preferences
+      @lj.app.user.preferences = {}
+    @lj.app.user.preferences[preference] = value
+
+    $.ajax(
+      type: 'PATCH'
+      url: '/user/update_preferences'
+      data: { preferences: @lj.app.user.preferences }
+    )

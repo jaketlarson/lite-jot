@@ -36,6 +36,16 @@
     .heading-text
       |Jots
 
+    .options
+      .font-change
+        i.font-icon.fa.fa-font title='Jot Size'
+
+        .slider-wrapper
+          .range-slider data-slider="#{@jot_size.to_f * 100}" data-options="start: 50; end: 150;"
+            .range-slider-handle role="slider" tabindex="0"
+            .range-slider-active-segment
+            .input type="hidden"
+
     #search-wrapper
       button#search-button
         i.fa.fa-search.default-icon

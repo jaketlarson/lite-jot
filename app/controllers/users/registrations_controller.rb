@@ -58,10 +58,24 @@ class Users::RegistrationsController < Devise::RegistrationsController
       ap resource
       render :json => UserSerializer.new(resource, :root => false), :status => :not_acceptable
     end
+
+
   end
 
   def saw_intro
     current_user.intro_seen
+    render :nothing => true
+  end
+
+  def update_preferences
+    preferences_param = params[:preferences]
+
+    if preferences_param
+      if preferences_param['jot_size'].to_f >= 0.5 && preferences_param['jot_size'].to_f <= 1.5
+        current_user.set_preference('jot_size', preferences_param['jot_size'])
+      end
+    end
+
     render :nothing => true
   end
 

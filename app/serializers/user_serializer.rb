@@ -6,7 +6,8 @@ class UserSerializer < ActiveModel::Serializer
     :errors,
     :notifications_seen,
     :receives_email,
-    :saw_intro
+    :saw_intro,
+    :preferences
   )
   
   def errors
@@ -16,5 +17,14 @@ class UserSerializer < ActiveModel::Serializer
     end
     
     return error_text
+  end
+
+  def preferences
+    if object.preferences.nil? then return nil end
+    begin
+      JSON.parse(object.preferences)
+    rescue
+      return nil
+    end
   end
 end

@@ -4,6 +4,7 @@ class window.Jots extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initJotFormListeners()
+    @initResizeListeners()
     @initScrollListeners()
     @newJotWrapActive()
     @cleanCheckListTab()
@@ -37,7 +38,12 @@ class window.Jots extends LiteJot
     @currently_editing_id = null
     @scroll_top_before_editing = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
-    
+    @text_resize_factor = parseInt(@jots_heading.find('.options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
+    @timestamp_text_max_px = .55*16 # .55rem * 16px/rem
+    @content_text_default_px = .95*16 # .95rem * 16px/rem
+    @update_jot_size_save_timer = null # used to prevent flooding of requests when saving jot size pref
+    @update_jot_size_save_timer_length = 2000
+
     # ignore_this_key_down is used when moving from the last jot to new jot area
     # It's used because the keydown event from key controls
     # doubles up with keyup event for the checklist item bind
@@ -222,6 +228,12 @@ class window.Jots extends LiteJot
       @palette.hide()
       @determineFocusForNewJot()
       @chooseColor e
+
+  initResizeListeners: =>
+    @jots_heading.find('.options [data-slider]').on 'change.fndtn.slider', () =>
+      @updateJotSize()
+
+    @jots_heading.find('.options .font-icon').cooltip { direction: 'left' }
 
   determineFocusForNewJot: =>
     if @new_jot_current_tab == 'standard'
@@ -688,6 +700,8 @@ class window.Jots extends LiteJot
     else if method == 'prepend'
       @jots_list.prepend build_entry
 
+    @sizeText()
+
     # reset template where necessary (classes, content)
     @jot_temp_entry_template.find('li').removeClass('heading').removeClass('break-from-top')
     @jot_temp_entry_template.find('li .content').remove()
@@ -727,56 +741,57 @@ class window.Jots extends LiteJot
     flash_class = if flash then 'flash' else ''
     content_title = if jot.jot_type == 'email_tag' then 'Click to open email thread transcript' else ''
 
-    build_html = "<li data-jot='#{jot.id}'
-                  class='jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}'
-                  data-tagged-email-id='#{jot.tagged_email_id}'>"
-    build_html += "<div class='timestamp'></div>"
+    $html = $("<li />")
+    $html.attr 'data-jot', jot.id
+    $html.addClass "jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}'"
+    $html.attr 'data-tagged-email-id', jot.tagged_email_id
+    $html.append "<div class='timestamp'></div>"
 
     if jot.has_manage_permissions
       if @canEdit id=null, jot=jot
-        build_html += "<i class='fa fa-pencil edit' title='Edit jot' />
+        $html.append "<i class='fa fa-pencil edit' title='Edit jot' />
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
 
-      build_html += "<i class='fa fa-trash delete' title='Delete jot' />"
+      $html.append "<i class='fa fa-trash delete' title='Delete jot' />"
 
 
-    build_html += "<div class='content' title='#{content_title}'>"
+    $html.append  "<div class='content' title='#{content_title}' />"
 
     if jot.jot_type == 'checklist'
-      build_html += @parseCheckListToHTML jot.content
+      $html.find('.content').append @parseCheckListToHTML jot.content
     else if jot.jot_type == 'email_tag'
-      build_html += "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
+      $html.find('.content').append "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
     else
-      build_html += jot_content
-
-    build_html += "</div>
-                  </li>"
+      $html.find('.content').append jot_content
 
     # parse possible links
-    build_html = Autolinker.link build_html
+    $html.html Autolinker.link $html.html()
 
     if method == 'append'
-      @jots_list.append build_html
+      @jots_list.append $html
     else if method == 'prepend'
-      @jots_list.prepend build_html
+      @jots_list.prepend $html
     else if method == 'before'
       # Uses passed param 'before_id' and inserts elem after the corresponding jot.
       target = @jots_list.find("li[data-jot='#{before_id}']")
       if target.length == 1
-        $(build_html).insertBefore target
+        $html.insertBefore target
 
     @setTimestamp jot
     @initJotBinds jot.id
+
     if jot.jot_type == 'checklist'
       @initJotElemChecklistBind jot.id
 
     # handle coloring
     if jot.color && jot.color.length > 0
-      @jots_list.find("li[data-jot='#{jot.id}'] .content").css 'color', @lj.colors[jot.color]
+      $html.find('.content').css 'color', @lj.colors[jot.color]
+
+    @sizeText jot.id
 
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
@@ -808,6 +823,8 @@ class window.Jots extends LiteJot
     # handle coloring
     if jot.color && jot.color.length > 0
       @jots_list.find("li[data-jot='#{jot.id}'] .content").css 'color', @lj.colors[jot.color]
+
+    @sizeJotContent jot.id
 
   sortJotData: =>
     @lj.app.jots.sort((a, b) =>
@@ -1295,4 +1312,38 @@ class window.Jots extends LiteJot
     if @new_jot_content[0].scrollHeight > @new_jot_content_original_height
       @new_jot_content.css 'height', @new_jot_content[0].scrollHeight+1
       @scrollJotsToBottom()
+
+  sizeText: (id) =>
+    if !id
+      selector = "li.jot-item, li.temp"
+    else
+      selector = "li.jot-item[data-jot='#{id}'], li.temp"
+
+    if @content_text_default_px*@text_resize_factor > @content_text_default_px
+      timestamp_size = @timestamp_text_max_px
+      timestamp_lineheight = @content_text_default_px*1.5
+    else
+      timestamp_size = @timestamp_text_max_px*@text_resize_factor
+    timestamp_lineheight = @content_text_default_px*1.5*@text_resize_factor
+
+    @jots_list.find(selector).find('.checklist-item, i:not(.flag-icon)').andSelf().css(
+      fontSize: @content_text_default_px*@text_resize_factor+'px'
+      lineHeight: @content_text_default_px*1.5*@text_resize_factor+'px'
+    )
+
+    @jots_list.find(selector).find('.timestamp').css(
+      fontSize: timestamp_size+'px'
+      lineHeight: timestamp_lineheight+'px'
+    )
+
+  updateJotSize: =>
+    @text_resize_factor = parseInt(@jots_heading.find('.options .font-change .range-slider').attr('data-slider')) / 100
+    @sizeText()
+
+    if @update_jot_size_save_timer
+      clearTimeout @update_jot_size_save_timer
+
+    @update_jot_size_save_timer = setTimeout(() =>
+      @lj.user_settings.updatePreference 'jot_size', @text_resize_factor
+    , @update_jot_size_save_timer_length)
 

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
   devise_scope :user do
     get '/user/saw-intro' => 'users/registrations#saw_intro'
+    patch '/user/update_preferences' => 'users/registrations#update_preferences'
   end
 
 

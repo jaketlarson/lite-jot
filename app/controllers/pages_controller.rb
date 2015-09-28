@@ -7,6 +7,16 @@ class PagesController < ApplicationController
 
   def dashboard
     @user = current_user
+
+    if !@user.preferences.blank?
+      begin
+        @jot_size = JSON.parse(@user.preferences)['jot_size'] ? JSON.parse(@user.preferences)['jot_size'] : 1.0
+      rescue
+        @jot_size = 1.0
+      end
+    else
+      @jot_size = 1.0
+    end
   end
 
   def terms
