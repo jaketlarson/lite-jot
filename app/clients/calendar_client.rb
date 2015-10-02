@@ -170,7 +170,6 @@ class CalendarClient
   private
     def refresh_token(user)
       @client.authorization.refresh_token = user.auth_refresh_token
-
       token_result = @client.authorization.fetch_access_token!
 
       user.save_google_token(
