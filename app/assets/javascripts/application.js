@@ -25,4 +25,5 @@
 //= require email_viewer
 //= require Autolinker
 //= require cooltip
+//= require cursor_position
 //= require litejot

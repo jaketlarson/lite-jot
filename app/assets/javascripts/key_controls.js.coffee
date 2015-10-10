@@ -30,6 +30,7 @@ class window.KeyControls extends LiteJot
       s: 83
       y: 89
       b: 66
+      tab: 9
 
     # Virtual architecture user is navigating w/ keyboard
     @key_nav = {}

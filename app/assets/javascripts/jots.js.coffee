@@ -172,7 +172,7 @@ class window.Jots extends LiteJot
   initJotFormListeners: =>
     @new_jot_content.keyup (e) =>
       if !@currently_editing_id || true
-        @listenToJotContentChanges e
+        @checkIfJotContentExpands e
 
     @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
@@ -181,6 +181,11 @@ class window.Jots extends LiteJot
           @finishEditing()
         else
           @newJotSubmit()
+
+      if e.keyCode == @lj.key_controls.key_codes.tab
+        e.preventDefault()
+
+        @handleTabInJotContent e.shiftKey
 
     @new_jot_heading.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter
@@ -1307,7 +1312,7 @@ class window.Jots extends LiteJot
     @new_jot_checklist_tab.find("input[type='text']").css 'color', @lj.colors[color]
     @palette_icon.css 'color', @lj.colors[color]
 
-  listenToJotContentChanges: (event) =>
+  checkIfJotContentExpands: (event) =>
     @sizeJotContent()
 
   sizeJotContent: =>
@@ -1348,4 +1353,59 @@ class window.Jots extends LiteJot
     @update_jot_size_save_timer = setTimeout(() =>
       @lj.user_settings.updatePreference 'jot_size', @text_resize_factor
     , @update_jot_size_save_timer_length)
+
+  handleTabInJotContent: (shift_pressed) =>
+    return # for now -- not ready!
+    start_pos = @new_jot_content.get(0).selectionStart
+    end_pos = @new_jot_content.get(0).selectionEnd
+    val = @new_jot_content.val()
+
+    if start_pos == end_pos
+      # We have to determine if we are indenting, dedenting or breaking lines
+      # Lite Jot uses the tab to break line when the character
+      # before the mouse position is actual content (not \n or \t).
+      unless shift_pressed
+        if start_pos != 0 && val[start_pos-1] != "\t" && val[start_pos-1] != "\n"
+          insert_char = "\n"
+        else
+          insert_char = "\t"
+
+        new_val = val.substring(0, start_pos) \
+                  + insert_char \
+                  + val.substring(start_pos)
+        @new_jot_content.val(new_val).setCursorPosition(start_pos+1)
+
+      else
+        if start_pos == 0
+          console.log 'no'
+          # shift+tab doesn't do anything on empty content
+          return
+
+        if val[start_pos-1] == "\t" || val[start_pos-1] == "\n"
+          console.log 'oh'
+          new_val = val.substring(0, start_pos-1) \
+                    + val.substring(start_pos)
+        @new_jot_content.val(new_val).setCursorPosition(start_pos-1)
+
+    else
+      # We have to indent or dedent several things
+      selection_val = val.substring(start_pos, end_pos)
+      original_length = selection_val.length
+
+      unless shift_pressed
+        selection_val = selection_val.replace(/\n/g, "\n\t")
+        selection_val = "\t"+selection_val
+      else
+        selection_val = selection_val.replace(/\n\t/g, "\n")
+        if selection_val[0] == "\t"
+          selection_val = selection_val.substring(1)
+
+      new_val = val.substring(0, start_pos) \
+                + selection_val \
+                + val.substring(end_pos)
+
+      new_length = selection_val.length
+      length_diff = new_length - original_length
+
+      @new_jot_content.val(new_val).selectRange(start_pos-length_diff-1, end_pos+length_diff)
 
