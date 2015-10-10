@@ -59,6 +59,12 @@ nav.top-bar
       a#keyboard-shortcuts-link.active, a#calendar-link.active
         background-color: $palette-black
 
+      a:hover, a#keyboard-shortcuts-link.active, a#calendar-link.active
+        // Hard-coded the height to override border-bottom on dashboard
+        // so that there isn't a weird red line when keyboard
+        // shortcuts is open / when hovering over a menu link.
+        height: rem-calc(46)
+
       #cal-icon-date
         position: absolute
         top: 4px

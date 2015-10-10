@@ -1,11 +1,10 @@
 nav.top-bar data-topbar='true' role='navigation'
   ul.title-area
     li.name
-      == link_to "/" do
-        h1
-          a href='/'
-            = image_tag('feather-white-small.png')
-            |Lite&nbsp;Jot
+      h1
+        a href='/'
+          = image_tag('feather-white-small.png')
+          |Lite&nbsp;Jot
 
     - if user_signed_in?
       li.toggle-topbar.menu-icon
