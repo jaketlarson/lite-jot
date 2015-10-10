@@ -841,15 +841,15 @@ class window.Jots extends LiteJot
     html = "<i class='flag-icon fa fa-flag'></i> "+ jot.created_at_short
 
     $(elem).html(html)
-    .attr("title", "Written by #{jot.author_display_name}.<br>
+    .closest('li').attr("title", "Written by #{jot.author_display_name}.<br>
                     Created on #{jot.created_at_long}.<br>
                     Last updated on #{jot.updated_at}.<br>
-                    Click to toggle flag.")
-    $(elem).cooltip({direction: 'left', class: 'timestamp'})
+                    Click timestamp toggle flag.")
+    $(elem).closest('li').cooltip({direction: 'left', class: 'timestamp', align: 'top'})
 
     # Update timestamp tooltip,
     # just in case this method call was to update the jot elem
-    elem.cooltip 'update'
+    elem.closest('li').cooltip 'update'
 
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
