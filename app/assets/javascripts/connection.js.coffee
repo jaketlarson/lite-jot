@@ -63,6 +63,7 @@ class window.Connection extends LiteJot
           @lj.app.user = data.user
           @lj.buildUI()
           @lj.initKeyControls()
+          @lj.sizeUI()
           @lj.initCalendar()
           @lj.initEmailTagger()
           @lj.initPushUI()

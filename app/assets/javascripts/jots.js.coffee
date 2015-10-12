@@ -1355,7 +1355,6 @@ class window.Jots extends LiteJot
     , @update_jot_size_save_timer_length)
 
   handleTabInJotContent: (shift_pressed) =>
-    return # for now -- not ready!
     start_pos = @new_jot_content.get(0).selectionStart
     end_pos = @new_jot_content.get(0).selectionEnd
     val = @new_jot_content.val()
@@ -1377,15 +1376,14 @@ class window.Jots extends LiteJot
 
       else
         if start_pos == 0
-          console.log 'no'
           # shift+tab doesn't do anything on empty content
           return
 
         if val[start_pos-1] == "\t" || val[start_pos-1] == "\n"
-          console.log 'oh'
           new_val = val.substring(0, start_pos-1) \
                     + val.substring(start_pos)
-        @new_jot_content.val(new_val).setCursorPosition(start_pos-1)
+
+          @new_jot_content.val(new_val).setCursorPosition(start_pos-1)
 
     else
       # We have to indent or dedent several things
@@ -1395,17 +1393,26 @@ class window.Jots extends LiteJot
       unless shift_pressed
         selection_val = selection_val.replace(/\n/g, "\n\t")
         selection_val = "\t"+selection_val
+
+        new_val = val.substring(0, start_pos) \
+                  + selection_val \
+                  + val.substring(end_pos)
+
+        new_length = selection_val.length
+        length_diff = original_length - new_length
+
       else
         selection_val = selection_val.replace(/\n\t/g, "\n")
+
         if selection_val[0] == "\t"
           selection_val = selection_val.substring(1)
 
-      new_val = val.substring(0, start_pos) \
-                + selection_val \
-                + val.substring(end_pos)
+        new_val = val.substring(0, start_pos) \
+                  + selection_val \
+                  + val.substring(end_pos)
 
-      new_length = selection_val.length
-      length_diff = new_length - original_length
+        new_length = selection_val.length
+        length_diff = original_length - new_length
 
-      @new_jot_content.val(new_val).selectRange(start_pos-length_diff-1, end_pos+length_diff)
+      @new_jot_content.val(new_val).selectRange(start_pos, end_pos-length_diff)
 

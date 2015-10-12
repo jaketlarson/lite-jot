@@ -66,7 +66,6 @@ class window.LiteJot
     @search = new Search(@)
     @user_settings = new UserSettings(@)
     @connection = new Connection(@)
-    @sizeUI()
     @setUIInterval()
     @connection.loadDataFromServer()
     @initAppInfoModalBind()
@@ -179,6 +178,8 @@ class window.LiteJot
 
   initKeyControls: =>
     @key_controls = new KeyControls(@)
+    @key_controls.curr_pos = 'new_jot_content'
+    @key_controls.switchKeyboardShortcutsPane()
 
   initCalendar: =>
     @calendar = new Calendar(@)
