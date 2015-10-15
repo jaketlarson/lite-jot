@@ -78,11 +78,11 @@ class window.Folders extends LiteJot
                       <input type='text' class='input-edit' />
                     </div>"
 
+    build_html += "<div class='options'>"
     if folder.has_manage_permissions
-      build_html += "<div class='options'>
-                      <i class='fa fa-share share' data-share title='Share folder' />
-                      <i class='fa fa-pencil edit' data-edit title='Edit folder' />
-                      <i class='fa fa-trash delete' data-delete title='Delete folder' />"
+      build_html +="<i class='fa fa-share share' data-share title='Share folder' />
+                    <i class='fa fa-pencil edit' data-edit title='Edit folder' />
+                    <i class='fa fa-trash delete' data-delete title='Delete folder' />"
     else
       build_html += "<i class='fa fa-times unshare' data-unshare title='Stop sharing folder with me' />"
     
