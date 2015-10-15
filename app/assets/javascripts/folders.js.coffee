@@ -82,12 +82,12 @@ class window.Folders extends LiteJot
       build_html += "<div class='options'>
                       <i class='fa fa-share share' data-share title='Share folder' />
                       <i class='fa fa-pencil edit' data-edit title='Edit folder' />
-                      <i class='fa fa-trash delete' data-delete title='Delete folder' />
-                    </div>"
+                      <i class='fa fa-trash delete' data-delete title='Delete folder' />"
     else
       build_html += "<i class='fa fa-times unshare' data-unshare title='Stop sharing folder with me' />"
     
-    build_html += "</li>"
+    build_html += "</div>
+                  </li>"
 
     if append
       @folders_list.append build_html
