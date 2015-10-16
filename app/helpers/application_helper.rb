@@ -5,4 +5,12 @@ module ApplicationHelper
     body_id = "#{controller_name}-#{action_name}"
     return body_id
   end
+
+  def page_title(custom='')
+    title = I18n.t('meta.site_title')
+    if !custom.blank?
+      title += " - #{custom}"
+    end
+    title
+  end
 end

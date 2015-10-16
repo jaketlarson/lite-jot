@@ -28,6 +28,9 @@ en:
       short_this_week: "%a"
       short_today: "%l:%M%P"
 
+  meta:
+    site_title: Lite Jot
+
 
   activerecord:
     errors:

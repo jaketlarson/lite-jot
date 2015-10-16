@@ -1,7 +1,8 @@
 doctype html
 html
   head
-    title Lite Jot - Powerful, lightweight note-taking
+    title
+      = page_title(yield(:title))
     == stylesheet_link_tag 'litejot', media: 'all', 'data-turbolinks-track' => true 
     == csrf_meta_tags
     meta content='width=device-width, initial-scale=1.0' name='viewport'
