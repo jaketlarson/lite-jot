@@ -230,6 +230,10 @@ nav#unauthenticated
 
     li
       display: inline-block
+      
+      &.home-link
+        @media #{$small-only}
+          display: none
 
       a
         padding: 0 .5rem
