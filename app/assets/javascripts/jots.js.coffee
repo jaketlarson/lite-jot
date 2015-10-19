@@ -1029,7 +1029,11 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
-    @lj.connection.abortPossibleDataLoadXHR()
+    @lj.connection.abortPossibleData
+
+    # If currently editing another jot, wrap up and switch gears.
+    if @currently_editing_id
+      @finishEditing editingAnother=true
 
     @currently_editing_id = id
     elem = $("li[data-jot='#{id}']")
@@ -1074,7 +1078,7 @@ class window.Jots extends LiteJot
     else
       @applyPaletteColor 'default'
 
-  finishEditing: =>
+  finishEditing: (editingAnother=false) =>
     if @currently_editing_id
       id = @currently_editing_id
       @currently_editing_id = null
@@ -1089,8 +1093,13 @@ class window.Jots extends LiteJot
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
       elem.show()
-      @jots_list.append @new_jot_wrap
-      @append_jot_link.hide()
+
+      # editingAnother is set to true when the user switches from one jot edit
+      # to another, and having this check here will make it smoother.
+      # Otherwise, the UI jumps when doing unnecessary manipulation (the appending/hiding)
+      if !editingAnother
+        @jots_list.append @new_jot_wrap
+        @append_jot_link.hide()
 
       jot_length = @newJotLength()
       @clearJotInputs()
