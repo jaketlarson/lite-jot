@@ -108,9 +108,9 @@
     margin-bottom: 0
     outline: 0
 
-    // Differentiate li from li>, so that #new-jot-wrap doesn't inherit
+    // Differentiate li from ul>li:not(#new-jot-wrap), so that #new-jot-wrap doesn't inherit
     // all the properties of a jot.
-    li
+    li, &> li:not(#new-jot-wrap)
       border-bottom: 1px solid rgb(241, 241, 241)
 
       &.break-from-top

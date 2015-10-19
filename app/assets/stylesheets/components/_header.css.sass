@@ -172,7 +172,7 @@ nav#authenticated.top-bar
         background-color: $palette-lightest-gray
         color: $palette-black
 
-      &:not(.has-dropdown, .menu-icon) a:hover, a#keyboard-shortcuts-link.active, a#calendar-link.active
+      &:not(.has-dropdown):not(.menu-icon) a:hover, a#keyboard-shortcuts-link.active, a#calendar-link.active
         // Hard-coded the height to override border-bottom on dashboard
         // so that there isn't a weird red line when keyboard
         // shortcuts is open / when hovering over a menu link.
