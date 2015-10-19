@@ -161,6 +161,11 @@ class window.Calendar extends LiteJot
 
           html += "<h4>#{cal_item.summary}</h4>"
 
+          if cal_item.event_in_progress
+            html += "<p>"
+            html += "<i class='fa fa-clock-o' />Happening now"
+            html += "</p>"
+
           if cal_item.location
             html += "<p>"
             html += "<i class='fa fa-map-marker' />#{cal_item.location}"

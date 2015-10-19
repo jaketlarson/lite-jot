@@ -1,10 +1,13 @@
 #keyboard-shortcuts
-  background-color: $palette-black
+  //background-color: #d65548
+  background-color: $palette-lightest-gray
+  border-bottom: 1px solid darken($palette-lightest-gray, 7%)
+  position: relative
   width: 100%
   display: none
   overflow: auto
   padding: 0 1rem
-  color: $palette-white
+  color: $palette-black
   text-align: center
   z-index: 3
   font-family: 'Monda'
@@ -36,8 +39,8 @@
       .key
         min-width: 1.5rem
         text-align: center
-        background-color: $palette-lightest-gray
-        color: $palette-black
+        background-color: $palette-black
+        color: $palette-lightest-gray
         display: inline-block
         line-height: 1.5rem
         margin-top: calc((2.5rem - 1.5rem) / 2)

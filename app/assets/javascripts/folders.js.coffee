@@ -189,6 +189,10 @@ class window.Folders extends LiteJot
       if folders_count > 0 && folder_title_length == 0
         @hideNewFolderForm()
 
+    .focus =>
+      # Fixes auto-call to this function after creating new folder and still showing folder as keyed-over.
+      @lj.key_controls.clearKeyedOverData()
+
     $('form#new_folder').submit (e) =>
       e.preventDefault()
       @submitNewFolder()
@@ -238,6 +242,7 @@ class window.Folders extends LiteJot
         )
 
     else if @lj.app.folders.length > 0
+      @lj.key_controls.keyToFirstFolder()
       @hideNewFolderForm()
 
   pushFolderIntoData: (folder) =>

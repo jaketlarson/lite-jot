@@ -1,13 +1,169 @@
 - content_for :title do
   = "Powerful, lightweight note-taking"
 
-a name='get-started'
-.panel#authenticate data-magellan-destination='get-started'
+.panel#welcome
+  .cover-photo class="slide" id="slide1" data-slide="1" data-stellar-background-ratio="0.65"
   .row
     .large-12.columns
 
-        h2
-          |powerful, lightweight note-taking
+      h2
+        |Powerful, lightweight note-taking
+
+      p#see-why-paragraph
+        |See why people are beginning to make Lite Jot apart of their workflow.
+        br
+        |Lite Jot is in beta mode and already feature-packed &mdash; and it's free.
+
+        button data-reveal-id='auth-modal' Get Started Within Seconds
+
+.panel#uses
+  .row
+    .large-12.columns
+      h2 Designed to keep you organized and productive
+
+  .row
+    .large-4.columns
+      .main-highlight
+        i.fa.fa-cloud
+        h3 Access Anywhere
+        p Your notes will be accessible from wherever you are
+
+    .large-4.columns
+      .main-highlight
+        i.fa.fa-bolt
+        h3 Quicker Notes
+        p Tools developed to make note-taking smoother
+
+    .large-4.columns
+      .main-highlight
+        i.fa.fa-clock-o
+        h3 Recent First
+        p Timeline-like organization keeps things relevant
+
+
+  .row
+    .large-12.columns
+      h4
+        |Whether at home, work, school, a coffee shop, or your next meeting &mdash; you're in sync.
+
+
+  .row
+    .large-3.medium-6.columns
+      .use
+        i.fa.fa-tasks
+        h3 Task Management
+
+    .large-3.medium-6.columns
+      .use
+        i.fa.fa-briefcase
+        h3 Professional Projects
+
+    .large-3.medium-6.columns
+      .use
+        i.fa.fa-users
+        h3 Collaborative Notes
+
+    .large-3.medium-6.columns
+      .use
+        i.fa.fa-mortar-board
+        h3 Academics
+
+a name='features'
+.panel#features data-magellan-destination='features'
+  .row
+    .large-12.columns
+      h2 Feature Highlights
+
+  .row
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-keyboard-o
+        h3 Keyboard-Optimized
+        p Intuitive keyboard shortcuts for navigation, reduced mouse usage, &amp; fluid note-taking
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-calendar-o
+        h3 Calendar Integration
+        p Pull in your Google Calendar to enable notifications &amp; easy topic set-up during meetings
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-folder-open
+        h3 Organized Structure
+        p Utilize the folder-topic-jot structure for better organization.
+
+  .row
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-share-alt
+        h3 Share Notes
+        p Share folders &amp; topics with other users for projects, meetings, etc.
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-envelope-o
+        h3 Email Tagging
+        p Tag a relevant email (Gmail) in your notes for easy viewing later
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-plug
+        h3 Emergency Mode
+        p Lost internet in the midst of taking notes? Lite Jot takes advantage of local storage in times of desperation so you can keep typing
+
+  .row
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-heartbeat
+        h3 Live Updating
+        p Lite Jot works to keep your interface up-to-date, like when you're contributing to a shared folder
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-history
+        h3 Jot Recovery
+        p Just like the files in your computer's trash bin, your deleted jots can be recovered
+
+    .large-4.medium-12.columns
+      .feature
+        i.fa.fa-list
+        h3 Checklists
+        p Checklist jots make Lite Jot great for task management
+
+
+.panel#quotes style='display: none'
+  .row
+    .large-4.columns
+      .quote
+        img.portrait src='https://pbs.twimg.com/profile_images/554166713340530688/r1NUeslf_400x400.jpeg'
+        h3 Jake Larson
+        p &rdquo;Lite Jot is blah blah blah because blah blah blah&ldquo;
+
+    .large-4.columns
+      .quote
+        img.portrait src='https://pbs.twimg.com/profile_images/554166713340530688/r1NUeslf_400x400.jpeg'
+        h3 Jake Larson
+        p &rdquo;Lite Jot is blah blah blah because blah blah blah&ldquo;
+
+    .large-4.columns
+      .quote
+        img.portrait src='https://pbs.twimg.com/profile_images/554166713340530688/r1NUeslf_400x400.jpeg'
+        h3 Jake Larson
+        p &rdquo;Lite Jot is blah blah blah because blah blah blah&ldquo;
+
+.panel#get-started-now
+  .row
+    .large-12.columns
+      h3 See how Lite Jot can make a better note-taker out of you
+      button data-reveal-id='auth-modal' Get Started!
+
+.reveal-modal#auth-modal data-reveal=true
+  .row.collapse
+    .large-12.columns
+
+        h3
+          |Get Started with Lite Jot
 
         == render :partial => "action_messages"
 
@@ -15,115 +171,7 @@ a name='get-started'
           .medium-6.columns#sign-up-column
             = render :partial => 'users/registrations/new'
           .medium-6.columns#sign-in-column
-            = render :partial => 'users/sessions/new'
             = render :partial => 'users/omniauth/new'
-
-a name='features'
-.panel#features data-magellan-destination='features'
-  h2 Features
-
-  .row
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-bolt
-        h3 Quick Note-taking
-        p Lite Jot is designed to make note-taking faster, easier, &amp; more productive.
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-keyboard-o
-        h3 Keyboard-Optimized
-        p Intuitive keyboard shortcuts for navigation, reduced mouse usage, &amp; fluid note-taking
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-calendar-o
-        h3 Calendar Integration
-        p Pull in your Google Calendar to enable notifications &amp; easy topic set-up during meetings
-
-  .row
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-folder-open
-        h3 Organize Better
-        p Stay organized with our folder-topic-jot structure
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-share-alt
-        h3 Share Notes
-        p Share folders &amp; topics with other users for projects, meetings, etc.
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-envelope
-        h3 Email Tagging
-        p Tag a relevant email (Gmail) in your notes for easy viewing later
-
-  .row
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-plug
-        h3 Emergency Mode
-        p Lost internet in the midst of taking notes? Lite Jot takes advantage of local storage in times of desperation so you can keep typing
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-heartbeat
-        h3 Live Updating
-        p Lite Jot works to keep your interface up-to-date, like when you're contributing to a shared folder
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-history
-        h3 Jot Recovery
-        p Just like the files in your computer's trash bin, your deleted jots can be recovered
-
-  .row
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-flag
-        h3 Flag Jots
-        p Mark jots as flagged, for your own creative reasons
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-list
-        h3 Checklists
-        p Checklist jots make Lite Jot great for task management
-
-    .large-4.medium-6.columns
-      .feature
-        i.fa.fa-cloud
-        h3 Anywhere Access
-        p Your notes are saved on Lite Jot. Access them later from anywhere
-
-a name='examples'
-.panel#examples data-magellan-destination='examples'
-
-  .row.large-12
-
-    h3 Lite Jot can be useful for..
-
-
-    ul.fa-ul
-      li
-        i.fa.fa-tasks
-        |Project management: Check lists can be used to signify a task is carried out.
-      li
-        i.fa.fa-mortar-board
-        |Academics: The folder-topic-jot note-taking paradigm will keep you organized.
-      li
-        i.fa.fa-users
-        |Meetings: Log your discussions with a keyboard-optimized tool that will help you keep up with fast-paced dialogue.
-      li
-        i.fa.fa-home
-        |Households: Share a folder with your household to track chores, grocery lists, etc.
-      li
-        i.fa.fa-child
-        |Daycare: Keep records of a child's needs and keep their parents in the loop via sharing.
-      li
-        i.fa.fa-ellipsis-h
-        |and much more!
+            = render :partial => 'users/sessions/new'
 
 == render :partial => 'footer'

@@ -15,7 +15,10 @@ html
     meta property="og:image" content="https://www.litejot.com/assets/images/logos/facebook-share.png"
 
   body id="#{body_id}"
-    == render :partial => "header"
+    - if !user_signed_in?
+      == render :partial => "header_welcome"
+    - else
+      == render :partial => "header"
 
     == yield
 
@@ -48,3 +51,10 @@ html
 
         ga('create', 'UA-65882834-1', 'auto');
         ga('send', 'pageview');
+
+
+  - if !user_signed_in?
+    == javascript_include_tag 'stellar.min.js'
+
+    javascript:
+      $(window).stellar();

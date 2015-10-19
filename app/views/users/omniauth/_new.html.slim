@@ -1,4 +1,7 @@
-h3 or..
+#google-cal-sign-in-notice
+  i.fa.fa-calendar-check-o
+  |To enable Lite Jot's Email (Gmail) Tagging and Google Calendar integration, sign-in with Google.
+
 .row#auth-services.collapse
   .column.large-6.medium-12.small-12
     == link_to user_omniauth_authorize_path(:google_oauth2), :class => 'auth-service google' do
@@ -9,7 +12,3 @@ h3 or..
     == link_to user_omniauth_authorize_path(:facebook), :class => 'auth-service facebook' do
       i.fa.fa-facebook
       |Sign in with Facebook
-
-#google-cal-sign-in-notice
-  i.fa.fa-calendar-check-o
-  |To enable Lite Jot's Email (Gmail) Tagging and Google Calendar integration, sign-in with Google.

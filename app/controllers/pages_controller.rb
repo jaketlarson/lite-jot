@@ -5,6 +5,11 @@ class PagesController < ApplicationController
     @user_sign_in = User.new
   end
 
+  def getting_started
+    @user_sign_up = User.new
+    @user_sign_in = User.new
+  end
+
   def dashboard
     @user = current_user
 

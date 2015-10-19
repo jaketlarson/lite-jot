@@ -1,16 +1,63 @@
 body#pages-dashboard
   background-color: rgba(250, 250, 250, 1)
-  nav.top-bar
-    box-shadow: none
-    border-bottom: 1px solid darken($primary-color, 7%)
-    height: rem-calc(46)
+  padding-top: rem-calc(45)
+  overflow-x: hidden
 
   h2
     font-size: 1.5rem
     text-align: left
     margin-top: 1rem
     font-family: 'Monda'
-    
+
+  // Keeping the responsive grid for folders, topics, and jots columns in here.
+
+  #folders-column, #topics-column
+    width: 10rem
+    float: left
+    position: relative
+
+    &.showing-aside
+      margin-left: 0%
+      position: absolute
+      top: rem-calc(46px)
+      width: 40%
+
+  #folders-column
+    margin-left: -20rem
+
+    &.showing-aside
+      left: 0
+
+  #topics-column
+    margin-left: -10rem
+  
+    &.showing-aside
+      left: 40%
+      transition: all .25s linear
+
+  #jots-column
+    width: 100%
+    float: left
+    position: relative
+
+    &.showing-aside
+      transform: translate3d(80%, 0, 0)
+      transition: all .25s linear
+
+  // Override all the off-canvas-type CSS when large and up.
+  @media #{$large-up}
+    #folders-column, #folders-column.showing-aside, #topics-column, #topics-column.showing-aside
+      width: 16%
+      margin-left: 0
+      position: relative
+      top: 0
+      left: 0
+
+    #jots-column, #jots-column.showing-aside
+      width: 68%
+      float: left
+      transform: none
+
   #dash-loading-overlay
     background-color: $palette-lightest-gray
     position: fixed

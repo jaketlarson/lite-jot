@@ -1,0 +1,19 @@
+- content_for :title do
+  = "Sign in"
+
+article
+  .row
+    .large-12.columns
+      h2
+        |Get Started with Lite Jot
+
+      == render :partial => "action_messages"
+
+      .row
+        .medium-6.columns#sign-up-column
+          = render :partial => 'users/registrations/new'
+        .medium-6.columns#sign-in-column
+          = render :partial => 'users/omniauth/new'
+          = render :partial => 'users/sessions/new'
+
+== render :partial => 'footer'

@@ -38,8 +38,18 @@ $has-tip-cursor-type: auto
 $topbar-bg: $primary-color
 $topbar-title-font-size: 1.75rem
 $topbar-link-font-size: .875rem
-$topbar-dropdown-link-bg-hover: $primary-color
 $topbar-menu-icon-color-toggled: $palette-black
+$topbar-link-bg-hover: lighten($primary-color, 10%)
+$topbar-link-color-hover: $palette-white
+$topbar-dropdown-link-bg: lighten($primary-color, 10%)
+$topbar-dropdown-link-bg-hover: $topbar-dropdown-link-bg
+$topbar-dropdown-link-color: $palette-white
+$topbar-dropdown-link-color-hover: $palette-light-gray
+
+//$medium-range: (40.063em, 64em)
+//$screen: "only screen"
+//$topbar-breakpoint: #{lower-bound($medium-range)} // Change to 9999px for always mobile layout
+//$topbar-media-query: "#{$screen} and (min-width:#{lower-bound($topbar-breakpoint)})"
 
 // Shadows
 $default-box-shadow: 0px 1px 4px rgba(0,0,0,0.5)

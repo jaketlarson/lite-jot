@@ -36,7 +36,7 @@ $ ->
     $(document).foundation()
 
   else
-    $('nav').attr('data-magellan-expedition', 'fixed')
+    $('navNO').attr('data-magellan-expedition', 'fixed')
     $(document).foundation(
       "magellan-expedition": {
         destination_threshold: 250
@@ -76,6 +76,7 @@ class window.LiteJot
     @initTips()
     @support = new Support(@)
     @support = new JotRecovery(@)
+    @initAsideToggleListener()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -102,6 +103,7 @@ class window.LiteJot
       'purple': '#8e44ad'
 
     @dash_loading_overlay = $('#dash-loading-overlay')
+    @show_aside_trigger = $('#show-aside')
 
   setViewport: =>
     @viewport =
@@ -206,3 +208,18 @@ class window.LiteJot
     setTimeout(() =>
       @dash_loading_overlay.fadeOut(500).css { marginLeft: -1*@dash_loading_overlay.width() }
     , 500)
+
+  initAsideToggleListener: =>
+    @show_aside_trigger.click =>
+      @toggleAside()
+
+  toggleAside: =>
+    if @jots.jots_column.hasClass('showing-aside')
+      @folders.folders_column.removeClass('showing-aside')
+      @topics.topics_column.removeClass('showing-aside')
+      @jots.jots_column.removeClass('showing-aside')
+
+    else
+      @folders.folders_column.addClass('showing-aside')
+      @topics.topics_column.addClass('showing-aside')
+      @jots.jots_column.addClass('showing-aside')

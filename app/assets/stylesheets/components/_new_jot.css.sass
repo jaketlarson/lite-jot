@@ -4,6 +4,7 @@
   outline: 0
   position: relative
   padding-left: 4.5rem
+  padding-right: .5rem
 
   #jot-palette-icon-wrap
     float: left
@@ -193,13 +194,12 @@
           &:not(:last-child)
             margin-bottom: .25rem
 
-  &[data-editing='true']
-    z-index: 4
-    background-color: $palette-lightest-gray
-    padding-right: .25rem
-    padding-top: .25rem
-    position: fixed
+a.add-new-jot-to-end-link
+  padding: 1rem
+  font-size: .9rem
+  font-family: 'Monda'
+  text-align: center
+  display: none
 
-  &.active
-    //background-color: $primary-color
-
+  i
+    margin-right: 1rem

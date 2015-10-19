@@ -50,6 +50,7 @@ Rails.application.routes.draw do
 
   get 'terms' => 'pages#terms'
   get 'privacy' => 'pages#privacy'
+  get 'getting-started' => 'pages#getting_started'
 
   match '/404', :to => 'errors#file_not_found', :via => :all
   match '/422', :to => 'errors#unprocessable', :via => :all

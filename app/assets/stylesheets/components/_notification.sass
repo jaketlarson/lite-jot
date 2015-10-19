@@ -1,6 +1,6 @@
 .notification
-  background-color: $palette-dark-red
-  color: $palette-white
+  background-color: $palette-white
+  color: $palette-black
   width: 20rem
   padding: .5rem .75rem
   position: fixed
@@ -13,13 +13,70 @@
   transition-property: bottom, opacity
   z-index: 3
   font-family: Monda
+  border-left: .5rem solid $primary-color
+  -webkit-animation: flash-alert .5s ease-out .5s 1
+  animation: flash-alert .5s ease-out .5s 1
+
+  @-webkit-keyframes flash-alert
+    0%
+      background: $primary-color
+      margin-left: -.5rem
+
+    15%
+      margin-left: .5rem
+
+    30%
+      margin-left: -.5rem
+
+    45%
+      margin-left: .5rem
+
+    60%
+      margin-left: -.5rem
+
+    75%
+      margin-left: .5rem
+
+    90%
+      margin-left: -.5rem
+
+    100%
+      background: $palette-white
+      margin-left: 0
+
+  @keyframes flash-alert
+    0%
+      background: $primary-color
+      margin-left: -.5rem
+
+    15%
+      margin-left: .5rem
+
+    30%
+      margin-left: -.5rem
+
+    45%
+      margin-left: .5rem
+
+    60%
+      margin-left: -.5rem
+
+    75%
+      margin-left: .5rem
+
+    90%
+      margin-left: -.5rem
+
+    100%
+      background: $palette-white
+      margin-left: 0
 
   &:hover
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)
 
   h1
     font-size: .9rem
-    color: $palette-white
+    color: $palette-black
     margin: 0 0 .25rem 0
     font-family: Monda
 

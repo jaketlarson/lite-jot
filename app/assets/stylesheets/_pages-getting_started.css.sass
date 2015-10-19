@@ -1,0 +1,32 @@
+body#pages-getting_started, body#users_registrations-create
+  article
+    h2
+      font-family: 'Monda'
+      font-size: 3rem
+      margin-bottom: 2rem
+
+    h4
+      font-family: 'Monda'
+      margin-bottom: 1rem
+
+      @media #{$small-only}
+        margin-top: 2rem
+
+    @media #{$small-only}
+      #sign-up-column
+        margin-bottom: 2rem
+
+
+    @media #{$medium-up}
+      #sign-up-column, #sign-in-column
+        margin-top: 2rem
+
+      #sign-up-column
+        border-right: 1px solid #ccc
+        padding-right: 2rem
+
+      #sign-in-column
+        padding-left: 2rem
+
+    .row:last-child
+      margin-bottom: 2rem

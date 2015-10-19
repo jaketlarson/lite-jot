@@ -10,3 +10,4 @@ Rails.application.config.assets.version = '1.0'
 Rails.application.config.assets.precompile += %w( litejot.css )
 Rails.application.config.assets.precompile += %w( vendor/modernizr.js )
 Rails.application.config.assets.precompile += %w( components/email_viewer.css )
+Rails.application.config.assets.precompile += %w( stellar.min.js )

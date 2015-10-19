@@ -70,6 +70,7 @@ ul#topics-list
 
       &:hover
         background-color: transparent
+        box-shadow: none
 
       form#new_topic
         input#topic_title
@@ -80,9 +81,7 @@ ul#topics-list
           transition: none
 
           &:focus
-            border: .2rem solid $primary-color
-            padding-left: .8rem
-            padding-right: .8rem
+            border-bottom: 1px solid $primary-color
 
     .options
       height: rem-calc(29)
@@ -108,10 +107,10 @@ ul#topics-list
 
     .input-edit-wrap
       position: absolute
-      top: .25rem
-      left: .25rem
-      bottom: .25rem
-      right: .25rem
+      top: 0
+      left: 0
+      bottom: 0
+      right: 0
       z-index: 2
       display: none
 
@@ -119,8 +118,11 @@ ul#topics-list
         width: 100%
         height: 100%
         border: 0
-        padding-left: .75rem
-        padding-right: .75rem
+        padding-left: 1rem
+        padding-right: 1rem
+
+        &:focus
+          border-bottom: 1px solid $primary-color
 
     &.current
       border-left: .5rem solid $primary-color

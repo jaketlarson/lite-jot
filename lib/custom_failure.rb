@@ -1,7 +1,7 @@
 class CustomFailure < Devise::FailureApp
   def redirect_url
     flash[:alert] = "Email and password combination does not match."
-    return "/"
+    return "/getting-started"
   end
   def respond
     if http_auth?

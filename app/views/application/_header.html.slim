@@ -1,10 +1,10 @@
-nav.top-bar data-topbar='true' role='navigation'
+nav#authenticated.top-bar data-topbar=true role='navigation'
   ul.title-area
     li.name
       h1
         a href='/'
           = image_tag('feather-white-small.png')
-          |Lite&nbsp;Jot
+          |Lite Jot
 
     - if user_signed_in?
       li.toggle-topbar.menu-icon
@@ -12,9 +12,10 @@ nav.top-bar data-topbar='true' role='navigation'
           span
 
   section.top-bar-section
-    ul.right
 
+    ul.right
       - if user_signed_in? && action_name == 'dashboard'
+        li.divider.show-for-large-up
         li.has-dropdown
           a#header-display-name href='#'
             == current_user.display_name
@@ -62,21 +63,12 @@ nav.top-bar data-topbar='true' role='navigation'
         li.show-for-large-up
           a#fullscreen-request title='Toggle Fullscreen'
             i.fa.fa-lg.fa-expand
-      - if controller.controller_name == 'pages' && controller.action_name == 'welcome'
-        li.active data-magellan-arrival='get-started'
-          a href='#get-started' Get Started
-        li.divider
-        li data-magellan-arrival='features'
-          a href='#features' Feature Overview
-        li.divider
-        li data-magellan-arrival='examples'
-          a href='#examples' Examples
-        li.divider
-        li
-          a href='https://www.twitter.com/litejot'
-            i.fa.fa-twitter.twitter-icon
-            |@litejot
 
+    #search-wrapper.right
+      button#search-button
+        i.fa.fa-search.default-icon
+        i.fa.fa-times.active-icon
+      input#search-input placeholder="Search Jots"
 
 - if user_signed_in?
   == render :partial => "keyboard_shortcuts"

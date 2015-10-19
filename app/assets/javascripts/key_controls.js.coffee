@@ -13,6 +13,7 @@ class window.KeyControls extends LiteJot
     @initVars()
     @initKeyBinds()
     @initKeyboardShortcutsHelpBind()
+    @initGlobalSearchCommand()
 
   initVars: =>
     @key_codes =
@@ -58,13 +59,11 @@ class window.KeyControls extends LiteJot
       left: @keyToCurrentTopic
       up: @keyToNextJotUp
       down: @keyToNextJotDown
-      right: @lj.search.focusSearchInput
       e: @editJotKeyedAt
       f: @flagJotKeyedAt
       n: @keyToNewJot
       del: @deleteJotKeyedAt
       backspace: @deleteJotKeyedAt
-      s: @lj.search.focusSearchInput
 
     @key_nav.jot_toolbar =
       left: @keyToLeftJotToolbarTab
@@ -73,9 +72,10 @@ class window.KeyControls extends LiteJot
       b: @lj.jots.toggleJotBreak
 
     @key_nav.search_jots =
-      down: @keyToFirstJotOrNew
       esc: @lj.search.endSearchState
-      left: @keyToNewJotFromSearchOrTopic
+      left: @keyToFirstTopic
+      down: @keyToNewJotFromSearchOrTopic
+      right: @keyToFirstJotOrNew
 
     @curr_pos = 'new_jot'
     @curr_pos_index = null
@@ -125,9 +125,6 @@ class window.KeyControls extends LiteJot
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
-      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
-        @lj.search.focusSearchInput()
-
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
         @keyToNewJotsTabs()
 
@@ -145,9 +142,6 @@ class window.KeyControls extends LiteJot
         $(e.currentTarget).blur()
         @keyToCurrentTopic()
 
-      if e.keyCode == @key_codes.right && $(e.currentTarget).val().trim().length == 0 && !@lj.jots.currently_editing_id
-        @lj.search.focusSearchInput()
-
       if e.keyCode == @key_codes.down && $(e.currentTarget).val().trim().length == 0
         @keyToNewJotsTabs()
 
@@ -156,14 +150,11 @@ class window.KeyControls extends LiteJot
       if !@isValidControl(e.keyCode, @key_nav.jots)
         return
 
-      is_editing = if @lj.jots.jots_list.find("li[data-editing='true']").length > 0 then true else false
+      is_editing = if @lj.jots.currently_editing_id then true else false
+      is_typing_new = if @lj.jots.new_jot_wrap.find('*:focus').length == 1 then true else false
 
-      if is_editing
-        if e.keyCode == @key_codes.up || e.keyCode == @key_codes.down
-          @getKeyedOverElem().find('input.input-edit')[0].blur()
-
-        else
-          return
+      if is_editing || is_typing_new
+        return
       else
         e.preventDefault()
 
@@ -171,7 +162,7 @@ class window.KeyControls extends LiteJot
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.jots).call()
 
     @lj.topics.topics_column.keydown (e) =>
-      if !@isValidControl(e.keyCode, @key_nav.jots)
+      if !@isValidControl(e.keyCode, @key_nav.topics)
         return
 
       new_field_has_focus = @lj.topics.new_topic_title.is(':focus')
@@ -187,7 +178,10 @@ class window.KeyControls extends LiteJot
         topics_count = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length
 
         if (e.keyCode == @key_codes.up || e.keyCode == @key_codes.down) && topics_count > 0
-          @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
+          if is_editing
+            @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
+          else if new_field_has_focus
+            return
 
         else
           return
@@ -201,7 +195,7 @@ class window.KeyControls extends LiteJot
         @getControlFunctionByKeyCode(e.keyCode, @key_nav.topics).call()
 
     @lj.folders.folders_column.keydown (e) =>
-      if !@isValidControl(e.keyCode, @key_nav.jots)
+      if !@isValidControl(e.keyCode, @key_nav.folders)
         return
 
       new_field_has_focus = @lj.folders.new_folder_title.is(':focus')
@@ -215,7 +209,10 @@ class window.KeyControls extends LiteJot
         folders_count = @lj.app.folders.length
 
         if (e.keyCode == @key_codes.up || e.keyCode == @key_codes.down) && folders_count > 0
-          @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
+          if is_editing
+            @getKeyedOverElem().find('input.input-edit')[0].blur() # needs improvement
+          else if new_field_has_focus
+            return
 
         else
           return
@@ -264,7 +261,6 @@ class window.KeyControls extends LiteJot
     @lj.topics.topics_column.focus (e) =>
       @curr_pos = 'topics'
       @switchKeyboardShortcutsPane()
-      @clearKeyedOverData()
 
       # only clear keyed over settings if not in topics column already
       # this avoids bugs with editing and deleting
@@ -322,6 +318,12 @@ class window.KeyControls extends LiteJot
       @toggleKeyboardShortcutsHelp()
 
     $('#keyboard-shortcuts .default').show()
+
+  initGlobalSearchCommand: =>
+    $(document).keydown (e) =>
+      if e.keyCode == @key_codes.f && (e.ctrlKey || e.metaKey)
+        e.preventDefault()
+        @lj.search.search_input.focus()
 
   clearKeyboardShortcutsPane: =>
     @curr_pos = null
@@ -418,7 +420,7 @@ class window.KeyControls extends LiteJot
       elem = $(@lj.jots.jots_list.find('li')[0])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'jot'
-      @cur_pos_index = 0
+      @curr_pos_index = 0
       @lj.moveElemIntoView elem, @lj.jots.jots_wrapper
 
   keyToFirstJotOrNew: =>
@@ -433,8 +435,8 @@ class window.KeyControls extends LiteJot
       elem = @getKeyedOverElem()
       
       if elem.index() > 0
-        @cur_pos = 'jot'
-        @cur_pos_index = elem.index()
+        @curr_pos = 'jot'
+        @curr_pos_index = elem.index()
         @clearKeyedOverData()
         nextElem = elem.prev()
         nextElem.attr('data-keyed-over', 'true')
@@ -448,8 +450,8 @@ class window.KeyControls extends LiteJot
       elem = @getKeyedOverElem()
 
      if elem.index() < @lj.jots.jots_list.find('li.jot-item').length - 1
-        @cur_pos = 'jot'
-        @cur_pos_index = elem.index()
+        @curr_pos = 'jot'
+        @curr_pos_index = elem.index()
         @clearKeyedOverData()
         nextElem = elem.next()
         nextElem.attr('data-keyed-over', 'true')
@@ -518,7 +520,7 @@ class window.KeyControls extends LiteJot
       elem = $(@lj.topics.topics_wrapper.find('li:not(.new-topic-form-wrap)')[0])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'topic'
-      @cur_pos_index = 0
+      @curr_pos_index = 0
       @openTopicKeyedTo()
       @lj.moveElemIntoView elem, @lj.topics.topics_wrapper
 
@@ -528,34 +530,40 @@ class window.KeyControls extends LiteJot
   keyToNextTopicUp: =>
     if @lj.topics.topics_wrapper.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
-      
-      if elem.index() > 1 # index 0 has new-form
-        @cur_pos = 'topic'
-        @cur_pos_index = elem.index()
-        @clearKeyedOverData()
-        nextElem = elem.prev()
-        nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
-        @openTopicKeyedTo()
 
-      else
-        @keyToLastTopic()
+    if (!elem || elem.length == 0) && @lj.topics.topics_wrapper.find("li:focus").length > 0
+      elem = @lj.topics.topics_wrapper.find("li:focus")
+      
+    if elem && elem.index() > 1 # index 0 has new-form
+      @curr_pos = 'topic'
+      @curr_pos_index = elem.index()
+      @clearKeyedOverData()
+      nextElem = elem.prev()
+      nextElem.attr('data-keyed-over', 'true')
+      @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
+      @openTopicKeyedTo()
+
+    else
+      @keyToLastTopic()
 
   keyToNextTopicDown: =>
     if @lj.topics.topics_wrapper.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-     if elem.index() < @lj.topics.topics_wrapper.find('li').length - 1
-        @cur_pos = 'topic'
-        @cur_pos_index = elem.index()
-        @clearKeyedOverData()
-        nextElem = elem.next()
-        nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
-        @openTopicKeyedTo()
+    if (!elem || elem.length == 0) && @lj.topics.topics_wrapper.find("li:focus").length > 0
+      elem = @lj.topics.topics_wrapper.find("li:focus")
 
-      else
-        @keyToFirstTopic()
+    if elem && elem.index() < @lj.topics.topics_wrapper.find('li').length - 1
+      @curr_pos = 'topic'
+      @curr_pos_index = elem.index()
+      @clearKeyedOverData()
+      nextElem = elem.next()
+      nextElem.attr('data-keyed-over', 'true')
+      @lj.moveElemIntoView nextElem, @lj.topics.topics_wrapper
+      @openTopicKeyedTo()
+
+    else
+      @keyToFirstTopic()
 
   openTopicKeyedTo: =>
     elem = $(@lj.topics.topics_wrapper.find("li[data-keyed-over='true']")[0])
@@ -602,7 +610,7 @@ class window.KeyControls extends LiteJot
       elem = $(@lj.folders.folders_wrapper.find('li:not(.new-folder-form-wrap)')[0])
       elem.attr('data-keyed-over', 'true')
       @curr_pos = 'folder'
-      @cur_pos_index = 0
+      @curr_pos_index = 0
       @lj.moveElemIntoView elem, @lj.folders.folders_wrapper
       @openFolderKeyedTo()
 
@@ -611,8 +619,8 @@ class window.KeyControls extends LiteJot
       elem = @getKeyedOverElem()
       
       if elem.index() > 1 # index 0 has new-form
-        @cur_pos = 'folder'
-        @cur_pos_index = elem.index()
+        @curr_pos = 'folder'
+        @curr_pos_index = elem.index()
         @clearKeyedOverData()
         nextElem = elem.prev('li:not(.new-folder-form-wrap)')
         nextElem.attr('data-keyed-over', 'true')
@@ -627,17 +635,20 @@ class window.KeyControls extends LiteJot
     if @lj.folders.folders_wrapper.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-      if elem.index() < @lj.folders.folders_wrapper.find('li').length - 1
-        @cur_pos = 'folder'
-        @cur_pos_index = elem.index()
-        @clearKeyedOverData()
-        nextElem = elem.next()
-        nextElem.attr('data-keyed-over', 'true')
-        @lj.moveElemIntoView nextElem, @lj.folders.folders_wrapper
-        @openFolderKeyedTo()
+    if @lj.folders.folders_wrapper.find("li:focus").length > 0
+      elem = @lj.folders.folders_wrapper.find("li:focus")
 
-      else
-        @keyToFirstFolder()
+    if elem && elem.index() < @lj.folders.folders_wrapper.find('li').length - 1
+      @curr_pos = 'folder'
+      @curr_pos_index = elem.index()
+      @clearKeyedOverData()
+      nextElem = elem.next()
+      nextElem.attr('data-keyed-over', 'true')
+      @lj.moveElemIntoView nextElem, @lj.folders.folders_wrapper
+      @openFolderKeyedTo()
+
+    else
+      @keyToFirstFolder()
 
   keyToNewFolder: =>
     @lj.folders.newFolder()
@@ -661,8 +672,8 @@ class window.KeyControls extends LiteJot
     if @lj.jots.new_jot_toolbar.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-      @cur_pos = 'jot_toolbar'
-      @cur_pos_index = elem.index()
+      @curr_pos = 'jot_toolbar'
+      @curr_pos_index = elem.index()
       @clearKeyedOverData()
 
       if elem.index() > 0
@@ -678,8 +689,8 @@ class window.KeyControls extends LiteJot
     if @lj.jots.new_jot_toolbar.find("li[data-keyed-over='true']").length > 0
       elem = @getKeyedOverElem()
 
-      @cur_pos = 'jot_toolbar'
-      @cur_pos_index = elem.index()
+      @curr_pos = 'jot_toolbar'
+      @curr_pos_index = elem.index()
       @clearKeyedOverData()
 
       if elem.index() < @lj.jots.new_jot_toolbar.find('li.tab').length - 1
@@ -697,7 +708,7 @@ class window.KeyControls extends LiteJot
     elem = $(@lj.jots.new_jot_toolbar.find('li.tab').first())
     elem.attr('data-keyed-over', 'true')
     @curr_pos = 'jot_toolbar'
-    @cur_pos_index = 0
+    @curr_pos_index = 0
     @lj.jots.switchTab elem.data('tab')
 
   keyToLastJotToolbarTab: =>
@@ -706,7 +717,7 @@ class window.KeyControls extends LiteJot
     elem = $(@lj.jots.new_jot_toolbar.find('li.tab').last())
     elem.attr('data-keyed-over', 'true')
     @curr_pos = 'jot_toolbar'
-    @cur_pos_index = 0
+    @curr_pos_index = 0
     @lj.jots.switchTab elem.data('tab')
 
   keyToNextNewJotListItemDown: =>
@@ -714,8 +725,8 @@ class window.KeyControls extends LiteJot
     if checklist_value_input.length > 0
       li_elem = checklist_value_input.closest('li')
       checklist_value_input.attr('data-keyed-over', false)
-      @cur_pos = 'jot_toolbar'
-      @cur_pos_index = li_elem.index
+      @curr_pos = 'jot_toolbar'
+      @curr_pos_index = li_elem.index
 
       if li_elem.index() < @lj.jots.new_jot_checklist_tab.find('li:not(.template) input.checklist-value').length
         nextElem = li_elem.next().find('input.checklist-value')
@@ -730,8 +741,8 @@ class window.KeyControls extends LiteJot
       li_elem = checklist_value_input.closest('li')
 
       if li_elem.index() > 1
-        @cur_pos = 'jot_toolbar'
-        @cur_pos_index = li_elem.index
+        @curr_pos = 'jot_toolbar'
+        @curr_pos_index = li_elem.index
         checklist_value_input.attr('data-keyed-over', false)
         nextElem = li_elem.prev().find('input.checklist-value')
         nextElem.attr('data-keyed-over', 'true').focus()

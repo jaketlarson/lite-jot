@@ -172,6 +172,10 @@ class window.Topics extends LiteJot
     })
 
   selectTopic: (topic_id) =>
+    # Make sure we wrap up any editing.
+    if @lj.jots.currently_editing_id
+      @lj.jots.finishEditing()
+
     @lj.jots.disableLoadOnScroll()
     @lj.jots.resetPageCounter()
 
@@ -378,6 +382,10 @@ class window.Topics extends LiteJot
       if topics_count > 0 && topic_title_length == 0
         @hideNewTopicForm()
 
+    .focus =>
+      # Fixes auto-call to this function after creating new folder and still showing folder as keyed-over.
+      @lj.key_controls.clearKeyedOverData()
+
     $('form#new_topic').submit (e) =>
       e.preventDefault()
       @submitNewTopic()
@@ -429,8 +437,9 @@ class window.Topics extends LiteJot
             new HoverNotice(@lj, 'Could not create topic.', 'error')
         )
 
-    else
-      @hideNewTopicForm
+    else if @topics_wrapper.find('li:not(.new-topic-form-wrap)').length > 0
+      @hideNewTopicForm()
+      @lj.key_controls.keyToFirstTopic()
 
   pushTopicIntoData: (topic) =>
     if @lj.app.topics.length == 0
@@ -463,7 +472,7 @@ class window.Topics extends LiteJot
         })
 
         @new_topic_title.val('')
-        @lj.key_controls.clearKeyedOverData()
+        #@lj.key_controls.clearKeyedOverData() might be useless
       , 250)
 
   moveCurrentTopicToTop: =>

@@ -29,7 +29,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
       @user_sign_up = resource
       @user_sign_in = User.new
-      render :template => "/pages/welcome"
+      render :template => "/pages/getting_started"
     end
   end
 

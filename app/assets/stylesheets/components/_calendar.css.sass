@@ -2,15 +2,16 @@
   position: absolute
   top: 0
   right: 0
-  background-color: $palette-black
+  background-color: $palette-lightest-gray
   width: 20rem
   z-index: 3
   display: none
-  color: $palette-white
+  color: $palette-black
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
+  border-bottom: .4rem solid $primary-color
 
   ul li, h2, h3, h4
-    color: $palette-white
+    color: $palette-black
 
   h2#cal-title
     margin-left: 1rem
@@ -29,7 +30,7 @@
 
     h3
       font-size: 1rem
-      border-bottom: 1px solid $palette-white
+      border-bottom: 1px solid $palette-black
       padding-bottom: .25rem
       margin-bottom: .5rem
 
@@ -62,17 +63,17 @@
 
         &.event-in-progress
           *, h4
-            color: $palette-soft-red
+            color: $primary-color
             font-weight: 700
 
         &.event-finished
           *, h4
-            color: $palette-gray
+            color: $palette-dark-gray
             text-decoration: line-through
 
   a#google-calendar-link
     line-height: 1.75rem
-    color: $palette-white
+    color: $palette-black
     font-size: .9rem
     margin-left: 1rem
     display: inline-block
@@ -87,7 +88,7 @@
 
   a#calendar-info-modal-link
     float: right
-    color: $palette-white
+    color: $palette-dark-gray
     margin-right: 1rem
 
     &:hover

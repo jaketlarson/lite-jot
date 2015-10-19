@@ -1,4 +1,4 @@
-body#pages-welcome, body#users_registrations-create
+body#pages-welcome
   h2
     margin-top: 1rem
     margin-bottom: 1rem
@@ -10,41 +10,111 @@ body#pages-welcome, body#users_registrations-create
       line-height: 2.8rem
 
   .panel
-    border: 0
-    width: 100%
-    background-color: none
-    margin: 0
-    padding-top: 2rem
-    padding-bottom: 2rem
+    &#welcome
+      padding: 5rem 0 6rem 0
+      background-color: #333
+      position: relative
+      z-index: 1
 
-    &#authenticate
-      h3
+      .cover-photo
+        background: url(/welcome-cover.jpg) no-repeat
+        background-size: cover
+        background-position: center
+        opacity: 0.35
+        position: absolute
+        top: 0
+        right: 0
+        bottom: 0
+        left: 0
+        z-index: -1
+
+      h2
         font-family: 'Monda'
+        color: $palette-white
+        font-size: 3rem
+        line-height: 5rem
+        text-align: left
+
+      p#see-why-paragraph
+        margin-top: 2rem
+        font-family: 'Monda'
+        color: $palette-white
+        font-size: 1.4rem
+
+        button
+          margin-top: 2rem
+          display: block
+
+    &#uses
+      background-color: $palette-white
+
+      h2
+        font-family: 'Monda'
+        font-size: 2.5rem
+        line-height: 3.75rem
+
+      .main-highlight
+        margin: 2rem auto
+        text-align: center
+        max-width: 25rem
+
+        i
+          color: $primary-color
+          margin-right: 1.5rem
+          font-size: 4.25rem
+          float: left
+          vertical-align: top
+          width: rem-calc(68px) // using this to keep all icons aligned better
+          text-align: center
+
+        h3
+          color: $primary-color
+          font-size: 1.25rem
+          text-align: left
+          margin: 0
+          line-height: 1.75rem
+
+        p
+          text-align: left
+          margin: 0
+          color: $palette-darker-gray
+          font-size: .85rem
+
+      h4
+        font-family: 'Monda'
+        font-size: 1.5rem
+        text-align: center
+        margin-top: 6rem
         margin-bottom: 1rem
+        line-height: 2.25rem
 
-        @media #{$small-only}
-          margin-top: 2rem
+      .use
+        text-align: center
+        margin: 1.5rem 0
 
-      @media #{$medium-up}
-        #sign-up-column, #sign-in-column
-          margin-top: 2rem
+        i
+          font-size: 3rem
+          color: $primary-color
+          background-color: $palette-lightest-gray
+          border-radius: 50%
+          height: 6rem
+          line-height: 6rem
+          width: 6rem
 
-        #sign-up-column
-          border-right: 1px solid #ccc
-          padding-right: 2rem
-
-        #sign-in-column
-          padding-left: 2rem
+        h3
+          margin-top: 1rem
+          color: $primary-color
+          font-size: 1.25rem
+          font-family: 'Monda'
 
     &#features
-      background-color: $primary-color
+      background-color: $palette-lightest-gray
       text-align: center
 
       h2
-        color: $palette-white
-        font-size: 2rem
-        text-align: left
-        display: none
+        font-family: 'Monda'
+        font-size: 2.5rem
+        margin-bottom: 3rem
 
       .feature
         margin-top: 1.5rem
@@ -53,16 +123,16 @@ body#pages-welcome, body#users_registrations-create
 
         i
           font-size: 5rem
-          color: $palette-lightest-gray
+          color: $primary-color
 
         h3
           margin-top: 1rem
-          color: $palette-white
+          color: $palette-black
           font-size: 1.25rem
           font-family: 'Monda'
 
         p
-          color: $palette-lightest-gray
+          color: $palette-darker-gray
           font-family: 'Monda'
           font-size: .9rem
           line-height: 1.35rem
@@ -71,28 +141,62 @@ body#pages-welcome, body#users_registrations-create
           @media #{$small-only}
             min-height: 0
 
-    &#examples
-      background-color: none
-      padding: 3rem 0 6rem 0
+    &#quotes
+      background-color: $palette-white
+
+      .quote
+        margin: 3rem 0
+
+        .portrait
+          border-radius: 50%
+          height: 5rem
+          width: 5rem
+          float: left
+          margin-right: 1.25rem
+          border: .25rem solid $palette-light-gray
+
+        h3
+          color: $primary-color
+          font-size: 1.25rem
+          line-height: 2rem
+          margin: 0
+
+        p
+          color: $palette-black
+          font-size: .9rem
+
+    &#get-started-now
+      background-color: $palette-white
 
       h3
-        padding-left: 1rem
-        padding-right: 1rem
+        font-size: 1.5rem
+        text-align: center
+        margin: 2rem 0
 
-      ul
-        font-family: 'Monda'
+      button
+        display: block
+        text-align: center
+        margin: 2rem auto
+
+
+  .reveal-modal#auth-modal
+    h3
+      margin-bottom: 0
+
+    h4
+      font-family: 'Monda'
+      margin-bottom: 1rem
+
+      @media #{$small-only}
         margin-top: 2rem
 
-        li
-          font-size: 1.35rem
-          padding: .8rem 1rem .8rem 2.5rem
-          position: relative
-          
-          i
-            position: absolute
-            left: 0
-            top: 1.2rem
-            font-size: 1.4rem
+    @media #{$medium-up}
+      #sign-up-column, #sign-in-column
+        margin-top: 2rem
 
-          i.fa.fa-ellipsis-h, i.fa.fa-tasks
-            top: 1.35rem
+      #sign-up-column
+        border-right: 1px solid #ccc
+        padding-right: 2rem
+
+      #sign-in-column
+        padding-left: 2rem

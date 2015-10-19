@@ -6,6 +6,7 @@ class window.Jots extends LiteJot
     @initJotFormListeners()
     @initResizeListeners()
     @initScrollListeners()
+    @initJotColumnOptionsListener()
     @newJotWrapActive()
     @cleanCheckListTab()
 
@@ -25,7 +26,9 @@ class window.Jots extends LiteJot
     @palette_hide_timer = null
     @palette_hide_timer_length = 250
     @palette_current = 'default'
+    @append_jot_link = $('.add-new-jot-to-end-link') # shows when editing other jots
 
+    @jots_column = $('#jots-column')
     @jots_heading = $('h2#jots-heading')
     @jots_heading_text = $('h2#jots-heading .heading-text')
     @jots_wrapper = $('#jots-wrapper')
@@ -36,9 +39,8 @@ class window.Jots extends LiteJot
     @edit_notice = $('#edit-notice')
     @remember_palette_while_editing = null
     @currently_editing_id = null
-    @scroll_top_before_editing = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
-    @text_resize_factor = parseInt(@jots_heading.find('.options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
+    @text_resize_factor = parseInt(@jots_heading.find('#jots-column-options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
     @timestamp_text_max_px = .55*16 # .55rem * 16px/rem
     @content_text_default_px = .95*16 # .95rem * 16px/rem
     @update_jot_size_save_timer = null # used to prevent flooding of requests when saving jot size pref
@@ -60,14 +62,14 @@ class window.Jots extends LiteJot
     @load_on_scroll = false
 
   clearJotsList: =>
-    @jots_list.html('')
+    @jots_list.find('> li:not(#new-jot-wrap)').remove()
 
   updateHeading: =>
     if !@lj.app.current_topic
-      @jots_heading_text.html('Jots')
+      @jots_heading_text.html 'Jots'
     else
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
-      @jots_heading_text.html("Jots: #{topic_title}")
+      @jots_heading_text.html topic_title
 
     if @lj.search.current_terms.length > 0
       @jots_heading_text.prepend("<span class='search-result-info-test'>Searching </span>")
@@ -234,11 +236,14 @@ class window.Jots extends LiteJot
       @determineFocusForNewJot()
       @chooseColor e
 
-  initResizeListeners: =>
-    @jots_heading.find('.options [data-slider]').on 'change.fndtn.slider', () =>
-      @updateJotSize()
+    @append_jot_link.click (e) =>
+      # Only shows when editing and the jot form is elsewhere.
+      @append_jot_link.hide()
+      @finishEditing()
 
-    @jots_heading.find('.options .font-icon').cooltip { direction: 'left' }
+  initResizeListeners: =>
+    @jots_heading.find('#jots-column-options [data-slider]').on 'change.fndtn.slider', () =>
+      @updateJotSize()
 
   determineFocusForNewJot: =>
     if @new_jot_current_tab == 'standard'
@@ -308,11 +313,17 @@ class window.Jots extends LiteJot
     @new_jot_break_value = true
     @new_jot_break_option_wrap.find('.not-checked').hide()
     @new_jot_break_option_wrap.find('.is-checked').css('display', 'inline-block')
+    @new_jot_wrap.addClass('break-from-top')
+
+    # If user is writing new jot, make sure they don't lose view of the new-jot-wrap.
+    if !@currently_editing_id
+      @scrollJotsToBottom()
 
   jotBreakOff: =>
     @new_jot_break_value = false
     @new_jot_break_option_wrap.find('.is-checked').hide()
     @new_jot_break_option_wrap.find('.not-checked').css('display', 'inline-block')
+    @new_jot_wrap.removeClass('break-from-top')
 
   getJotContent: =>
     if @new_jot_current_tab == 'heading'
@@ -701,7 +712,11 @@ class window.Jots extends LiteJot
     build_entry = Autolinker.link(build_entry)
 
     if method == 'append'
-      @jots_list.append build_entry
+      if @currently_editing_id 
+        # Then we're editing, and have no idea where the new-jot-wrap is.
+        @jots_list.append build_entry
+      else
+        $(build_entry).insertBefore @new_jot_wrap
     else if method == 'prepend'
       @jots_list.prepend build_entry
 
@@ -717,8 +732,7 @@ class window.Jots extends LiteJot
     elem.removeClass('temp').addClass('jot-item')
     .attr('data-jot', jot.id).attr('id', '').attr('title', '')
 
-    to_insert = "<i class='fa fa-pencil edit' title='Edit jot' />
-                <i class='fa fa-trash delete' title='Delete jot' />
+    to_insert = "<i class='fa fa-trash delete' title='Delete jot' />
                 <div class='input-edit-wrap'>
                   <input type='text' class='input-edit' />
                 </div>"
@@ -754,8 +768,7 @@ class window.Jots extends LiteJot
 
     if jot.has_manage_permissions
       if @canEdit id=null, jot=jot
-        $html.append "<i class='fa fa-pencil edit' title='Edit jot' />
-                    <div class='input-edit-wrap'>
+        $html.append "<div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
 
@@ -777,7 +790,12 @@ class window.Jots extends LiteJot
     $html.html Autolinker.link $html.html()
 
     if method == 'append'
-      @jots_list.append $html
+      if @currently_editing_id 
+        # Then we're editing, and have no idea where the new-jot-wrap is.
+        @jots_list.append $html
+      else
+        $html.insertBefore @new_jot_wrap
+
     else if method == 'prepend'
       @jots_list.prepend $html
     else if method == 'before'
@@ -840,16 +858,10 @@ class window.Jots extends LiteJot
     elem = @jots_list.find("[data-jot='#{jot.id}'] .timestamp")
     html = "<i class='flag-icon fa fa-flag'></i> "+ jot.created_at_short
 
-    $(elem).html(html)
-    .closest('li').attr("title", "Written by #{jot.author_display_name}.<br>
-                    Created on #{jot.created_at_long}.<br>
-                    Last updated on #{jot.updated_at}.<br>
-                    Click timestamp toggle flag.")
-    $(elem).closest('li').cooltip({direction: 'left', class: 'timestamp', align: 'top'})
+    $(elem).html(html).attr("title", "Created on #{jot.created_at_long}.\nLast updated on #{jot.updated_at}")
 
     # Update timestamp tooltip,
     # just in case this method call was to update the jot elem
-    elem.closest('li').cooltip 'update'
 
   scrollJotsToBottom: =>
     @jots_wrapper.scrollTop @jots_wrapper[0].scrollHeight
@@ -876,20 +888,11 @@ class window.Jots extends LiteJot
 
     elem.find(".content").click (e) =>
       e.stopPropagation() # is this necessary?
-      if @canEdit id=null, jot
-        @editJot jot_id
+      @editJot jot_id
 
     elem.find(".timestamp").click (e) =>
       e.stopPropagation() # is this necessary?
       @flagJot jot_id
-
-    if @canEdit id=null, jot
-      elem.find("i.edit").click (e) =>
-        @editJot(jot_id)
-        return false
-      .cooltip({
-        align: 'left'
-      })
 
     elem.find("i.delete").click (e) =>
       e.stopPropagation() # is this necessary?
@@ -1029,7 +1032,6 @@ class window.Jots extends LiteJot
     @lj.connection.abortPossibleDataLoadXHR()
 
     @currently_editing_id = id
-    @scroll_top_before_editing = @jots_wrapper.scrollTop()
     elem = $("li[data-jot='#{id}']")
     content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
@@ -1043,18 +1045,10 @@ class window.Jots extends LiteJot
       new HoverNotice(@lj, 'At this time, email tags cannot be edited.', 'error')
       return
 
-    @edit_overlay.show()
-    @edit_overlay.find('#edit-notice').css(
-      bottom: (@new_jot_wrap.height()/2 - @edit_notice.height()/2)
-      left: @new_jot_wrap.offset().left - @edit_notice.width()
-    )
-    #elem.attr('data-editing', 'true')
-    @jots_list.css 'paddingBottom', @new_jot_wrap.outerHeight()
-    @new_jot_wrap.attr('data-editing', 'true').css(
-      width: elem.width()
-      right: @new_jot_wrap.offset().right
-      bottom: 0
-    )
+    @new_jot_wrap.insertAfter elem
+    elem.hide()
+    @new_jot_wrap.attr 'data-editing', 'true'
+    @append_jot_link.css 'display', 'block'
 
     if jot_object.jot_type == 'heading'
       @switchTab 'heading'
@@ -1084,9 +1078,6 @@ class window.Jots extends LiteJot
     if @currently_editing_id
       id = @currently_editing_id
       @currently_editing_id = null
-      if @scroll_top_before_editing
-        @jots_wrapper.scrolltop = @scroll_top_before_editing
-        @scroll_top_before_editing = null
 
       elem = $("li[data-jot='#{id}']")
       content_elem = elem.find('.content')
@@ -1097,9 +1088,9 @@ class window.Jots extends LiteJot
       updated_content = window.escapeHtml @getJotContent()
       jot_object.content = updated_content #doing this here in case they switch topics before ajax complete
       
-      @edit_overlay.hide()
-      @new_jot_wrap.attr('data-editing', 'false').css { width: '100%', right: 0 }
-      @jots_list.css 'paddingBottom', 0
+      elem.show()
+      @jots_list.append @new_jot_wrap
+      @append_jot_link.hide()
 
       jot_length = @newJotLength()
       @clearJotInputs()
@@ -1115,8 +1106,6 @@ class window.Jots extends LiteJot
       @palette_current = @remember_palette_while_editing
       @remember_palette_while_editing = null
       @applyPaletteColor @palette_current
-
-      console.log jot_color
 
       # only update folder/topic order & send server request if the user changed the jot
       if jot_length > 0 && (updated_content != raw_content || @new_jot_break_value != jot_object.break_from_top || @new_jot_current_tab != jot_object.jot_type) || jot_color != jot_object.color
@@ -1320,6 +1309,15 @@ class window.Jots extends LiteJot
       @new_jot_content.css 'height', @new_jot_content[0].scrollHeight+1
       @scrollJotsToBottom()
 
+  initJotColumnOptionsListener: =>
+    @jots_heading.find('a.options-dropdown-link').click =>
+      console.log 'test'
+      setTimeout(() =>
+        $(document).foundation 'slider', 'reflow'
+      ,100)
+      # super hacky.. posted on GitHub about this:
+      # https://github.com/zurb/foundation/issues/6946
+
   sizeText: (id) =>
     if !id
       selector = "li.jot-item, li.temp"
@@ -1338,13 +1336,13 @@ class window.Jots extends LiteJot
       lineHeight: @content_text_default_px*1.5*@text_resize_factor+'px'
     )
 
-    @jots_list.find(selector).find('.timestamp').css(
+    @jots_list.find(selector).find('.timestamp, .timestamp i').css(
       fontSize: timestamp_size+'px'
       lineHeight: timestamp_lineheight+'px'
     )
 
   updateJotSize: =>
-    @text_resize_factor = parseInt(@jots_heading.find('.options .font-change .range-slider').attr('data-slider')) / 100
+    @text_resize_factor = parseInt(@jots_heading.find('#jots-column-options .font-change .range-slider').attr('data-slider')) / 100
     @sizeText()
 
     if @update_jot_size_save_timer
