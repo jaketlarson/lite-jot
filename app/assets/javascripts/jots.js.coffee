@@ -173,7 +173,7 @@ class window.Jots extends LiteJot
 
   initJotFormListeners: =>
     @new_jot_content.keyup (e) =>
-      if !@currently_editing_id || true
+      if !@currently_editing_id || true # 
         @checkIfJotContentExpands e
 
     @new_jot_content.keydown (e) =>
@@ -776,7 +776,7 @@ class window.Jots extends LiteJot
 
     $html.append "<div class='content-wrap' title='#{content_title}' />"
 
-    if jot.user_id != @lj.app.user.id || true
+    if jot.user_id != @lj.app.user.id
       $html.find('.content-wrap').append "<div class='author' title='#{jot.author_email}'>#{jot.author_display_name}</div>"
 
     $html.find('.content-wrap').append "<div class='content' />"
