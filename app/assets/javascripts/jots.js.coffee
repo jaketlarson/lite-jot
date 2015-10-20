@@ -240,6 +240,7 @@ class window.Jots extends LiteJot
       # Only shows when editing and the jot form is elsewhere.
       @append_jot_link.hide()
       @finishEditing()
+      @determineFocusForNewJot()
 
   initResizeListeners: =>
     @jots_heading.find('#jots-column-options [data-slider]').on 'change.fndtn.slider', () =>
@@ -930,18 +931,16 @@ class window.Jots extends LiteJot
       })
 
   initJotElemChecklistBind: (jot_id) =>
-    @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").click (e) => 
+    @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item input[type='checkbox']").change (e) => 
       e.stopPropagation()
-      @handleCheckboxEvent e, $(e.currentTarget), jot_id
+      @handleCheckboxEvent e, $(e.currentTarget).closest('li'), jot_id
 
-      # If the clicked target was not the checkbox, then manipulate the checkbox event
-      if $(e.target).prop('tagName') != 'INPUT'
-        checkbox = $(event.currentTarget).find("input[type='checkbox']")
-        checkbox.prop 'checked', !checkbox.is(':checked')
-
-    .cooltip({
+    @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item").cooltip({
       direction: 'left'
     })
+
+    .click (e) =>
+      e.stopPropagation()
 
   handleCheckboxEvent: (e, elem, jot_id) =>
     # toggle checkbox
@@ -963,7 +962,7 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
-    checkbox = $(event.currentTarget).find("input[type='checkbox']")
+    checkbox = @jots_list.find("li[data-jot='#{jot.id}'] li[data-checklist-item-id='#{checklist_item_id}'] input[type='checkbox']")
 
     @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
