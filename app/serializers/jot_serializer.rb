@@ -15,6 +15,7 @@ class JotSerializer < ActiveModel::Serializer
     :color,
     :temp_key,
     :author_display_name,
+    :author_email,
     :deleted_at,
     :deleted_at_unix,
     :tagged_email_id
@@ -101,6 +102,10 @@ class JotSerializer < ActiveModel::Serializer
 
   def author_display_name
     return User.find(object.user_id).display_name
+  end
+
+  def author_email
+    return User.find(object.user_id).email
   end
 
   def created_at_unix

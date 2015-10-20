@@ -685,6 +685,9 @@ class window.Jots extends LiteJot
   rollbackTempJot: =>
     @jots_list.find('li.temp').remove() # may need refinement
 
+
+  # Called when user submits a jot.
+  # Adds jot to UI in a loading status.
   insertTempJotElem: (content, key, jot_type, break_from_top, color, method='append') =>
     content = content.replace /\n/g, '<br />'
     color = if color && color.length > 0 then @lj.colors[color] else @lj.colors['default']
@@ -696,9 +699,9 @@ class window.Jots extends LiteJot
     @jot_temp_entry_template.find('li').append timestamp
 
     if jot_type == 'checklist'
-      @jot_temp_entry_template.find('li').append "<div class='content' style='color: #{color}'>#{@parseCheckListToHTML(content, disabled=true)}</div>"
+      @jot_temp_entry_template.find('li').append "<div class='content-wrap'><div class='content' style='color: #{color}'>#{@parseCheckListToHTML(content, disabled=true)}</div></div>"
     else
-      @jot_temp_entry_template.find('li').append "<div class='content' style='color: #{color}'>#{content}</div>"
+      @jot_temp_entry_template.find('li').append "<div class='content-wrap'><div class='content' style='color: #{color}'>#{content}</div></div>"
 
     if jot_type == 'heading'
       @jot_temp_entry_template.find('li').addClass('heading')
@@ -724,18 +727,17 @@ class window.Jots extends LiteJot
 
     # reset template where necessary (classes, content)
     @jot_temp_entry_template.find('li').removeClass('heading').removeClass('break-from-top')
-    @jot_temp_entry_template.find('li .content').remove()
+    @jot_temp_entry_template.find('li .content-wrap').remove()
     @jot_temp_entry_template.find('li .timestamp').remove()
 
+  # Updates the temporarily-added jot into a permanent jot if it saved successfully
+  # on the server.
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
     elem.removeClass('temp').addClass('jot-item')
     .attr('data-jot', jot.id).attr('id', '').attr('title', '')
 
-    to_insert = "<i class='fa fa-trash delete' title='Delete jot' />
-                <div class='input-edit-wrap'>
-                  <input type='text' class='input-edit' />
-                </div>"
+    to_insert = "<i class='fa fa-trash delete' title='Delete jot' />"
 
     elem.append to_insert
     elem.find("input[type='checkbox']").prop('disabled', false)
@@ -750,6 +752,9 @@ class window.Jots extends LiteJot
       $.each elem.find('li.checklist-item'), (key, checklist_item) =>
         $(checklist_item).attr 'data-checklist-item-id', content[key].id
 
+
+  # Used to insert a jot element on the UI.
+  # This is not called when a user submits a jot. Instead, insertTempJotElem is called.
   insertJotElem: (jot, method='append', before_id=null, flash=false) =>
     # improve this class code stuff.. make it an array and then join by spaces.
     flagged_class = if jot.is_flagged then 'flagged' else ''
@@ -767,15 +772,14 @@ class window.Jots extends LiteJot
     $html.append "<div class='timestamp'></div>"
 
     if jot.has_manage_permissions
-      if @canEdit id=null, jot=jot
-        $html.append "<div class='input-edit-wrap'>
-                      <input type='text' class='input-edit' />
-                    </div>"
-
       $html.append "<i class='fa fa-trash delete' title='Delete jot' />"
 
+    $html.append "<div class='content-wrap' title='#{content_title}' />"
 
-    $html.append  "<div class='content' title='#{content_title}' />"
+    if jot.user_id != @lj.app.user.id || true
+      $html.find('.content-wrap').append "<div class='author' title='#{jot.author_email}'>#{jot.author_display_name}</div>"
+
+    $html.find('.content-wrap').append "<div class='content' />"
 
     if jot.jot_type == 'checklist'
       $html.find('.content').append @parseCheckListToHTML jot.content
@@ -886,13 +890,17 @@ class window.Jots extends LiteJot
     jot = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
     elem = @jots_list.find("li[data-jot='#{jot_id}']")
 
-    elem.find(".content").click (e) =>
+    elem.click (e) =>
       e.stopPropagation() # is this necessary?
       @editJot jot_id
 
     elem.find(".timestamp").click (e) =>
       e.stopPropagation() # is this necessary?
       @flagJot jot_id
+
+    elem.find(".author").click (e) =>
+      e.stopPropagation() # shouldn't edit on click
+    .cooltip()
 
     elem.find("i.delete").click (e) =>
       e.stopPropagation() # is this necessary?
