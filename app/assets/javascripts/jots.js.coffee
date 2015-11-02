@@ -1042,7 +1042,7 @@ class window.Jots extends LiteJot
       @lj.emergency_mode.feature_unavailable_notice()
       return
 
-    @lj.connection.abortPossibleData
+    @lj.connection.abortPossibleDataLoadXHR()
 
     # If currently editing another jot, wrap up and switch gears.
     if @currently_editing_id
