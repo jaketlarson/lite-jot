@@ -173,8 +173,7 @@ class window.Jots extends LiteJot
 
   initJotFormListeners: =>
     @new_jot_content.keyup (e) =>
-      if !@currently_editing_id || true # 
-        @checkIfJotContentExpands e
+      @checkIfJotContentExpands e
 
     @new_jot_content.keydown (e) =>
       if e.keyCode == @lj.key_controls.key_codes.enter && !e.shiftKey # enter key w/o shift key means submission
