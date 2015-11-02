@@ -77,6 +77,7 @@ class window.LiteJot
     @support = new Support(@)
     @support = new JotRecovery(@)
     @initAsideToggleListener()
+    @initUnloadListener()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -223,3 +224,12 @@ class window.LiteJot
       @folders.folders_column.addClass('showing-aside')
       @topics.topics_column.addClass('showing-aside')
       @jots.jots_column.addClass('showing-aside')
+
+  initUnloadListener: =>
+    window.onbeforeunload = (e) =>
+      if !@jots.jotContentEmpty()
+        e = e || window.event
+        if e
+          e.returnValue = "You haven't saved your jot yet!"
+
+        return "You haven't saved your jot yet!"

@@ -336,6 +336,12 @@ class window.Jots extends LiteJot
     else
       return ""
 
+  jotContentEmpty: =>
+    if @new_jot_current_tab == 'checklist'
+      return @serializeNewJotCheckList().length == 0
+    else
+      return @getJotContent().trim().length == 0
+
   clearJotInputs: =>
     @new_jot_heading.val('')
     @new_jot_content.val('')
