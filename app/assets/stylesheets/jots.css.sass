@@ -110,7 +110,7 @@
 
     // Differentiate li from ul>li:not(#new-jot-wrap), so that #new-jot-wrap doesn't inherit
     // all the properties of a jot.
-    li:not(.palette-color), &> li:not(#new-jot-wrap)
+    li:not(.palette-color):not(.new-jot-checklist-item), &> li:not(#new-jot-wrap)
       border-bottom: 1px solid rgb(241, 241, 241)
 
       &.break-from-top
@@ -177,6 +177,7 @@
           ul
             li.checklist-item
               border: 0
+              border-bottom: 0
 
               .checkbox-wrap
                 display: inline-block

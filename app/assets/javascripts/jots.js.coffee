@@ -366,7 +366,7 @@ class window.Jots extends LiteJot
     scrollToBottom = @isScrolledToBottom()
     html = @new_jot_checklist_tab.find('li.template').html()
     id = "checklist-item-#{@randomKey()}"
-    @new_jot_checklist_tab.find('ul.jot-checklist').append("<li id='#{id}'>#{html}</li>")
+    @new_jot_checklist_tab.find('ul.jot-checklist').append("<li id='#{id}' class='new-jot-checklist-item'>#{html}</li>")
    
     elem = $("li##{id}")
     @initCheckListItemBinds elem
