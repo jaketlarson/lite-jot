@@ -839,7 +839,7 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'checklist'
       jot_content = @parseCheckListToHTML jot_content
     else if jot.jot_type == 'email_tag'
-      jot_content = "<i class='fa fa-eye private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
+      jot_content = "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
 
