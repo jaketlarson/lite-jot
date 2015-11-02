@@ -16,9 +16,9 @@ html
 
   body id="#{body_id}"
     - if !user_signed_in?
-      == render :partial => "header_welcome"
+      == render :partial => "header_unauthenticated"
     - else
-      == render :partial => "header"
+      == render :partial => "header_authenticated"
 
     == yield
 
