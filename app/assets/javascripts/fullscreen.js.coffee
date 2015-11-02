@@ -9,6 +9,7 @@ class window.Fullscreen extends LiteJot
     @fullscreen_expand_icon_class = 'fa-expand'
     @fullscreen_compress_icon_class = 'fa-compress'
     @fullscreen_btn = $('a#fullscreen-request')
+    @is_fullscreen = false
 
   initFullScreenListener: =>
     @fullScreenHandler()
@@ -27,9 +28,11 @@ class window.Fullscreen extends LiteJot
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement
       @showFullScreenCompressButton()
       @lj.clock.showClock()
+      @is_fullscreen = true
     else
       @showFullScreenExpandButton()
       @lj.clock.hideClock()
+      @is_fullscreen = false
 
   toggleFullScreen: =>
     if document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement

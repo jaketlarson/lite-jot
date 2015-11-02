@@ -24,6 +24,10 @@ class window.Search extends LiteJot
       @search_wrapper.addClass('active')
       @clicking_button = false
 
+      # Hide clock in fullscreen mode
+      if @lj.fullscreen.is_fullscreen
+        @lj.clock.hideClock()
+
     @search_input.blur (e) =>
       @search_button.removeClass('input-has-focus')
       if @search_input.val().trim().length == 0 && !@clicking_button
@@ -31,6 +35,10 @@ class window.Search extends LiteJot
 
       if @clicking_button
         @clicking_button = false
+
+      # Show clock in fullscreen mode
+      if @lj.fullscreen.is_fullscreen
+        @lj.clock.showClock()
 
     @search_input.keyup (e) =>
       @setSearchOffsetTimer()
@@ -78,7 +86,6 @@ class window.Search extends LiteJot
               items_matched++
           if items_matched == 0
             return
-
 
         @jots_in_search_results.push jot.id
 
