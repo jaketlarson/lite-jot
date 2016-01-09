@@ -30,6 +30,5 @@ class window.Clock extends LiteJot
   showClock: =>
     @clock_hover_wrap.show()
 
-
   hideClock: =>
     @clock_hover_wrap.hide()
