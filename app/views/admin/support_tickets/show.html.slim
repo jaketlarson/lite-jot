@@ -1,0 +1,75 @@
+article
+
+  h3
+    == @ticket.subject
+    .ticket-id
+      |(Ticket #{@ticket.unique_id})
+
+  p.status
+    |Status: #{translate_status(@ticket.status)}
+
+  == render :partial => "action_messages"
+
+  ul.responses
+    - @ticket.support_ticket_messages.each do |message|
+      - message_type_class = ''
+      - if by_support_rep?(message)
+        - message_type_class = 'support-answer'
+      - elsif is_answered_notice?(message)
+        - message_type_class = 'notice-answered'
+      - elsif is_requires_more_details_notice?(message)
+        - message_type_class = 'notice-requires-more-details'
+
+      li class="#{message_type_class}"
+        - if is_answered_notice?(message)
+          .response
+            i.fa.fa-flag-o
+            |This ticket has been marked as <strong>Answered</strong>. A user may respond below if they require more assistance. 
+            == link_to '(delete notice)', { :controller => 'admin/support_ticket_messages', :action => 'destroy', :id => message.id }, :method => :delete, :data => { confirm: 'Are you sure?' }
+
+        - elsif is_requires_more_details_notice?(message)
+          .response
+            i.fa.fa-flag-o
+            |This ticket has been marked as <strong>Requires More Details</strong>. A support representative has indicated that they require more information about the issue to further assist the user. 
+            == link_to '(delete notice)', { :controller => 'admin/support_ticket_messages', :action => 'destroy', :id => message.id }, :method => :delete, :data => { confirm: 'Are you sure?' }
+
+        - else
+          .author-info
+            - user = User.find(message.user_id)
+            p
+              a href='/admin/users/#{user.id}' #{user.display_name}
+
+            - if by_support_rep?(message)
+              p.title
+                |Support Representative
+            p.date
+              == concise_date(message.created_at)
+
+            - if message.message_type != 'author_response'
+              p.options
+                == link_to "Edit", edit_admin_support_ticket_message_path(message)
+                |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+                == link_to 'Delete', { :controller => 'admin/support_ticket_messages', :action => 'destroy', :id => message.id }, :method => :delete, :data => { confirm: 'Are you sure?' }
+
+          .response
+            == simple_format(strip_tags(message.message))
+
+  .response-form-wrap
+    h3.response-heading Answer ticket
+    p.response-directive Provide a clear, polite and error-free solution to the user. You may submit the form without an answer if you wish to change the status only.
+
+    a#add-response
+      == simple_form_for :support_ticket_message, :url => admin_support_ticket_messages_path do |message|
+        == message.input :message, :as => :text, :placeholder => "Updated or further details on the issue."
+        == message.input :support_ticket_id, :as => :hidden, :input_html => { :value => @ticket.id }
+        == message.input :new_status,
+          :collection => [['answered', 'Answered — I believe my response can resolve the issue.'],
+            ['requires_more_details', 'Requires More Details — I need more information from the user.'],
+            ['in_progress', 'In Progress — I want to keep this ticket open for now.']],
+          :label_method => :last,
+          :value_method => :first,
+          :as => :radio_buttons,
+          :checked => 'answered',
+          :label => "Change status to.."
+
+        button.right Add Response

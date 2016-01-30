@@ -1,0 +1,63 @@
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
+article
+
+  h3
+    = @ticket.subject
+    .ticket-id
+      |(Ticket #{@ticket.unique_id})
+
+  p.status
+    |Status: #{translate_status(@ticket.status)}
+
+  = render :partial => "action_messages"
+
+  ul.responses
+    - @ticket.support_ticket_messages.each do |message|
+      - message_type_class = ''
+      - if by_support_rep?(message)
+        - message_type_class = 'support-answer'
+      - elsif is_answered_notice?(message)
+        - message_type_class = 'notice-answered'
+      - elsif is_requires_more_details_notice?(message)
+        - message_type_class = 'notice-requires-more-details'
+
+      li class="#{message_type_class}"
+        - if is_answered_notice?(message)
+          .response
+            i.fa.fa-flag-o
+            |This ticket has been marked as <strong>Answered</strong>. Please let us know by responding below if the issue persists.
+
+        - elsif is_requires_more_details_notice?(message)
+          .response
+            i.fa.fa-flag-o
+            |This ticket has been marked as <strong>Requires More Details</strong>. A support representative has indicated that they require more information about the issue to further assist you.
+
+        - else
+          .author-info
+            - user = User.find(message.user_id)
+            p
+              = user.display_name
+
+            - if by_support_rep?(message)
+              p.title
+                |Support Representative
+            p.date
+              = concise_date(message.created_at)
+
+          .response
+            = simple_format(strip_tags(message.message))
+
+  .response-form-wrap
+    h3.response-heading Respond to ticket
+    p.response-directive Still have an issue or have more details? Feel free to add another response.
+
+    a#add-response
+      = simple_form_for :support_ticket_message, :url => support_ticket_messages_path do |message|
+        = message.input :message, :as => :text, :placeholder => "Updated or further details on the issue."
+        = message.input :support_ticket_id, :as => :hidden, :input_html => { :value => @ticket.id }
+
+        button.right Add Response

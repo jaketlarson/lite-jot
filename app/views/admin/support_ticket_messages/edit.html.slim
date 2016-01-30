@@ -1,0 +1,9 @@
+article
+  h3.response-heading Editing response
+
+  p.author Written by #{@author.display_name} &lt;#{@author.email}&gt;
+
+  = simple_form_for @ticket_message, :url => admin_support_ticket_message_path(@ticket_message) do |message|
+    = message.input :message, :as => :text, :placeholder => "Updated or further details on the issue."
+
+    button.right Update Response

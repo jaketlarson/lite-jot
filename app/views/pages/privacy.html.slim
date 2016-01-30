@@ -1,14 +1,17 @@
 - content_for :title do
   = "Privacy Statement"
 
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
 article
   h2 Privacy Statement
-  p.updated-at Last updated on August 16th, 2015.
+  p.updated-at Last updated on January 18th, 2016.
 
   #privacy-wrap
     = render :partial => 'privacy'
 
   .actions
     a.button.primary.right href='/' Done
-
-= render :partial => 'footer'

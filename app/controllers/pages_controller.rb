@@ -1,4 +1,5 @@
 class PagesController < ApplicationController
+  add_breadcrumb "Lite Jot", '/'
 
   def welcome
     @user_sign_up = User.new
@@ -25,9 +26,15 @@ class PagesController < ApplicationController
   end
 
   def terms
+    add_breadcrumb "Terms of Service"
   end
 
   def privacy
+    add_breadcrumb "Privacy Policy"
+  end
+
+  def support
+    add_breadcrumb "Support Center"
   end
 
 end

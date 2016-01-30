@@ -328,9 +328,14 @@ class window.Topics extends LiteJot
     elem = $("li[data-topic='#{id}']")
     elem.attr('data-deleted', 'true')
     
+    # Remove from client data
     @removeTopicFromDataById id
 
-    # Handle case of viewing current jot being vanished
+    # If elem doesn't exist, go no further.
+    if elem.length == 0
+      return
+
+    # Handle case of viewing current topic being vanished
     if @lj.app.current_topic == id
       if @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
         if elem.prev('li[data-topic]').length > 0
@@ -359,8 +364,11 @@ class window.Topics extends LiteJot
       if topic.id == id
         topic_key = index
         return false
-    @lj.app.topics.remove topic_key
-    @lj.jots.removeJotsInTopicFromData id
+
+    # If topic was found in data
+    if topic_key != null
+      @lj.app.topics.remove topic_key
+      @lj.jots.removeJotsInTopicFromData id
 
   selectFirstTopic: =>
     next_topic_elem = @topics_list.find('li:not(.new-topic-form-wrap)')[0]

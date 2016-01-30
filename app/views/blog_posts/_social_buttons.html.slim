@@ -1,0 +1,18 @@
+- share_url = request.original_url
+- twitter_url = "https://litejot.com/blog/#{blog_post.id}"
+.social-buttons
+  a.social-button.twitter-share href="http://twitter.com/intent/tweet?text=#{URI.encode(blog_post.title)}&url=#{URI.encode(twitter_url)}&via=litejot" onclick="window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=500,height=255');return false;"
+    i.fa.fa-twitter
+    |Tweet
+
+  a.social-button.facebook-share href="http://www.facebook.com/sharer/sharer.php?u=#{URI.encode(share_url)}&title=#{URI.encode(blog_post.title)}" onclick="window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=500,height=300');return false;"
+    i.fa.fa-facebook
+    |Facebook
+
+  a.social-button.google-share href="https://plus.google.com/share?url=#{URI.encode(share_url)}" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;"
+    i.fa.fa-google-plus
+    |Google Plus
+
+  a.social-button.linkedin-share href="http://www.linkedin.com/shareArticle?mini=true&url=#{URI.encode(share_url)}&title=#{URI.encode(blog_post.title)}&source=litejot.com" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;"
+    i.fa.fa-linkedin
+    |LinkedIn

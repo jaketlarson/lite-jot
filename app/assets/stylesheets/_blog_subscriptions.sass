@@ -1,0 +1,114 @@
+#blog-subscribe-form
+  margin-top: 1.5rem
+  margin-left: .5rem
+  margin-right: .5rem
+  padding: 1.5rem
+  text-align: center
+
+  .subscribe-heading-icon
+    font-size: 3.5rem
+    color: lighten($palette-gray, 10%)
+    font-family: 'Monda'
+    font-weight: 200
+
+    @media #{$small-only}
+      font-size: 2.5rem
+
+  h3
+    margin-top: 1.5rem
+    margin-bottom: 0
+    font-size: 1.5rem
+
+  p
+    margin-top: .5rem
+    font-size: .9rem
+    font-family: 'Monda'
+
+  .subscribe-error
+    display: none
+    margin: 1rem auto
+    color: $palette-soft-red
+    font-family: 'Monda'
+    font-size: .9rem
+
+    i
+      margin-right: .5rem
+
+    .error-text
+      display: inline-block
+
+
+  form
+    display: table
+    width: 100%
+    max-width: 30rem
+    height: 3.75rem
+    margin: 0 auto
+    position: relative
+
+    .subscribe-email-wrap
+      display: table-cell
+      width: 100%
+      vertical-align: top
+      transition: all .25s linear
+
+      input.recipient-email
+        height: rem-calc(40)
+        line-height: rem-calc(40)
+        font-size: .9rem
+
+    .subscribe-button-wrap
+      float: right
+      width: auto
+      margin-left: -1px
+      transition: all .25s linear
+
+      button
+        line-height: rem-calc(40)
+        padding: 0 1rem
+        font-size: .9rem
+
+        &:hover, &:disabled
+          background-color: $palette-black
+
+        .submit-text
+          display: block
+
+        .loading-icon
+          display: none
+
+        .success-icon
+          display: none
+
+        &.success
+          background-color: transparent
+          color: $palette-green
+
+          .success-icon
+            display: block
+            font-size: 1.25rem
+
+    .success-message-wrap
+      display: none
+      width: 0
+      vertical-align: top
+      transition: all .25s linear
+      opacity: 0
+      text-align: left
+      line-height: 2.5rem
+      padding-left: 2.8rem
+      font-family: 'Monda'
+      font-size: .9rem
+
+body#blog_subscriptions-destroy
+  article
+    margin: 3rem 1rem 5rem 1rem
+    text-align: center
+
+    i.check-icon
+      font-size: 5rem
+      color: $palette-green
+      margin-bottom: 3rem
+
+    p
+      font-family: 'Monda'

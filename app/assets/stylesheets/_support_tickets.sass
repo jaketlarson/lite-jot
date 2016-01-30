@@ -1,0 +1,166 @@
+.ticket-status
+  &.answered
+    color: $palette-dark-green
+
+  &.new
+    color: $palette-blue
+
+  &.in-progress
+    color: $palette-blue
+
+  &.requires-more-details
+    color: $palette-orange
+
+body#support_tickets-index
+  article
+    padding-top: 2rem
+
+    h3
+      display: inline-block
+      margin-bottom: 1rem
+
+    table
+      margin-top: 1rem
+
+      th.th-ticket-id
+        width: 8%
+
+      th.th-subject
+        width: 60%
+
+      th.th-last-updated
+        width: 17%
+
+      th.th-status
+        width: 15%
+
+    table tr:hover
+      cursor: pointer
+
+      td
+        color: $primary-color
+
+body#support_tickets-new, body#support_tickets-create
+  article
+    margin: 2rem auto 3rem auto
+    padding: 2rem
+    max-width: 40rem
+    background-color: $palette-white
+    box-shadow: $light-box-shadow
+    overflow: auto
+
+    @media #{$small-only}
+      box-shadow: none
+
+    textarea#support_ticket_message
+      min-height: 20rem
+
+    // remove padding from action messages
+    .row .columns
+      padding: 0
+
+    .alert-error
+      margin: 0 0 1rem 0
+
+body#support_tickets-show
+  article
+    margin: 1rem auto 3rem auto
+    padding: 2rem
+    max-width: 60rem
+    overflow: auto
+
+    @media #{$small-only}
+      box-shadow: none
+
+    // remove padding from action messages
+    .row .columns
+      padding: 0
+
+    h3
+      font-size: 1.5rem
+      display: inline-block
+      margin-bottom: .5rem
+
+      .ticket-id
+        font-size: 1rem
+        display: inline-block
+        margin-left: .5rem
+
+    p.status
+      font-family: 'Monda'
+
+    ul.responses
+      margin: 1rem 0 3rem 0
+
+      li
+        margin-bottom: 1rem
+        list-style: none
+        padding: 1rem
+        font-size: .9rem
+        overflow: auto
+        background-color: $palette-white
+        box-shadow: $light-box-shadow
+
+        .author-info
+          float: left
+          min-width: 12rem
+
+          p
+            font-size: .9rem
+            margin-bottom: .25rem
+
+            &.title, &.date
+              font-size: .7rem
+
+        .response
+          padding-left: 12rem
+
+          p
+            font-size: .9rem
+
+        &.support-answer
+          .author-info
+            color: $palette-dark-green
+
+        &.notice-answered, &.notice-requires-more-details
+          background-color: transparent
+          box-shadow: none
+          font-size: .8rem
+
+          .response i
+            margin-right: .4rem
+
+          @media #{$small-only}
+            .response
+              padding: 0
+
+        &.notice-answered
+          color: $palette-dark-green
+
+        &.notice-requires-more-details
+          color: $palette-orange
+
+        @media #{$small-only}
+          .author-info
+            float: none
+            width: auto
+
+          .response
+            padding: 1rem 0 0 0
+
+    .response-form-wrap
+      padding: 1rem
+      overflow: auto
+      background-color: $palette-white
+      box-shadow: $light-box-shadow
+
+      h3.response-heading
+
+      p.response-directive
+        font-size: .9rem
+
+      textarea#support_ticket_message_message
+        min-height: 10rem
+
+  .alert-error, .alert-notice, .alert-alert
+    margin-top: 0

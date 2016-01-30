@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   has_many :topics
   has_many :jots
   has_many :shares, :foreign_key => 'owner_id'
+  has_many :support_tickets
 
   validates :display_name, {
     :presence => true,
@@ -24,6 +25,8 @@ class User < ActiveRecord::Base
   serialize :preferences
 
   after_create :send_signup_email, :update_associated_shares
+
+  self.per_page = 25
 
   attr_accessor :current_password
 
@@ -119,7 +122,13 @@ class User < ActiveRecord::Base
     )
   end
 
+  # Used on initial data load
   def owned_and_shared_folders
     Folder.includes(:shares).where("user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at DESC').references(:shares)
+  end
+
+  # Used on sync cycles
+  def owned_and_shared_folders_with_deleted_after_time(begin_at)
+    Folder.with_deleted.includes(:shares).where("(user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ?)", self.id, self.id, true, '', begin_at, begin_at, begin_at).order('folders.updated_at DESC').references(:shares)
   end
 end

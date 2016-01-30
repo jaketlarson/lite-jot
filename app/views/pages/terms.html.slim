@@ -1,6 +1,11 @@
 - content_for :title do
   = "Terms of Service"
 
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
 article
   h2 Terms of Service
   p.updated-at Last updated on August 16th, 2015.
@@ -10,5 +15,3 @@ article
 
   .actions
     a.button.primary.right href='/' Done
-
-= render :partial => 'footer'

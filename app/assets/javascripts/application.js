@@ -1,3 +1,4 @@
+// This file includes JS assets for the application part of Lite Jot. For the regular website, use site.js
 // jQuery2 is included via CDN, called before this file is in layout.
 //= require jstz
 //= require jquery_ujs

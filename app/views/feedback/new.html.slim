@@ -1,0 +1,18 @@
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
+article
+  h3 Email Support
+  p Questions, comments, or concerns? We'd love to hear from you.
+
+  = simple_form_for @feedback, :url => '/email-support' do |feedback|
+
+    == feedback.input :name, :autofocus => true
+    == feedback.input :email
+    == feedback.input :message
+
+    button.right
+      i.fa.fa-send
+      |Send

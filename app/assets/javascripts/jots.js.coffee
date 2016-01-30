@@ -68,7 +68,9 @@ class window.Jots extends LiteJot
     if !@lj.app.current_topic
       @jots_heading_text.html 'Jots'
     else
+      console.log @lj.app.current_topic
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
+      console.log topic_title
       @jots_heading_text.html topic_title
 
     if @lj.search.current_terms.length > 0
@@ -1230,7 +1232,12 @@ class window.Jots extends LiteJot
     elem = $("li[data-jot='#{id}']")
     elem.attr('data-deleted', 'true')
 
+    # Remove from client data
     @removeJotFromDataById id
+
+    # If elem doesn't exist, go no further.
+    if elem.length == 0
+      return
 
     setTimeout(() =>
       elem.remove()
@@ -1244,7 +1251,9 @@ class window.Jots extends LiteJot
         jot_key = index
         return false
 
-    @lj.app.jots.remove(jot_key)
+    # If jot was found in data
+    if jot_key != null
+      @lj.app.jots.remove(jot_key)
 
   checkIfJotsEmpty: =>
     if @lj.app.jots.filter((jot) => if(jot) then (jot.topic_id == @lj.app.current_topic) else false).length == 0

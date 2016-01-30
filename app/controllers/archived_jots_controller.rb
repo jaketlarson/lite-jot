@@ -8,7 +8,7 @@ class ArchivedJotsController < ApplicationController
   # separate.
 
   def index
-    jots = Jot.unscoped.where('user_id = ?', current_user.id).only_deleted.order('deleted_at DESC')
+    jots = Jot.unscoped.where('user_id = ? AND perm_deleted = ?', current_user.id, false).only_deleted.order('deleted_at DESC')
     serialized_jots = ActiveModel::ArraySerializer.new(jots, :each_serializer => ArchivedJotSerializer, :scope => current_user)
     render :json => {:archived_jots => serialized_jots}
   end
@@ -33,7 +33,11 @@ class ArchivedJotsController < ApplicationController
         end
       end
 
-      jot.really_destroy!
+      # No longer using really_destroy! immedateily.
+      # Use perm_deleted to comply with syncing method.
+      jot.perm_deleted = true
+      jot.save
+      # jot.really_destroy!
     end
 
     # Loop through topics, perma-delete what's archived and completely empty
@@ -43,7 +47,9 @@ class ArchivedJotsController < ApplicationController
         jots = Jot.with_deleted.where("topic_id = ?", id)
         if jots.count == 0
           # Then delete topic
-          topic[0].really_destroy!
+          topic[0].perm_deleted = true
+          topic[0].save
+          # topic[0].really_destroy!
         end
       end
     end
@@ -56,10 +62,14 @@ class ArchivedJotsController < ApplicationController
         if jots.count == 0
           # Then delete folder and its remaining topics
           folder[0].topics.each do |topic|
-            topic.really_destroy!
+            topic.perm_deleted = true
+            topic.save
+            # topic.really_destroy!
           end
 
-          folder[0].really_destroy!
+          folder[0].perm_deleted = true
+          folder[0].save
+          # folder[0].really_destroy!
         end
       end
     end

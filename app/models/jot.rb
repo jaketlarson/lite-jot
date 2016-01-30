@@ -6,13 +6,8 @@ class Jot < ActiveRecord::Base
 
   attr_accessor :is_temp, :temp_key
 
-  validates :content, {
-    :presence => true
-  }
-
-  validates :user_id, {
-    :presence => true
-  }
+  validates_presence_of :content
+  validates_presence_of :user_id
 
   default_scope { order("created_at ASC") }
 end

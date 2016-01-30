@@ -1,0 +1,56 @@
+article
+  .row
+    h3 Blog Posts
+    .right
+      a.button.right href="#{new_admin_blog_post_path}" New Blog Post
+
+    == render :partial => "action_messages"
+
+  .row
+    - @blog_posts.each do |post|
+      .post
+        h3
+          == link_to post.title, "/blog/#{post.slug}"
+        .info
+          i.time-icon.fa.fa-clock-o
+          == post.created_at.strftime("%B %e, %Y")
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+          - author = User.find(post.user_id)
+          |By #{author.display_name}
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+          - if post.public?
+            |Public
+          - else
+            |Private
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+          = pluralize(post.hits, 'hit')
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+          span.disqus-comment-count data-disqus-identifier='#{post.slug}' First article
+          a href="/blog/#{post.slug}#disqus_thread" Second article
+          span class="disqus-comment-count" data-disqus-url="http://localhost:3000/blog/#{post.slug}" First article
+
+        p
+          == ActionView::Base.full_sanitizer.sanitize(truncate_html post.body.html_safe, :length => 300)
+
+        .manage
+          - if post.subscriber_alert_sent
+            |subscriber alert previously sent
+
+          - else
+            == link_to 'send blog test alert to admin', send_blog_alert_test_email_path(post)
+
+            |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+
+            == link_to 'send blog alert to subscribers', send_blog_alert_email_path(post), :data => { confirm: 'Are you sure? An email will be sent to all blog subscribers. Check and double check for grammatical errors first.' }
+
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+
+          == link_to 'edit', edit_admin_blog_post_path(post)
+
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+
+          == link_to 'delete', { :controller => 'admin/blog_posts', :action => 'destroy', :id => post.id }, :method => :delete, :data => { confirm: 'Are you sure?' }
+
+    == will_paginate @posts
+
+script id="dsq-count-scr" src="//EXAMPLE.disqus.com/count.js" async=true

@@ -5,9 +5,7 @@ class Topic < ActiveRecord::Base
   belongs_to :folder
   has_many :jots, :dependent => :destroy
 
-  validates :user_id, {
-    :presence => true
-  }
+  validates_presence_of :user_id
 
   default_scope { order("updated_at DESC") }
 end

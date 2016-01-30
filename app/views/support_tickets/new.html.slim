@@ -1,0 +1,15 @@
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
+article
+  h3 New Ticket
+
+  = render :partial => "action_messages"
+
+  = simple_form_for :support_ticket, :url => support_tickets_path do |ticket|
+    = ticket.input :subject, :as => :string, :placeholder => "Short description of the issue (e.g., \"Issue while sharing a folder\").", :input_html => { :value => @subject_value }
+    = ticket.input :message, :as => :text, :placeholder => "Please provide a detailed description of the issue so that we can be of best assistance to you.", :input_html => { :value => @message_value }
+
+    button.right Submit Ticket

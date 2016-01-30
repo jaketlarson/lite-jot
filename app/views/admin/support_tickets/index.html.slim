@@ -1,0 +1,8 @@
+.row
+  .column.large-12
+    article
+      - if @mode == 'unanswered'
+        == render :partial => 'unanswered', :locals => { :tickets => @unanswered_tickets, :mode => @mode }
+
+      - elsif @mode == 'answered'
+        == render :partial => 'answered', :locals => { :tickets => @answered_tickets, :mode => @mode }

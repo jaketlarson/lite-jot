@@ -1,0 +1,35 @@
+body#feedback-new, body#feedback-create
+  article:not(#successfully-sent)
+    margin: 3rem auto
+    background-color: $palette-white
+    padding: 2rem
+    max-width: 40rem
+    font-size: .9rem
+    box-shadow: $light-box-shadow
+    overflow: auto
+
+    h3
+      margin-bottom: 0
+
+    p
+      font-family: 'Monda'
+
+    form
+      textarea#feedback_message
+        min-height: 8rem
+
+      button i
+        margin-right: .5rem
+
+body#feedback-create
+  article#successfully-sent
+    margin: 3rem 1rem 5rem 1rem
+    text-align: center
+
+    i.sent-icon
+      font-size: 5rem
+      color: $palette-green
+      margin-bottom: 3rem
+
+    p
+      font-family: 'Monda'

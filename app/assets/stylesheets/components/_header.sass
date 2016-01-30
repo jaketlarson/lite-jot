@@ -1,0 +1,261 @@
+meta.foundation-mq-topbar
+  font-family: "/only screen and (min-width:600px)/"
+  width: 600px
+
+nav#app-nav.top-bar
+  z-index: 4
+  position: fixed
+  left: 0
+  right: 0
+  top: 0
+  user-select: none
+  -webkit-user-select: none
+  border-bottom: 1px solid darken($primary-color, 7%)
+  
+
+  @media #{$large-up}
+    height: rem-calc(46) // causes issue with mobile menu, so just show in large-up.
+
+  &[data-magellan-expedition='fixed']
+    min-width: auto
+    padding: 0
+  
+  h1
+    color: $palette-lightest-gray
+    font-size: 1.75rem
+    margin: -.1rem 0 0 0
+    font-family: 'Monda'
+    font-weight: bold
+    line-height: 3rem
+    float: left
+
+    a
+      display: inline
+      padding: 0 .25rem 0 .75rem
+      background-color: $primary-color-accent
+
+      img
+        height: 2rem
+        margin-top: -.3rem
+        margin-right: .5rem
+
+    @media #{$small-only}
+      width: 15rem
+
+  #search-wrapper
+    width: 9rem
+    transition: all .1s linear
+    z-index: 2
+    display: inline-block
+
+    &:hover
+      background-color: lighten($primary-color, 10%)
+
+    #search-input
+      top: 0
+      background-color: transparent
+      border: 0
+      float: right
+      width: 6rem
+      display: inline
+      line-height: calc(3rem - 2px) // to show top-bar border bottom plus this elem's border bottom)
+      border-bottom: 1px solid transparent
+      height: calc(3rem - 2px)
+      padding: 0 .5rem
+      font-size: .9rem
+      transition: all .1s linear
+
+      &::input-placeholder
+        color: $palette-light-gray
+        font-family: 'Monda'
+      &::-webkit-input-placeholder
+        color: $palette-light-gray
+        font-family: 'Monda'
+      &:-moz-placeholder
+        color: $palette-light-gray
+        font-family: 'Monda'
+      &::-moz-placeholder
+        color: $palette-light-gray
+        font-family: 'Monda'
+      &:-ms-input-placeholder
+        color: $palette-light-gray
+        font-family: 'Monda'
+
+      &:focus
+        border: 0
+        outline: 0
+
+    #search-button
+      top: 0
+      float: right
+      cursor: pointer
+      width: 2.5rem
+      line-height: calc(3rem - 2px)
+      height: calc(3rem - 2px)
+      text-align: center
+      background-color: transparent
+      color: $palette-light-gray
+      padding: 0
+      margin: 0
+      border-bottom: 1px solid transparent
+
+      i.default-icon
+        display: inline-block
+
+      i.active-icon
+        display: none
+
+      &[data-searching='true']
+        &:hover
+          color: $palette-black
+
+        i.default-icon
+          display: none
+
+        i.active-icon
+          display: inline-block
+
+    &.active
+      width: 27.5rem
+      background-color: $palette-lightest-gray
+
+      input#search-input
+        width: 25rem
+        color: $palette-black
+        border-bottom: 1px solid $palette-dark-gray
+
+        &::input-placeholder
+          color: $palette-dark-gray
+        &::-webkit-input-placeholder
+          color: $palette-dark-gray
+        &:-moz-placeholder
+          color: $palette-dark-gray
+        &::-moz-placeholder
+          color: $palette-dark-gray
+        &:-ms-input-placeholder
+          color: $palette-dark-gray
+
+      #search-button
+        color: $palette-black
+        border-bottom: 1px solid $palette-dark-gray
+
+        &:hover
+          color: $primary-color
+
+  ul
+    li
+      // .active used with magellan, not to be confused with
+      // .active on a link tag.
+      &.active[data-magellan-arrival]
+        background-color: $palette-black
+
+        a, a:not(.button)
+          background-color: transparent
+
+      &.divider
+        border-right-color: darken($primary-color, 4%)
+
+      @media #{$small-only}
+        i
+          margin-right: .5rem
+
+        span
+          display: inline-block!important
+
+      a
+        font-family: 'Monda'
+
+        i.twitter-icon
+          font-size: 1rem
+          margin-right: .5rem
+          vertical-align: -9%
+
+      a#keyboard-shortcuts-link.active, a#calendar-link.active
+        background-color: $palette-lightest-gray
+        color: $palette-black
+
+      &:not(.has-dropdown):not(.menu-icon) a:hover, a#keyboard-shortcuts-link.active, a#calendar-link.active
+        // Hard-coded the height to override border-bottom on dashboard
+        // so that there isn't a weird red line when keyboard
+        // shortcuts is open / when hovering over a menu link.
+        height: rem-calc(46)
+
+      #cal-icon-date
+        position: absolute
+        top: 4px
+        width: 17px
+        font-size: 10px
+        text-align: center
+
+    &.dropdown
+      i
+        font-size: .875rem
+        margin-right: .5rem
+        vertical-align: 0
+
+nav#site-nav, nav#admin-nav
+  background-color: $palette-white
+  height: 4rem
+  box-shadow: none
+  width: 100%
+  font-family: 'Monda'
+  padding: 0
+  border-bottom: .15rem solid $primary-color
+
+  h1
+    margin: 0
+    display: inline-block
+    line-height: 4rem
+    font-family: 'Monda'
+    float: left
+
+    img
+      float: left
+      height: 2rem
+      margin-top: 1.1rem
+      margin-right: .5rem
+
+      @media #{$small-only}
+        height: 1.5rem
+        margin-top: 1.3rem
+
+    a
+      color: $primary-color
+      font-size: 1.5rem
+      vertical-align: top
+
+      @media #{$small-only}
+        font-size: 1rem
+
+    a.blog-wordmark-extension, a.admin-wordmark-extension
+      margin-left: .4rem
+      color: $palette-darker-gray
+
+  ul
+    list-style: none
+
+    li
+      display: inline-block
+      
+      &.home-link
+        @media #{$small-only}
+          display: none
+
+      a
+        padding: 0 .5rem
+        color: $palette-darker-gray
+        line-height: 4rem
+        font-size: .9rem
+        margin: 0 .25rem
+
+        @media #{$small-only}
+          font-size: .8rem
+
+        &:hover
+          color: $primary-color
+
+#breadcrumb-menu
+  //padding: .5rem
+  
+  &, a
+    font-size: .9rem

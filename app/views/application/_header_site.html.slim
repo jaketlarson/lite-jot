@@ -1,0 +1,45 @@
+nav#site-nav
+  .contain-to-grid
+    .row
+      .large-12.columns
+        h1
+          a href='/'
+            = image_tag('feather-red-soft-small.png')
+            |Lite&nbsp;Jot
+
+          - if controller_name == 'blog_posts'
+            a.blog-wordmark-extension href='/blog' Blog
+
+        ul.right
+          - unless user_signed_in?
+            li.home-link data-magellan-arrival='get-started'
+              a href='/'
+                  |Home
+          - else
+            li
+              a href='/'
+                |Jots
+
+          - if user_signed_in? && current_user.admin?
+            li
+              a href="/admin" title='Information'
+                |Admin
+
+          li
+            a href='/blog' Blog
+
+          - unless user_signed_in?
+            - if action_name == 'welcome'
+              li
+                a data-reveal-id='auth-modal' Sign in
+            - else
+              li
+                a href='/getting-started' Sign in
+          - else
+            li
+              == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
+                  |Sign out
+
+          li
+            a href='https://www.twitter.com/litejot'
+              i.fa.fa-twitter.twitter-icon

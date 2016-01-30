@@ -16,8 +16,8 @@ class FoldersController < ApplicationController
     folder = Folder.find(params[:id])
     folder.title = ActionView::Base.full_sanitizer.sanitize(folder.title)
 
-    # temporarily turn off since updated_at controls order of folders in UI
-    Folder.record_timestamps = false
+    # # temporarily turn off since updated_at controls order of folders in UI
+    # Folder.record_timestamps = false
     
     if folder.user_id == current_user.id
       if folder.update(folder_params)
@@ -30,14 +30,17 @@ class FoldersController < ApplicationController
       render :json => {:success => false, :error => "You do not have permission to modify this folder."}, :status => :bad_request
     end
 
-    Folder.record_timestamps = true
+    # Folder.record_timestamps = true
   end
 
   def destroy
     folder = Folder.find(params[:id])
 
     # Do a check to see if there are no jots (including archived)
-    # existing in folder. If not, really_destroy! (paranoia gem) the topic
+    # existing in folder. If not, set the perm_deleted field instead of
+    # really_destroy! (paranoia gem). Routine garbage collection can be
+    # done later, but it is best not to completely delete items
+    # immediately as this can mess with syncing.
     folder_empty = Jot.with_deleted.where('folder_id = ?', folder.id).empty? ? true : false
 
     if folder.user_id == current_user.id
@@ -45,9 +48,13 @@ class FoldersController < ApplicationController
 
         if folder_empty
           folder.topics.each do |topic|
-            topic.really_destroy!
+            topic.perm_deleted = true
+            topic.save
+            # topic.really_destroy!
           end
-          folder.really_destroy!
+          folder.perm_deleted = true
+          folder.save
+          # folder.really_destroy!
         end
 
         render :json => {:success => true, :message => "Folder and its contents moved to trash."}

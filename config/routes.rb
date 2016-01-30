@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  mount Bootsy::Engine => '/bootsy', as: 'bootsy'
   devise_for :users, :controllers => {
     :sessions => 'users/sessions',
     :registrations => 'users/registrations',
@@ -43,13 +44,38 @@ Rails.application.routes.draw do
 
   resources :gmail_api
 
-  get '/load-data' => 'application#load_data'
+  get 'admin' => 'admin/pages#dashboard'
+  get 'admin/users' => 'admin/users#index'
+  get 'admin/users/:id' => 'admin/users#show'
+
+  resources :blog_posts, :only => [:index, :show], :path => 'blog'
+  resources :blog_subscriptions, :only => [:create, :destroy]
+  get '/blog_subscriptions/unsubscribe/:id/:unsub_key' => 'blog_subscriptions#destroy'
+  resources :support_tickets, :only => [:index, :new, :create, :show], :path => 'support-tickets'
+  resources :support_ticket_messages, :only => [:create]
+  
+  #resources :feedback, :only => [:new, :create], :path => "email-support"
+  get 'email-support' => 'feedback#new'
+  post 'email-support' => 'feedback#create'
+
+  resource :admin do
+    resources :blog_posts, :controller => 'admin/blog_posts', :except => [:show], :path => 'blog'
+    resources :blog_subscriptions, :controller => 'admin/blog_subscriptions', :only => [:index, :destroy]
+    resources :support_tickets, :controller => 'admin/support_tickets', :path => 'support-tickets'
+    resources :support_ticket_messages, :controller => 'admin/support_ticket_messages', :only => [:create, :edit, :update, :destroy]
+  end
+
+  get 'admin/blog_posts/:blog_post_id/send_blog_alert_email' => 'admin/blog_subscriptions#send_blog_alert_email', :as => 'send_blog_alert_email'
+  get 'admin/blog_posts/:blog_post_id/send_blog_alert_test_email' => 'admin/blog_subscriptions#send_blog_alert_test_email', :as => 'send_blog_alert_test_email'
+
+  get '/load-data-init' => 'application#load_data_init'
+  get '/load-updates' => 'application#load_updates'
   get '/connection-test' => 'application#connection_test'
   post '/transfer-data' => 'application#transfer_data'
-  get 'raw-data' => 'application#raw_data'
 
   get 'terms' => 'pages#terms'
   get 'privacy' => 'pages#privacy'
+  get 'support' => 'pages#support'
   get 'getting-started' => 'pages#getting_started'
 
   match '/404', :to => 'errors#file_not_found', :via => :all

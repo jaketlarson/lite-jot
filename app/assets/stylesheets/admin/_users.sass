@@ -1,0 +1,37 @@
+body#admin_users-index
+  article
+    padding-top: 2rem
+
+    table tr:hover
+      cursor: pointer
+
+      td
+        color: $primary-color
+
+body#admin_users-show
+  article
+    padding-top: 2rem
+
+    .panel
+      width: 100%
+
+      .data-row
+        text-align: left
+        clear: both
+        overflow: auto
+
+        &:nth-child(even)
+          background-color: $even-row-bg
+
+        .field, .value
+          display: inline-block
+          padding: .5rem
+          font-size: .9rem
+
+        .value
+          float: right
+
+    .row.back-link-container
+      margin-top: 1rem
+      margin-bottom: 1rem
+      text-align: center

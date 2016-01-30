@@ -68,7 +68,6 @@ class window.LiteJot
     @connection = new Connection(@)
     @setUIInterval()
     @connection.loadDataFromServer()
-    @initAppInfoModalBind()
     @initModalFocusBind()
     @connection.startConnectionTestTimer()
     @jots.new_jot_content.focus()
@@ -137,14 +136,6 @@ class window.LiteJot
     @folders.buildFoldersList()
     @topics.buildTopicsList organize_dom
 
-  initAppInfoModalBind: =>
-    $('nav a#app-info-modal-link').click (e) =>
-      $('#app-info-modal').foundation 'reveal', 'open'
-      $('#app-info-modal').html($('#app-info-modal-template').html())
-
-      $('#app-info-modal .confirm').click (e2) =>
-        $('#app-info-modal').foundation 'reveal', 'close'
-
   initModalFocusBind: =>
     $(document).on('opened.fndtn.reveal', '[data-reveal]', () ->
       $(this).focus()
@@ -174,7 +165,7 @@ class window.LiteJot
         wrap.scrollTop(scroll_to)
 
   initTips: =>
-    $('#app-info-modal-link, #calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
+    $('#calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
       direction: 'bottom'
       align: 'left'
     }
@@ -194,11 +185,17 @@ class window.LiteJot
     @pushUI = new PushUI(@)
 
   resetTempData: =>
-    @temp.folders = null
-    @temp.topics = null
-    @temp.jots = null
-    @temp.shares = null
+    # @temp.folders = null
+    # @temp.topics = null
+    # @temp.jots = null
+    # @temp.shares = null
     @temp.user = null
+    @temp.new_or_updated_folders = null
+    @temp.new_or_updated_topics = null
+    @temp.new_or_updated_jots = null
+    @temp.deleted_folders = null
+    @temp.deleted_topics = null
+    @temp.deleted_jots = null
 
   checkIfIntroduction: =>
     if !@app.user.saw_intro

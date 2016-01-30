@@ -1,0 +1,28 @@
+== render :partial => "ticket_nav", :locals => { :mode => mode }
+
+h3 Answered Tickets (#{tickets.count})
+
+== render :partial => "action_messages"
+
+table.answered-tickets
+  thead
+    tr
+      th.th-ticket-id #{sortable "unique_id", "Ticket ID", mode}
+      th.th-author Display Name
+      th.th-subject #{sortable "subject", nil, mode}
+      th.th-last-answered #{sortable "last_answered_at", "Last Answered", mode}
+      th.th-last-read-by-author #{sortable "author_last_read_at", "Author Last Read", mode}
+      th.th-last-update #{sortable "updated_at", "Last Update", mode}
+
+  tbody
+    - tickets.each do |ticket|
+      tr onclick="window.location='/admin/support-tickets/#{ticket.unique_id}'"
+        td #{ticket.unique_id}
+        - user = User.find(ticket.user_id)
+        td #{user.display_name}
+        td #{ticket.subject}
+        td #{concise_date(ticket.last_answered_at)}
+        td #{concise_date(ticket.author_last_read_at)}
+        td #{concise_date(ticket.updated_at)}
+
+== will_paginate tickets, :params => { :mode => mode }

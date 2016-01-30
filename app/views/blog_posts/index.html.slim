@@ -1,0 +1,38 @@
+- content_for :title do
+  = "Blog Home"
+
+.row
+  .column.small-1.hide-for-small-only &nbsp;
+  .column.small-12.medium-10
+    #breadcrumb-menu
+      == render_breadcrumbs
+  .column.small-1.hide-for-small-only &nbsp;
+
+.row.posts-wrap
+  .column.small-1.hide-for-small-only.medium-1 &nbsp;
+  .column.small-12.medium-10
+    h3 Recent Blog Posts
+
+    - @blog_posts.each do |post|
+      .post
+        h3
+          == link_to post.title, blog_post_path(post)
+
+        .info
+          i.time-icon.fa.fa-clock-o
+          == post.created_at.strftime("%B %e, %Y")
+          |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
+          - author = User.find(post.user_id)
+          |By #{author.display_name}
+
+        p
+          == ActionView::Base.full_sanitizer.sanitize(truncate_html post.body, :length => 300)
+          br
+          == link_to raw('Read more &rarr;'), blog_post_path(post)
+      
+    == will_paginate @blog_posts
+
+    == render :partial => "blog_subscriptions/new"
+
+  .column.small-1.hide-for-small-only.medium-1 &nbsp;
+      

@@ -1,0 +1,9 @@
+article
+  .row
+    = simple_form_for @blog_post, :url => admin_blog_posts_path(@blog_post) do |post|
+
+      == post.input :title, :autofocus => true
+      == post.input :body, :as => :bootsy
+      == post.input :public, :label => "Make blog post visible to public"
+
+      button.right Save

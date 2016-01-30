@@ -1,0 +1,20 @@
+table
+  width: 100%
+  
+  thead
+    tr 
+      th
+        font-weight: normal
+
+        a.current
+          font-weight: bold
+
+          &.asc:after, &.desc:after
+            font-family: 'FontAwesome'
+            padding-left: .3rem
+
+          &.asc:after
+            content: '\f0d8'
+
+          &.desc:after
+            content: '\f0d7'

@@ -15,18 +15,21 @@ html
     meta property="og:image" content="https://www.litejot.com/assets/images/logos/facebook-share.png"
 
   body id="#{body_id}"
-    - if !user_signed_in?
-      == render :partial => "header_unauthenticated"
+    - if is_on_app
+      == render :partial => "header_app"
     - else
-      == render :partial => "header_authenticated"
+      == render :partial => "header_site"
 
-    == yield
+    main
+      == yield
+
+    - if !is_on_app
+      == render :partial => 'footer'
 
     == render :partial => "status_bar"
     == render :partial => "application/modals/support"
     
-    - if user_signed_in?
-      == render :partial => "application/modals/app_info"
+    - if is_on_app
       == render :partial => "application/modals/user_settings"
       == render :partial => "application/modals/delete_folder"
       == render :partial => "application/modals/delete_topic"
@@ -40,7 +43,10 @@ html
       == render :partial => "notifications/show"
 
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
-    == javascript_include_tag 'application', 'data-turbolinks-track' => true
+    - if is_on_app
+      == javascript_include_tag 'application', 'data-turbolinks-track' => false
+    - else
+      == javascript_include_tag 'site', 'data-turbolinks-track' => false
 
     - if Rails.env.production?
       javascript:
@@ -53,7 +59,7 @@ html
         ga('send', 'pageview');
 
 
-  - if !user_signed_in?
+  - if !is_on_app
     == javascript_include_tag 'stellar.min.js'
 
     javascript:

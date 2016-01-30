@@ -1,0 +1,27 @@
+article
+  .row
+    h3 All Blog Subscriptions (#{@blog_subscriptions.count})
+
+    table
+      thead
+        tr
+          th #{sortable "id", "ID"}
+          th #{sortable "email"}
+          th #{sortable "updated_at", "Subscribed At"}
+          th Options
+
+      tbody
+        - @blog_subscriptions.each do |sub|
+          tr
+            td #{sub.id}
+            td
+              |#{sub.email} 
+              - search_user = User.where('email = ?', sub.email)
+              - if search_user.count == 1
+                a href='/admin/users/#{search_user[0].id}' (profile)
+
+            td #{I18n.l(sub.updated_at)}
+            td
+              == link_to 'delete', { :controller => 'admin/blog_subscriptions', :action => 'destroy', :id => sub.id }, :method => :delete, :data => { confirm: 'Are you sure?' }
+
+    == will_paginate @blog_subscriptions

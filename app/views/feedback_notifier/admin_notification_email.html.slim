@@ -1,0 +1,10 @@
+h1 style="padding: 0 16px;line-height: 48px;" New Feedback Received
+
+p.lead style="padding: 0 16px"
+  |Name: #{@feedback.name}
+  br
+  |Email: #{@feedback.email}
+  br
+  |Message:
+  br
+  |#{@feedback.message.gsub(/\n/, '<br>').html_safe}

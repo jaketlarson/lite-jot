@@ -1,8 +1,8 @@
 #folders-column
   z-index: 2
-  background-color: $palette-lightest-gray
+  background-color: darken($palette-lightest-gray, 3%)
   opacity: 1
-  box-shadow: 1px 0px 4px rgba(0,0,0,0.35)
+  //box-shadow: 1px 0px 4px rgba(0,0,0,0.35)
   outline: 0
   padding: 0
 
@@ -57,10 +57,12 @@ ul#folders-list
   li
     position: absolute
     top: 0
+    right: 0
+    left: 0
     padding: .5rem 1rem
     transition: top .25s, margin-left .25s, opacity .25s
     transition-timing-function: ease-out
-    width: 100%
+    //width: 100%
     font-size: .9rem
     word-wrap: break-word
 
@@ -128,9 +130,11 @@ ul#folders-list
         border-bottom: 1px solid $primary-color
 
     &.current
-      border-left: .5rem solid $primary-color
+      border-left: .25rem solid $primary-color
+      background-color: rgb(245, 245, 245)
       cursor: pointer
       z-index: 2
+      left: 1rem
 
     &:hover
       background-color: $primary-color

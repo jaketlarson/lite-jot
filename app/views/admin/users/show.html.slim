@@ -1,0 +1,53 @@
+article
+  .row
+    h3 User Details for #{@user.display_name}
+
+    .column.medium-3.small-1 &nbsp;
+
+    .column.medium-6.small-10
+      .panel#user-details
+        .data-row
+          .field Email:
+          .value #{@user.email}
+
+        .data-row
+          .field Display name:
+          .value #{@user.display_name}
+
+        .data-row
+          .field ID:
+          .value #{@user.id}
+
+        .data-row
+          .field Member since:
+          .value #{I18n.l(@user.created_at)}
+
+        .data-row
+          .field Currently signed in at:
+          .value #{I18n.l(@user.current_sign_in_at)}
+
+        .data-row
+          .field Currently signed in from:
+          .value #{@user.current_sign_in_ip}
+
+        .data-row
+          .field Last signed in at:
+          .value #{I18n.l(@user.last_sign_in_at)}
+
+        .data-row
+          .field Last signed in from:
+          .value #{@user.last_sign_in_ip}
+
+        .data-row
+          .field Auth provider (blank if none):
+          .value #{@user.auth_provider}
+
+        .data-row
+          .field Subscribed to emails:
+          .value #{@user.receives_email}
+
+    .column.medium-3.small-1 &nbsp;
+
+  .row.back-link-container
+    == link_to admin_users_path do
+      |back to users

@@ -1,0 +1,31 @@
+.row
+  .column.small-12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
+.row
+  .column.small-12
+    article
+      h3 My Tickets
+      .right
+        a.button href="#{new_support_ticket_url}" New Ticket
+
+      == render :partial => "action_messages"
+
+      table
+        thead
+          tr
+            th.th-ticket-id #{sortable "unique_id", "Ticket ID"}
+            th.th-subject #{sortable "subject"}
+            th.th-last-update #{sortable "updated_at", "Last Update"}
+            th.th-status #{sortable "status"}
+
+        tbody
+          - @tickets.each do |ticket|
+            tr onclick="window.location='/support-tickets/#{ticket.unique_id}'"
+              td #{ticket.unique_id}
+              td #{ticket.subject}
+              td #{concise_date(ticket.updated_at)}
+              td #{translate_status(ticket.status)}
+
+      == will_paginate @tickets

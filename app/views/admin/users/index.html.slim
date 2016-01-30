@@ -1,0 +1,21 @@
+article
+  .row
+    h3 All Users (#{@users.count})
+
+    table
+      thead
+        tr
+          th #{sortable "id", "ID"}
+          th #{sortable "email"}
+          th #{sortable "display_name"}
+          th #{sortable "last_sign_in_at", "Last Seen"}
+
+      tbody
+        - @users.each do |user|
+          tr onclick="window.location='/admin/users/#{user.id}'"
+            td #{user.id}
+            td #{user.email}
+            td #{user.display_name}
+            td #{I18n.l(user.last_sign_in_at)}
+
+    == will_paginate @users

@@ -1,0 +1,2 @@
+module Admin::SupportTicketsHelper
+end

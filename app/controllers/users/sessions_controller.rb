@@ -5,6 +5,10 @@ class Users::SessionsController < Devise::SessionsController
     clean_up_passwords(resource)
     yield resource if block_given?
     respond_with(resource, serialize_options(resource))
+
+    if params[:redirect_to].present?
+      store_location_for(resource, params[:redirect_to])    
+    end
   end
 
   # POST /resource/sign_in

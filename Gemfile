@@ -52,3 +52,20 @@ gem 'seed_dump'
 gem 'paranoia', '~> 2.0'
 
 gem 'rails_12factor'
+
+# Breadcrumb menus
+gem "breadcrumbs_on_rails"
+
+# Pagination
+gem 'will_paginate', '~> 3.0.6'
+
+# WYSIWYG for blog
+gem 'bootsy'
+
+# Friendly urls
+gem 'friendly_id', '~> 5.1.0'
+
+# Truncating blog entry previews
+gem 'nokogiri'
+gem 'htmlentities'
+gem 'truncate_html'

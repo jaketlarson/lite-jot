@@ -331,6 +331,8 @@ class JotsController < ApplicationController
 
     if can_delete
       if jot.destroy
+        Folder.where("id = ?", jot.folder_id)[0].touch
+        Topic.where("id = ?", jot.topic_id)[0].touch
         render :json => {:success => true, :message => "Jot moved to trash."}
       else
         render :json => {:success => false, :error => "Could not delete jot."}, :status => :bad_request

@@ -1,0 +1,20 @@
+nav#admin-nav
+  .contain-to-grid
+    .row
+      .large-12.columns
+        h1
+          a href='/'
+            = image_tag('feather-red-soft-small.png')
+            |Lite Jot
+          a.admin-wordmark-extension href='/admin' Admin
+
+        ul.right
+          li
+            a href='/admin' Admin
+
+          li
+            a href='/' App
+
+          li
+            == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
+              |Sign out

@@ -11,10 +11,58 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150926203250) do
+ActiveRecord::Schema.define(version: 20160127215032) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "blog_posts", force: true do |t|
+    t.string   "title"
+    t.text     "body"
+    t.text     "tags"
+    t.integer  "hits",                  default: 0
+    t.boolean  "public",                default: true
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "slug"
+    t.datetime "deleted_at"
+    t.boolean  "subscriber_alert_sent", default: false
+  end
+
+  add_index "blog_posts", ["deleted_at"], name: "index_blog_posts_on_deleted_at", using: :btree
+
+  create_table "blog_subscriptions", force: true do |t|
+    t.string   "email"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "unsub_key"
+    t.datetime "deleted_at"
+  end
+
+  add_index "blog_subscriptions", ["deleted_at"], name: "index_blog_subscriptions_on_deleted_at", using: :btree
+
+  create_table "bootsy_image_galleries", force: true do |t|
+    t.integer  "bootsy_resource_id"
+    t.string   "bootsy_resource_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "bootsy_images", force: true do |t|
+    t.string   "image_file"
+    t.integer  "image_gallery_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "feedbacks", force: true do |t|
+    t.string   "name"
+    t.string   "email"
+    t.text     "message"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -22,9 +70,23 @@ ActiveRecord::Schema.define(version: 20150926203250) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "deleted_at"
+    t.boolean  "perm_deleted", default: false
   end
 
   add_index "folders", ["deleted_at"], name: "index_folders_on_deleted_at", using: :btree
+
+  create_table "friendly_id_slugs", force: true do |t|
+    t.string   "slug",                      null: false
+    t.integer  "sluggable_id",              null: false
+    t.string   "sluggable_type", limit: 50
+    t.string   "scope"
+    t.datetime "created_at"
+  end
+
+  add_index "friendly_id_slugs", ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true, using: :btree
+  add_index "friendly_id_slugs", ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type", using: :btree
+  add_index "friendly_id_slugs", ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id", using: :btree
+  add_index "friendly_id_slugs", ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type", using: :btree
 
   create_table "jots", force: true do |t|
     t.integer  "folder_id"
@@ -40,6 +102,7 @@ ActiveRecord::Schema.define(version: 20150926203250) do
     t.datetime "deleted_at"
     t.string   "tagged_email_id"
     t.string   "color"
+    t.boolean  "perm_deleted",    default: false
   end
 
   add_index "jots", ["deleted_at"], name: "index_jots_on_deleted_at", using: :btree
@@ -65,6 +128,27 @@ ActiveRecord::Schema.define(version: 20150926203250) do
     t.string   "recipient_email"
   end
 
+  create_table "support_ticket_messages", force: true do |t|
+    t.integer  "support_ticket_id"
+    t.integer  "user_id"
+    t.text     "message"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "message_type"
+  end
+
+  create_table "support_tickets", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "unique_id"
+    t.string   "subject"
+    t.string   "status",              default: "new"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "slug"
+    t.datetime "last_answered_at"
+    t.datetime "author_last_read_at"
+  end
+
   create_table "topics", force: true do |t|
     t.integer  "folder_id"
     t.integer  "user_id"
@@ -72,6 +156,7 @@ ActiveRecord::Schema.define(version: 20150926203250) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "deleted_at"
+    t.boolean  "perm_deleted", default: false
   end
 
   add_index "topics", ["deleted_at"], name: "index_topics_on_deleted_at", using: :btree
@@ -102,6 +187,7 @@ ActiveRecord::Schema.define(version: 20150926203250) do
     t.string   "timezone"
     t.boolean  "saw_intro",               default: false
     t.text     "preferences"
+    t.boolean  "admin",                   default: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

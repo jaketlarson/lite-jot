@@ -37,48 +37,73 @@ class window.Connection extends LiteJot
       @abortPossibleDataLoadXHR()
 
     else if @lj.init_data_loaded
-      @loadDataFromServer()
+      @loadUpdates()
       @lj.jots.determineFocusForNewJot()
 
   loadDataFromServer: =>
+    # Include timezone in request to be set on user
+    timezone = jstz.determine().name()
+
+    @data_load_xhr = $.ajax(
+      type: 'GET'
+      url: "/load-data-init?timezone=#{timezone}"
+      success: (data) =>
+        @lj.app.folders = data.folders
+        @lj.app.topics = data.topics
+        @lj.app.jots = data.jots
+        @lj.app.shares = data.shares
+        @lj.app.user = data.user
+        @lj.app.last_update_check = data.last_update_check
+        @lj.buildUI()
+        @lj.initKeyControls()
+        @lj.sizeUI()
+        @lj.initCalendar()
+        @lj.initEmailTagger()
+        @lj.initPushUI()
+        @lj.checkIfIntroduction()
+        #@lj.user_settings.applyPreferences()
+        @lj.hideLoader()
+        @lj.init_data_loaded = true
+
+        @startDataLoadTimer()
+        @data_load_xhr = null
+
+      error: (data) =>
+        # Just restart it, as the connection test (separate routine
+        # XHR request) will catch network issues.
+        setTimeout () ->
+          @loadDataFromServer()
+        , 500
+        @data_load_xhr = null
+        # more error handling, maybe?
+    )
+
+  loadUpdates: =>
+    console.log 'called'
     # Avoid extra timers
     if @data_loader_timer
       clearTimeout @data_load_timer()
 
-    timezone_segment = ""
-    if !@lj.init_data_loaded
-      # Include timezone in request to be set on user
-      timezone = jstz.determine().name()
-      timezone_segment = "?timezone=#{timezone}"
-
     @data_load_xhr = $.ajax(
       type: 'GET'
-      url: "/load-data#{timezone_segment}"
+      url: "/load-updates?last_update_check_time=#{@lj.app.last_update_check}"
       success: (data) =>
-        if !@lj.init_data_loaded
-          @lj.app.folders = data.folders
-          @lj.app.topics = data.topics
-          @lj.app.jots = data.jots
-          @lj.app.shares = data.shares
-          @lj.app.user = data.user
-          @lj.buildUI()
-          @lj.initKeyControls()
-          @lj.sizeUI()
-          @lj.initCalendar()
-          @lj.initEmailTagger()
-          @lj.initPushUI()
-          @lj.checkIfIntroduction()
-          #@lj.user_settings.applyPreferences()
-          @lj.hideLoader()
-          @lj.init_data_loaded = true
-        else
-          @lj.temp.folders = data.folders
-          @lj.temp.topics = data.topics
-          @lj.temp.jots = data.jots
-          @lj.temp.shares = data.shares
-          @lj.temp.user = data.user
-          @lj.pushUI.mergeData()
-
+          # @lj.temp.folders = data.folders
+          # @lj.temp.topics = data.topics
+          # @lj.temp.jots = data.jots
+          # @lj.temp.shares = data.shares
+          # @lj.temp.user = data.user
+          # @lj.pushUI.mergeData()
+        #console.log data
+        @lj.app.last_update_check = data.last_update_check
+        @lj.temp.new_or_updated_folders = data.new_or_updated.folders
+        @lj.temp.new_or_updated_topics = data.new_or_updated.topics
+        @lj.temp.new_or_updated_jots = data.new_or_updated.jots
+        @lj.temp.deleted_folders = data.deleted.folders
+        @lj.temp.deleted_topics = data.deleted.topics
+        @lj.temp.deleted_jots = data.deleted.jots
+        @lj.temp.user = data.user
+        @lj.pushUI.mergeData()
         @startDataLoadTimer()
         @data_load_xhr = null
 
@@ -88,7 +113,6 @@ class window.Connection extends LiteJot
         @startDataLoadTimer()
         @data_load_xhr = null
         # more error handling, maybe?
-
     )
 
   abortPossibleDataLoadXHR: =>
@@ -109,7 +133,7 @@ class window.Connection extends LiteJot
       clearTimeout @data_load_timer
 
     @data_load_timer = setTimeout(() =>
-      @loadDataFromServer()
+      @loadUpdates()
     , @data_load_timing)
 
   startConnectionTestTimer: =>

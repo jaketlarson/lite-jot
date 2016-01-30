@@ -426,19 +426,26 @@ class window.Folders extends LiteJot
     elem = $("li[data-folder='#{id}']")
     elem.attr('data-deleted', 'true')
 
+    # Remove from client data
     @removeFolderFromDataById id
 
-    if @lj.app.folders.length > 0
-      if elem.prev('li[data-folder]').length > 0
-        next_folder_elem = elem.prev('li[data-folder]')
-      else
-        next_folder_elem = elem.next('li[data-folder]')
-      @selectFolder($(next_folder_elem).data('folder'))
+    # If elem doesn't exist, go no further.
+    if elem.length == 0
+      return
 
-    else # they deleted the last folder
-      @lj.app.current_folder = null
-      @newFolder()
-      @lj.topics.buildTopicsList() # will render empty topics/jots
+    # Handle case of viewing current folder being vanished
+    if @lj.app.current_folder == id
+      if @lj.app.folders.length > 0
+        if elem.prev('li[data-folder]').length > 0
+          next_folder_elem = elem.prev('li[data-folder]')
+        else
+          next_folder_elem = elem.next('li[data-folder]')
+        @selectFolder($(next_folder_elem).data('folder'))
+
+      else # they deleted the last folder
+        @lj.app.current_folder = null
+        @newFolder()
+        @lj.topics.buildTopicsList() # will render empty topics/jots
 
     @sortFoldersList false
 
@@ -453,8 +460,11 @@ class window.Folders extends LiteJot
       if folder.id == id
         folder_key = index
         return false
-    @lj.app.folders.remove folder_key
-    @lj.topics.removeTopicsInFolderFromData id
+
+    # If folder was found in data
+    if folder_key != null
+      @lj.app.folders.remove folder_key
+      @lj.topics.removeTopicsInFolderFromData id
 
   moveCurrentFolderToTop: =>
     folder_key_to_move = null

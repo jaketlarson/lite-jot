@@ -27,6 +27,10 @@ en:
       short_this_year: "%b %d"
       short_this_week: "%a"
       short_today: "%l:%M%P"
+      concise_default: "%B %d, %y"
+      concise_this_year: "%B %d"
+      concise_this_week: "%A"
+      concise_today: "%l:%M%P"
 
   meta:
     site_title: Lite Jot
