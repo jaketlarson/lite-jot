@@ -32,11 +32,23 @@ class FolderShareSerializer < ActiveModel::Serializer
     if object.is_all_topics
       "sharing all topics"
     else
-      if !object.specific_topics.nil? && object.specific_topics.length > 0
+      tshares = TopicShare.where('folder_id = ?', object.folder_id)
+      if tshares.count > 0
         "sharing specific topics"
       else
         "sharing nothing"
       end
     end
+  end
+
+  def specific_topics
+    topics = []
+
+    tshares = TopicShare.where('folder_id = ?', object.folder_id)
+    tshares.each do |tshare|
+      topics.push(tshare.topic_id.to_s)
+    end
+
+    topics
   end
 end

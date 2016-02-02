@@ -39,6 +39,10 @@ article
           .value #{@user.last_sign_in_ip}
 
         .data-row
+          .field Last seen at:
+          .value #{@user.last_seen_at}
+
+        .data-row
           .field Auth provider (blank if none):
           .value #{@user.auth_provider}
 

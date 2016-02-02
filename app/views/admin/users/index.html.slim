@@ -8,7 +8,7 @@ article
           th #{sortable "id", "ID"}
           th #{sortable "email"}
           th #{sortable "display_name"}
-          th #{sortable "last_sign_in_at", "Last Seen"}
+          th #{sortable "last_seen_at", "Last Seen"}
 
       tbody
         - @users.each do |user|
@@ -16,6 +16,6 @@ article
             td #{user.id}
             td #{user.email}
             td #{user.display_name}
-            td #{I18n.l(user.last_sign_in_at)}
+            td #{I18n.l(user.last_seen_at)}
 
     == will_paginate @users

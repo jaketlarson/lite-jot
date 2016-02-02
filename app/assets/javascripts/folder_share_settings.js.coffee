@@ -76,7 +76,9 @@ class window.FolderShareSettings extends LiteJot
       list_elem.find('.topics-wrap').hide()
 
     $("input[type='checkbox']#toggle-topics-#{share.id}").click =>
+      console.log 'clicked toggle'
       share.is_all_topics = $("input[type='checkbox']#toggle-topics-#{share.id}").is(':checked')
+      console.log $("input[type='checkbox']#toggle-topics-#{share.id}").is(':checked')
       if share.is_all_topics
         list_elem.find('.topics-wrap').slideUp()
       else
@@ -95,7 +97,7 @@ class window.FolderShareSettings extends LiteJot
         new_row = $(@share_topic_row_template.html())
         new_row.attr("data-share-topic", "#{share.id}-#{topic.id}")
                .attr("title", "#{topic.title}")
-        new_row.find('.topic-check').attr("data-checked", "#{if $.inArray(String(topic.id), share.specific_topics) >= 0 then 'true' else 'false'}")
+        new_row.find('.topic-check').attr("data-checked", "#{@inSpecificTopics(topic.id, share.specific_topics)}")
                 .attr("id", "share-check-#{share.id}-#{topic.id}")
         new_row.find('span.topic-title').html(topic.title)
 
@@ -117,6 +119,18 @@ class window.FolderShareSettings extends LiteJot
         list_elem.removeClass('active')
       else
         list_elem.addClass('active')
+
+  inSpecificTopics: (topic_id, tshares) =>
+    console.log topic_id
+    console.log tshares
+    found = false
+    $.each tshares, (key, tshare_id) =>
+      console.log "does #{tshare_id} == parseInt(#{topic_id})?"
+      if parseInt(tshare_id) == parseInt(topic_id)
+        console.log 'yay'
+        found = true
+
+    return found
 
   updateSharedWithCount: =>
     if @folder_shares.length > 0
@@ -184,7 +198,7 @@ class window.FolderShareSettings extends LiteJot
 
   addTopicToShareList: (share_id, topic_id) =>
     share = @folder_shares.filter((share) => share.id == share_id)[0]
-    if $.inArray(String(topic_id), share.specific_topics) == -1
+    if !@inSpecificTopics(topic_id, share.specific_topics)
       if !share.specific_topics
         share.specific_topics = [String(topic_id)]
       else
@@ -193,16 +207,23 @@ class window.FolderShareSettings extends LiteJot
 
   removeTopicFromShareList: (share_id, topic_id) =>
     share = @folder_shares.filter((share) => share.id == share_id)[0]
-    if $.inArray(String(topic_id), share.specific_topics) > -1
+    console.log '1'
+    if @inSpecificTopics(topic_id, share.specific_topics)
       share.specific_topics.splice(share.specific_topics.indexOf(String(topic_id)), 1)
+      console.log 'index:'
+      console.log share.specific_topics.indexOf(topic_id)
+      console.log share.specific_topics
+      console.log topic_id
       @updateShare share_id
 
 
   updateShare: (share_id) =>
+    console.log 'updateShare called for '+ share_id
     if @XHR_update_waiting
       @XHR_update_request.abort()
 
     share = @folder_shares.filter((share) => share.id == share_id)[0]
+    console.log share
 
     @lj.connection.abortPossibleDataLoadXHR()
     @XHR_update_request = $.ajax(

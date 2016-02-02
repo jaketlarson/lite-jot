@@ -89,23 +89,38 @@ class ApplicationController < ActionController::Base
 
     last_time = Time.at(params[:last_update_check_time].to_i)
 
-
-    folders = current_user.owned_and_shared_folders_with_deleted_after_time(last_time)
+    updated_data = current_user.owned_and_shared_folders_with_deleted_after_time(last_time)
+    folders = updated_data[:updated]
     topics = []
     jots = []
 
     # collect topics & jots
     folders.each do |folder|
-      folder.topics.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time).each do |topic|
+      ap "so there's a topic.."
+      find_topics = folder.topics.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time)
+      find_topics.each do |topic|
+        ap topic
+        tshares = TopicShare.where("recipient_id = ? AND topic_id = ?", current_user.id, topic.id)
+        ap "allowed to view:"
+        ap tshares
+        shared_topic_ids = tshares.map { |tshare| tshare.topic_id }
+        ap "ids:"
+        ap shared_topic_ids
+
         if current_user.id != topic.user_id
-          fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
-          if !fshare.is_all_topics
-            if fshare.specific_topics
-              if !fshare.specific_topics.include?(topic.id.to_s)
-                next
-              end
-            end
+          #fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+          if !shared_topic_ids.include?(topic.id)
+            next
           end
+
+          # if !fshare.is_all_topics
+          #   # Can't use all topics
+          #   if fshare.specific_topics
+          #     if !fshare.specific_topics.include?(topic.id.to_s)
+          #       next
+          #     end
+          #   end
+          # end
         end
 
         topics << topic
@@ -114,7 +129,8 @@ class ApplicationController < ActionController::Base
 
     # collect jots
     topics.each do |topic|
-      topic.jots.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time).each do |jot|
+      find_jots = topic.jots.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time)
+      find_jots.each do |jot|
         # email tags are private, don't show them to other users.
         if jot.jot_type == 'email_tag' && jot.user_id != current_user.id
           next
@@ -124,19 +140,47 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Add shares handling to this.
-
     # Get deleted items
     del_folders = folders.select { |folder| !folder.deleted_at.nil? && folder.deleted_at > last_time }
     del_topics = topics.select { |topic| !topic.deleted_at.nil? && topic.deleted_at > last_time }
     del_jots = jots.select { |jot| !jot.deleted_at.nil? && jot.deleted_at > last_time }
 
 
+    # Add shares handling to this.
+    unshared_folders = updated_data[:unshared]
+    ap "shared folders deleted:"
+    ap unshared_folders
+    unshared_folders.each do |folder|
+      ap "DELETING:"
+      ap folder
+      del_folders << folder
+    end
+
     # Now remove all the deleted items from the main items collection.
     # This way we can classify them as the "new or updated" items.
     folders = folders.select { |folder| folder.deleted_at.nil? }
     topics = topics.select { |topic| topic.deleted_at.nil? }
     jots = jots.select { |jot| jot.deleted_at.nil? }
+
+    # If there are newly shared folders..
+    newly_shared_folders = updated_data[:newly_shared]
+    ap "newly_shared_folders:"
+    ap newly_shared_folders
+    newly_shared_folders.each do |folder|
+      folders << folder
+      folder.topics.each do |topic|
+        topics << topic
+        topic.jots.each do |jot|
+          # email tags are private, don't show them to other users.
+          if jot.jot_type == 'email_tag' && jot.user_id != current_user.id
+            next
+          else
+            jots << jot
+          end
+        end
+      end
+    end
+
 
     data = {
       :new_or_updated => {

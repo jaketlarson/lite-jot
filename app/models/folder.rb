@@ -3,6 +3,7 @@ class Folder < ActiveRecord::Base
 
   has_many :topics, :dependent => :destroy
   has_many :folder_shares, :dependent => :destroy
+  has_many :topic_shares, :dependent => :destroy
   
   belongs_to :user
 

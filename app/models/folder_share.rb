@@ -2,6 +2,7 @@ class FolderShare < ActiveRecord::Base
   # folder_shares exist if any topic within a folder is shared.
   belongs_to :folder
   belongs_to :user, :foreign_key => 'recipient_id'
+  acts_as_paranoid
 
   #serialize :specific_topics
 

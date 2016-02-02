@@ -1,6 +1,6 @@
 module Users::RegistrationsHelper
   def user_photo(url)
-    if url.empty?
+    if url.nil? || url.empty?
       '/assets/images/photo_placeholder.png'
     else
       url

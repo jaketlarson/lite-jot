@@ -84,6 +84,8 @@ class User < ActiveRecord::Base
     data = access_token.info
     user = User.where(:email => data['email']).first
 
+    ap data
+
     unless user
       user = User.create!(
         :auth_provider => access_token['provider'],
@@ -123,6 +125,8 @@ class User < ActiveRecord::Base
     data = access_token.info
     user = User.where(:email => data['email']).first
 
+    ap data
+
     # Uncomment the section below if you want users to be created if they don't exist
     unless user
       user = User.create!(
@@ -161,6 +165,43 @@ class User < ActiveRecord::Base
 
   # Used on sync cycles
   def owned_and_shared_folders_with_deleted_after_time(begin_at)
-    Folder.with_deleted.includes(:folder_shares).where("(user_id = ? OR (folder_shares.recipient_id = ? AND (folder_shares.is_all_topics = ? OR folder_shares.specific_topics != ?))) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, self.id, true, '', begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC').references(:shares)
+    #Folder.with_deleted.includes(:folder_shares).where("(user_id = ? OR (folder_shares.recipient_id = ? AND (folder_shares.is_all_topics = ? OR folder_shares.specific_topics != ?))) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, self.id, true, '', begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC').references(:folder_shares)
+    
+    # owned_folders = Folder.with_deleted
+    # .includes(:folder_shares)
+    # .where("user_id = ? AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC')
+    # .references(:folder_shares)
+
+    updated_folders = Folder.with_deleted
+    .includes(:topic_shares)
+    .where("(user_id = ? OR topic_shares.recipient_id = ?) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, self.id, begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC')
+    .references(:topic_shares)
+
+    ap "here you go:::"
+    ap updated_folders
+
+    unshared_folders = []
+    unshared_folders_tracked = []
+    tshares = TopicShare.only_deleted.where("recipient_id = ? AND deleted_at > ?", self.id, begin_at)
+    tshares.each do |tshare|
+      if !unshared_folders_tracked.include? tshare.folder_id
+        unshared_folders_tracked.push(tshare.folder_id)
+        unshared_folders += Folder.with_deleted.where("id = ?", tshare.folder_id)
+      end
+    end
+
+
+    # could there be conflict in one live sync polling where a folder/topic is shared and unshared? what happens then?
+    newly_shared_folders = []
+    newly_shared_folders_tracked = []
+    tshares = TopicShare.where("recipient_id = ? AND created_at > ?", self.id, begin_at)
+    tshares.each do |tshare|
+      if !newly_shared_folders_tracked.include? tshare.folder_id
+        newly_shared_folders_tracked.push(tshare.folder_id)
+        newly_shared_folders += Folder.with_deleted.where("id = ?", tshare.folder_id)
+      end
+    end
+
+    return { :updated => updated_folders, :unshared => unshared_folders, :newly_shared => newly_shared_folders }
   end
 end

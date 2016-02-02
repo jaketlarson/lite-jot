@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160201162230) do
+ActiveRecord::Schema.define(version: 20160202163803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -66,14 +66,17 @@ ActiveRecord::Schema.define(version: 20160201162230) do
 
   create_table "folder_shares", force: true do |t|
     t.integer  "folder_id"
-    t.boolean  "is_all_topics"
+    t.boolean  "is_all_topics",   default: false
     t.text     "specific_topics"
     t.integer  "recipient_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "sender_id"
     t.string   "recipient_email"
+    t.datetime "deleted_at"
   end
+
+  add_index "folder_shares", ["deleted_at"], name: "index_folder_shares_on_deleted_at", using: :btree
 
   create_table "folders", force: true do |t|
     t.integer  "user_id"
@@ -159,7 +162,10 @@ ActiveRecord::Schema.define(version: 20160201162230) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "recipient_id"
+    t.datetime "deleted_at"
   end
+
+  add_index "topic_shares", ["deleted_at"], name: "index_topic_shares_on_deleted_at", using: :btree
 
   create_table "topics", force: true do |t|
     t.integer  "folder_id"

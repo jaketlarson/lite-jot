@@ -58,18 +58,24 @@ class FolderSerializer < ActiveModel::Serializer
       # This is only necessary if specific topics are set.
       # Otherwise, if the entire folder is visible,
       # this workaround is unnecessary.
-      share = FolderShare.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
-      if share.is_all_topics
+      fshare = FolderShare.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
+      tshares = TopicShare.where('recipient_id = ? AND folder_id = ?', scope.id, object.id)
+
+      if fshare.is_all_topics || tshares.count == 0
         return object.updated_at.to_f
       else
         most_recent_topic = nil
         topics = share.specific_topics
-        topics.each do |topic_id|
-          topic = Topic.find(topic_id)
-          if most_recent_topic.nil?
-            most_recent_topic = topic
-          elsif most_recent_topic.updated_at.to_f < topic.updated_at.to_f
-            most_recent_topic = topic
+        topics = Topic.where('folder_id = ?', fshare.folder_id)
+        topics.each do |topic|
+          tshare_check = TopicShare.where('recipient_id = ? and topic_id = ?', scope.id, topic.id)
+          # If topic is shared with user..
+          if !tshare_check.empty?
+            if most_recent_topic.nil?
+              most_recent_topic = topic
+            elsif most_recent_topic.updated_at.to_f < topic.updated_at.to_f
+              most_recent_topic = topic
+            end
           end
         end
         return most_recent_topic.updated_at.to_f

@@ -44,11 +44,14 @@ class FolderSharesController < ApplicationController
 
     ap fshare
 
-    ap "specific topics:"
-
     if fshare.update(fshare_params)
       ap "updating!"
       ap fshare
+      ap "specific topics:"
+      ap params[:specific_topics]
+      ap "is_all_topics:"
+      ap params[:is_all_topics]
+
       if !params[:specific_topics].nil? && params[:is_all_topics] == 'false'
         ap 'specific topics not all topics'
         # Specific topics are selected
@@ -59,7 +62,7 @@ class FolderSharesController < ApplicationController
         topics.each do |topic|
           if params[:specific_topics].include? topic.id.to_s
             tshare_exists = !TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email).empty?
-
+            ap tshare_exists
             if !tshare_exists
               tshare = TopicShare.new(
                 :recipient_email => fshare.recipient_email,
@@ -73,7 +76,15 @@ class FolderSharesController < ApplicationController
 
             end
 
+          else
+            ap "LET US DELETE THIS NOW OKAY COOL"
+            # If a topic share exists right now, delete it
+            tshare_check = TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email)
+            if tshare_check.count == 1
+              tshare_check[0].destroy
+            end
           end
+
         end
 
       elsif params[:is_all_topics] == 'true'
@@ -98,10 +109,14 @@ class FolderSharesController < ApplicationController
           end
         end
 
-      else
+      elsif params[:specific_topics].nil? && params[:is_all_topics] == 'false'
         ap 'destroy all!!!'
         # No topics selected, remove all topic_shares for this recipient in the folder,
         TopicShare.destroy_all "folder_id = '#{fshare.folder_id}' AND recipient_email='#{fshare.recipient_email}'"
+      else
+        # is_all_topics is not even set. Let's make it false
+        fshare.is_all_topics = false
+        fshare.save
       end
 
       # else
