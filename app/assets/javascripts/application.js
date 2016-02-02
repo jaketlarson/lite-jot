@@ -2,7 +2,7 @@
 // jQuery2 is included via CDN, called before this file is in layout.
 //= require jstz
 //= require jquery_ujs
-//= require turbolinks
+// DON'T require turbolinks
 //= require vendor/modernizr
 //= require foundation
 //= require fullscreen
@@ -15,12 +15,11 @@
 //= require notification
 //= require clock
 //= require calendar
-//= require share_settings
+//= require folder_share_settings
 //= require hover_notice
-//= require emergency_mode
+//= require airplane_mode
 //= require connection
 //= require push_ui
-//= require support
 //= require jot_recovery
 //= require email_tagger
 //= require email_viewer

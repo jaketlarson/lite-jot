@@ -1,26 +1,26 @@
 #= require litejot
 
-class window.EmergencyMode extends LiteJot
+class window.AirplaneMode extends LiteJot
   constructor: (@lj) ->
     @initVars()
 
   initVars: =>
     @active = false
     @terms_accepted_by_user = false
-    @header_notice = $('#emergency-mode-header-notice')
+    @header_notice = $('#airplane-mode-header-notice')
     @header_notice_has_storage = @header_notice.find('#has-storage')
     @header_notice_no_storage = @header_notice.find('#no-storage')
-    @terms_modal = $('#emergency-mode-terms-modal')
-    @terms_modal_template = $('#emergency-mode-terms-modal-template')
-    @unsaved_jots_modal = $('#emergency-mode-unsaved-jots-modal')
-    @unsaved_jots_modal_template = $('#emergency-mode-unsaved-jots-modal-template')
+    @terms_modal = $('#airplane-mode-terms-modal')
+    @terms_modal_template = $('#airplane-mode-terms-modal-template')
+    @unsaved_jots_modal = $('#airplane-mode-unsaved-jots-modal')
+    @unsaved_jots_modal_template = $('#airplane-mode-unsaved-jots-modal-template')
 
   activate: =>
     @active = true
     @showHeaderNotice()
 
     # Close certain modals, if opened.
-    $('#share-settings-modal').foundation 'reveal', 'close'
+    $('#folder-share-settings-modal').foundation 'reveal', 'close'
     $('#user-settings-modal').foundation 'reveal', 'close'
 
     if !@terms_accepted_by_user && @hasLocalStorage()
@@ -83,11 +83,13 @@ class window.EmergencyMode extends LiteJot
     @saveStoredJots()
     return
 
+  # not sure why this is not camelcase.. should go through and fix this
   feature_unavailable_notice: =>
-    new HoverNotice(@lj, 'This feature is unavailable while in Emergency Mode.', 'error')
+    new HoverNotice(@lj, 'This feature is unavailable while in Airplane Mode.', 'error')
     return
 
   storeJot: (content, key, jot_type, break_from_top, color) =>
+    now = new Date
     jot = 
       content: content
       is_temp: true
@@ -97,6 +99,7 @@ class window.EmergencyMode extends LiteJot
       jot_type: jot_type
       break_from_top: break_from_top
       color: color
+      em_created_at: now.getTime()
 
     stored_jots = @getStoredJotsObject()
     stored_jots.push jot
@@ -119,7 +122,6 @@ class window.EmergencyMode extends LiteJot
         url: '/jots'
         data: {"jots": stored_jots}
         success: (data) =>
-          @lj.connection.startDataLoadTimer()
           if data.error_list.length > 0
             # add a timeout so the reveal overlay doesn't glitch up and disappear
             setTimeout(() =>
@@ -129,6 +131,9 @@ class window.EmergencyMode extends LiteJot
           $.each data.jots, (key, jot) =>
             @lj.app.jots.push jot
             @lj.jots.integrateTempJot jot, jot.temp_key
+
+          # Now that jots were saved, let's sort them
+          @lj.jots.sortJotsList()
 
           # Handle auto-generated folder or topic.
           if (typeof @lj.app.current_folder == 'undefined' || !@lj.app.current_folder) && typeof data.folder != 'undefined'
@@ -142,13 +147,15 @@ class window.EmergencyMode extends LiteJot
           @clearLocalStorage()
 
         error: (data) =>
-          @lj.connection.startDataLoadTimer()
           # still can't save the jots..
           # if this happens to often, an improvement could be
           # to reattempt this ajax request again before firing
           # the unsaved-jots-alert message.
           errorWhileAttemptingToSaveJots()
           @clearLocalStorage()
+
+        complete: (xhr, status) =>
+          @lj.connection.startDataLoadTimer()
       )
     else
       @lj.connection.startDataLoadTimer()
@@ -179,7 +186,7 @@ class window.EmergencyMode extends LiteJot
 
     # errorWhileAttemptingToSaveJots fires when the ajax request
     # has an error.. this can happen during a choppy internet connection,
-    # when emergency mode starts up and then goes off, but internet
+    # when airplane mode starts up and then goes off, but internet
     # is still bad
     errorWhileAttemptingToSaveJots = =>
       @unsaved_jots_modal.foundation 'reveal', 'open'
@@ -214,7 +221,7 @@ class window.EmergencyMode extends LiteJot
     catch e
       return false
 
-  # This is ran upon Lite Jot init, in case user left in emergency mode
+  # This is ran upon Lite Jot init, in case user left in airplane mode
   # w/ unsaved jots
   checkLocalStorageContents: =>
     stored_jots = @getStoredJotsObject()

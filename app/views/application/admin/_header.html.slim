@@ -13,7 +13,10 @@ nav#admin-nav
             a href='/admin' Admin
 
           li
-            a href='/' App
+            a href='/' Jots
+
+          li
+            a href='/blog' Blog
 
           li
             == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do

@@ -1,3 +1,5 @@
+== render :partial => "keyboard_shortcuts"
+== render :partial => "airplane_mode_header_notice"
 
 #folders-column tabindex='1'
   h2#folders-heading
@@ -30,27 +32,12 @@
     ul#topics-list
 
 #jots-column
-  h2#jots-heading
-    #show-aside.hide-for-large-up
-      i.fa.fa-angle-double-right
+  //h2#jots-heading
+  //  #show-aside.hide-for-large-up
+  //    i.fa.fa-angle-double-right
 
-    .heading-text
-      |Jots
-
-    a.options-dropdown-link data-dropdown="jots-column-options" aria-controls="jots-column-options" aria-expanded="false"
-      i.fa.fa-cog
-
-    #jots-column-options.f-dropdown data-dropdown-content=true aria-hidden="true" tabindex="-1" style='display: block'
-      h3 Jot Size
-
-      .font-change
-        i.font-icon.fa.fa-font
-
-        .slider-wrapper
-          .range-slider data-slider="#{@jot_size.to_f * 100}" data-options="start: 50; end: 150;"
-            .range-slider-handle role="slider" tabindex="0"
-            .range-slider-active-segment
-            .input type="hidden"
+  //  .heading-text
+  //    |Jots
 
   #jots-wrapper
     .empty-message

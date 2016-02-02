@@ -12,7 +12,7 @@ class window.JotRecovery extends LiteJot
 
   initVars: =>
     @modal = $('#jot-recovery-modal')
-    @modal_link = $('nav a#jot-recovery-modal-link')
+    @modal_link = $('aside a#jot-recovery-modal-link')
     @modal_template = $('#jot-recovery-modal-template')
 
   initInstanceVars: =>
@@ -38,8 +38,8 @@ class window.JotRecovery extends LiteJot
 
   initOpenBind: =>
     @modal_link.click =>
-      if @lj.emergency_mode.active
-        @lj.emergency_mode.feature_unavailable_notice()
+      if @lj.airplane_mode.active
+        @lj.airplane_mode.feature_unavailable_notice()
         return
 
       @modal.foundation 'reveal', 'open'
@@ -200,8 +200,8 @@ class window.JotRecovery extends LiteJot
     @delete_confirmation_wrap.hide()
 
   restoreSelected: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     if @xhr_waiting
@@ -235,8 +235,8 @@ class window.JotRecovery extends LiteJot
     )
 
   deleteSelected: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     if @xhr_waiting

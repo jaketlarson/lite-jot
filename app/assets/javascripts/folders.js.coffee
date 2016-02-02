@@ -71,7 +71,7 @@ class window.Folders extends LiteJot
     else
       shared_icon_prefix = ""
 
-    build_html = "<li data-folder='#{folder.id}' data-editing='false'>
+    build_html = "<li data-folder='#{folder.id}' data-editing='false' title='#{folder.title}'>
                     #{shared_icon_prefix}
                     <span class='title'>#{folder.title}</span>
                     <div class='input-edit-wrap'>
@@ -97,6 +97,9 @@ class window.Folders extends LiteJot
   updateFolderElem: (folder, append = true) =>
     elem = @folders_list.find("li[data-folder='#{folder.id}']")
     elem.find('.title').html folder.title
+    elem.attr 'title', folder.title
+
+    @lj.setPageHeading()
 
   sortFolderData: =>
     @lj.app.folders.sort((a, b) =>
@@ -139,7 +142,7 @@ class window.Folders extends LiteJot
       @selectFolder($(e.currentTarget).data('folder'))
 
     @folders_list.find("li[data-folder='#{folder_id}'] [data-share]").click (e) =>
-      new ShareSettings @lj, folder_id
+      new FolderShareSettings @lj, folder_id
       return false
     .cooltip({
       align: 'right'
@@ -198,16 +201,16 @@ class window.Folders extends LiteJot
       @submitNewFolder()
 
   newFolder: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
       
     @showNewFolderForm()
     @sortFoldersList false
 
   submitNewFolder: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     @lj.key_controls.clearKeyedOverData()
@@ -246,10 +249,12 @@ class window.Folders extends LiteJot
       @hideNewFolderForm()
 
   pushFolderIntoData: (folder) =>
-    if @lj.app.folders.length == 0
-      @lj.app.folders.push folder
-    else
-      @lj.app.folders.unshift folder
+    # if @lj.app.folders.length == 0
+    #   @lj.app.folders.push folder
+    # else
+    #   @lj.app.folders.unshift folder
+    # Always place is at the beginning of the data (most recent first)
+    @lj.app.folders.unshift folder
 
     @insertFolderElem folder, false
     @sortFoldersList()
@@ -284,13 +289,14 @@ class window.Folders extends LiteJot
     topics_count = @lj.app.topics.filter((topic) => topic.folder_id == folder_id).length
 
     @lj.topics.buildTopicsList()
+    @lj.setPageHeading()
 
     if topics_count == 0
       @lj.topics.newTopic false
 
   editFolder: (id) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     elem = $("li[data-folder='#{id}']")
@@ -352,8 +358,8 @@ class window.Folders extends LiteJot
           @lj.connection.startDataLoadTimer()
 
   deleteFolderPrompt: (target) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('folder') else id = $("li[data-keyed-over='true']").data('folder')
@@ -487,8 +493,8 @@ class window.Folders extends LiteJot
     @lj.folders.sortFoldersList()
 
   unshare: (folder_id, share_icon_target) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     elem = $("li[data-folder='#{folder_id}']")
@@ -498,7 +504,7 @@ class window.Folders extends LiteJot
     @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'POST'
-      url: "/shares/#{share_id}"
+      url: "/folder_shares/#{share_id}"
       data: {'_method': 'delete'}
 
       success: (data) =>

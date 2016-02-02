@@ -18,3 +18,66 @@
     i
       margin-right: .75rem
       font-size: 1.1rem
+
+
+.progress
+  max-width: 600px
+  margin: 0.2em 0 0.2em 0
+
+
+.progress .bar
+  height: 1.2em
+  padding-left: 0.2em
+  color: white
+  display: none
+
+
+body#users_registrations-edit, body#users_registrations-update
+  .alert-error, .alert-notice, .alert-alert
+    margin-top: 0
+    margin-bottom: 2rem
+
+  h4
+    font-family: 'Monda'
+    font-size: 1.3rem
+    clear: both
+
+  .row.content
+    margin-top: 2rem
+    margin-bottom: 2rem
+
+    .panel
+      background-color: $palette-white
+      box-shadow: $light-box-shadow
+      padding: 1.5rem
+      margin-bottom: 1rem
+      overflow: auto
+
+      section:not(:last-child)
+        margin-bottom: 3rem
+
+      .photo-upload
+        margin: 2rem 0
+
+        .photo
+          width: rem-calc(50)
+          height: rem-calc(50)
+          border-radius: 50%
+          float: left
+          margin-right: 2rem
+
+        input
+          display: inline-block
+          width: auto
+
+  ul.side-menu
+    margin: 0
+
+    li
+      list-style: none
+      font-family: 'Monda'
+      padding: .5rem .75rem
+
+      &.active
+        border-left: .25rem solid $primary-color
+

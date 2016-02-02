@@ -3,7 +3,7 @@ html
   head
     title
       = page_title(yield(:title))
-    == stylesheet_link_tag 'litejot', media: 'all', 'data-turbolinks-track' => true 
+    == stylesheet_link_tag 'litejot', media: 'all'
     == csrf_meta_tags
     meta content='width=device-width, initial-scale=1.0' name='viewport'
     link rel="shortcut icon" href="/favicon.ico"
@@ -23,11 +23,14 @@ html
     main
       == yield
 
+    - if is_on_app
+      aside
+        == render :partial => "app_sidebar"
+
     - if !is_on_app
       == render :partial => 'footer'
 
     == render :partial => "status_bar"
-    == render :partial => "application/modals/support"
     
     - if is_on_app
       == render :partial => "application/modals/user_settings"
@@ -35,8 +38,8 @@ html
       == render :partial => "application/modals/delete_topic"
       == render :partial => "application/modals/calendar_info"
       == render :partial => "application/modals/shares"
-      == render :partial => "application/modals/emergency_mode_terms"
-      == render :partial => "application/modals/emergency_mode_unsaved_jots"
+      == render :partial => "application/modals/airplane_mode_terms"
+      == render :partial => "application/modals/airplane_mode_unsaved_jots"
       == render :partial => "application/modals/calendar_event_topic"
       == render :partial => "application/modals/jot_recovery"
       == render :partial => "application/modals/email_tagger"
@@ -44,9 +47,9 @@ html
 
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
     - if is_on_app
-      == javascript_include_tag 'application', 'data-turbolinks-track' => false
+      == javascript_include_tag 'application'
     - else
-      == javascript_include_tag 'site', 'data-turbolinks-track' => false
+      == javascript_include_tag 'site'
 
     - if Rails.env.production?
       javascript:
@@ -66,3 +69,61 @@ html
       $(window).stellar({
         horizontalScrolling: false
       });
+
+
+  javascript:
+    $(function() {
+      $('.directUpload').find("input:file").each(function(i, elem) {
+        var file_input    = $(elem);
+        var form         = $(file_input.parents('form:first'));
+        var submit_button = form.find('button');
+        // var progressBar  = $("<div class='bar'></div>");
+        // var barContainer = $("<div class='progress'></div>").append(progressBar);
+        // file_input.after(barContainer);
+        file_input.fileupload({
+          fileInput:       file_input,
+          url:             form.data('url'),
+          type:            'POST',
+          autoUpload:       true,
+          formData:         form.data('form-data'),
+          paramName:        'file', // S3 does not like nested name fields i.e. name="user[avatar_url]"
+          dataType:         'XML',  // S3 returns XML if success_action_status is set to 201
+          replaceFileInput: false,
+          progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            // progressBar.css('width', progress + '%')
+            $("label[for='user_photo_url']").html("Uploading: "+progress+"%")
+          },
+          start: function (e) {
+            submit_button.prop('disabled', true);
+
+            // progressBar.
+            //   css('background', 'green').
+            //   css('display', 'block').
+            //   css('width', '0%').
+            //   text("Loading...");
+
+
+          },
+          done: function(e, data) {
+            submit_button.prop('disabled', false);
+            $("label[for='user_photo_url']").html("Upload finished &mdash; click save to complete changes")
+
+            // extract key and generate URL from response
+            var key   = $(data.jqXHR.responseXML).find("Key").text();
+            var url   = '//' + form.data('host') + '/' + key;
+
+            // create hidden field
+            var input = $("<input />", { type:'hidden', name: file_input.attr('name'), value: url })
+            $('.photo').attr('src', url);
+            form.append(input);
+          },
+          fail: function(e, data) {
+            submit_button.prop('disabled', false);
+
+            $("label[for='user_photo_url']").html("Upload failed")
+          }
+        });
+      });
+    });
+

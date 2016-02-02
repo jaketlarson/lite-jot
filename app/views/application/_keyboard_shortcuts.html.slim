@@ -1,4 +1,4 @@
-#keyboard-shortcuts class="#{current_user.is_viewing_key_controls ? 'active' : ''}"
+#keyboard-shortcuts data-active-on-init="#{current_user.is_viewing_key_controls}"
   .default Click on any element below to show keyboard shortcuts here.
 
   ul#jot-keys
@@ -51,6 +51,10 @@
       .description Go to New Jot
 
     li
+      .key N
+      .description New Topic
+
+    li
       .key E
       .description Edit Topic
 
@@ -76,6 +80,9 @@
       .description Go to Topics
 
     li
+      .key N
+      .description New Folder
+    li
       .key E
       .description Edit Folder
 
@@ -84,6 +91,11 @@
       .description Delete Folder
 
   ul#new_jot_content-keys
+    li
+      .key
+        i.fa.fa-long-arrow-left
+      .description Go to Topics
+
     li
       .key
         i.fa.fa-long-arrow-up
@@ -112,6 +124,11 @@
   ul#new_jot_header-keys
     li
       .key
+        i.fa.fa-long-arrow-left
+      .description Go to Topics
+
+    li
+      .key
         i.fa.fa-long-arrow-up
       .description Go to Jots (when empty)
 
@@ -126,6 +143,11 @@
       .description Toolbar (when empty)
 
   ul#new_jot_checklist-keys
+    li
+      .key
+        i.fa.fa-long-arrow-left
+      .description Go to Topics
+
     li
       .key
         i.fa.fa-long-arrow-up

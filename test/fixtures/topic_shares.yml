@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sender_id: 1
+  recipient_emai: MyString
+  folder_id: 1
+  topic_id: 1
+
+two:
+  sender_id: 1
+  recipient_emai: MyString
+  folder_id: 1
+  topic_id: 1

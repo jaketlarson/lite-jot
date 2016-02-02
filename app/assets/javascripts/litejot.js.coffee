@@ -59,7 +59,7 @@ class window.LiteJot
 
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
-    @emergency_mode = new EmergencyMode(@)
+    @airplane_mode = new AirplaneMode(@)
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
@@ -71,10 +71,9 @@ class window.LiteJot
     @initModalFocusBind()
     @connection.startConnectionTestTimer()
     @jots.new_jot_content.focus()
-    @emergency_mode.checkLocalStorageContents()
+    @airplane_mode.checkLocalStorageContents()
     @initTips()
-    @support = new Support(@)
-    @support = new JotRecovery(@)
+    @jot_recovery = new JotRecovery(@)
     @initAsideToggleListener()
     @initUnloadListener()
 
@@ -112,14 +111,16 @@ class window.LiteJot
 
   sizeUI: =>
     keyboard_shortcuts_height = if $('#keyboard-shortcuts').is(':visible') then $('#keyboard-shortcuts').height() else 0
-    emergency_notice_height = if @emergency_mode.header_notice.is(':visible') then @emergency_mode.header_notice.height() else 0
-    folders_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#folders-heading').outerHeight(true)
+    airplane_notice_height = if @airplane_mode.header_notice.is(':visible') then @airplane_mode.header_notice.height() else 0
+    nav_height = parseInt($('body').css('paddingTop'))
+    console.log nav_height
+    folders_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - $('#folders-heading').outerHeight(true)
     @folders.folders_wrapper.css 'height', folders_height
 
-    topics_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#topics-heading').outerHeight(true)
+    topics_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - $('#topics-heading').outerHeight(true)
     @topics.topics_wrapper.css 'height', topics_height
 
-    jots_height = window.innerHeight - $('nav').outerHeight() - keyboard_shortcuts_height - emergency_notice_height - $('#jots-heading').outerHeight(true) - 0*@jots.new_jot_wrap.outerHeight(true)
+    jots_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - 0*@jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
     @jots.positionEmptyMessage()
@@ -165,12 +166,22 @@ class window.LiteJot
         wrap.scrollTop(scroll_to)
 
   initTips: =>
-    $('#calendar-link, #keyboard-shortcuts-link, #fullscreen-request, #support-modal-link, #jot-recovery-modal-link').cooltip {
+    $('#keyboard-shortcuts-link, #jot-options-link').cooltip {
       direction: 'bottom'
       align: 'left'
+      zIndex: 2
+    }
+
+    $('#calendar-link, #fullscreen-request, #support-center-link, #jot-recovery-modal-link, #sign-out-link, #blog-link, #admin-dashboard-link, #profile-details-link').cooltip {
+      direction: 'right'
+      zIndex: 2
     }
 
   initKeyControls: =>
+    # To avoid the shortcuts area showing a blank gutter while loading screen is up..
+    if $('#keyboard-shortcuts').attr('data-active-on-init') == 'true'
+      $('#keyboard-shortcuts').addClass('active')
+
     @key_controls = new KeyControls(@)
     @key_controls.curr_pos = 'new_jot_content'
     @key_controls.switchKeyboardShortcutsPane()
@@ -212,15 +223,18 @@ class window.LiteJot
       @toggleAside()
 
   toggleAside: =>
-    if @jots.jots_column.hasClass('showing-aside')
+    # This could be way cleaner.. like making body have class 'showing-aside' and then bringing all
+    # of that CSS into it's own stylesheet
+
+    if $('nav').hasClass('showing-aside')
       @folders.folders_column.removeClass('showing-aside')
       @topics.topics_column.removeClass('showing-aside')
-      @jots.jots_column.removeClass('showing-aside')
+      $('nav').removeClass('showing-aside')
 
     else
       @folders.folders_column.addClass('showing-aside')
       @topics.topics_column.addClass('showing-aside')
-      @jots.jots_column.addClass('showing-aside')
+      $('nav').addClass('showing-aside')
 
   initUnloadListener: =>
     window.onbeforeunload = (e) =>
@@ -230,3 +244,15 @@ class window.LiteJot
           e.returnValue = "You haven't saved your jot yet!"
 
         return "You haven't saved your jot yet!"
+
+  setPageHeading: =>
+    folder_name = "No folder selected"
+    topic_name = "No topic selected"
+
+    if @app.current_folder
+      folder_name = @app.folders.filter((folder) => folder.id == @app.current_folder)[0].title
+
+    if @app.current_topic
+      topic_name = @app.topics.filter((topic) => topic.id == @app.current_topic)[0].title
+
+    $('nav h2').html "#{folder_name} &nbsp; / &nbsp; #{topic_name}"

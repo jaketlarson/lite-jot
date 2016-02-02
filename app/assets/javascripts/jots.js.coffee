@@ -40,7 +40,7 @@ class window.Jots extends LiteJot
     @remember_palette_while_editing = null
     @currently_editing_id = null
     @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
-    @text_resize_factor = parseInt(@jots_heading.find('#jots-column-options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
+    @text_resize_factor = parseInt($('#jot-options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
     @timestamp_text_max_px = .55*16 # .55rem * 16px/rem
     @content_text_default_px = .95*16 # .95rem * 16px/rem
     @update_jot_size_save_timer = null # used to prevent flooding of requests when saving jot size pref
@@ -109,15 +109,15 @@ class window.Jots extends LiteJot
 
           @insertJotElem jot
 
-      # if searching, limit jots in local storage (emergency mode) 
-      all_em_jots = @lj.emergency_mode.getStoredJotsObject()
+      # if searching, limit jots in local storage (airplane mode) 
+      all_ap_jots = @lj.airplane_mode.getStoredJotsObject()
 
       if @lj.search.current_terms.length > 0
-        em_jots_scope = all_em_jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
+        ap_jots_scope = all_ap_jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
       else
-        em_jots_scope = all_em_jots
+        ap_jots_scope = all_ap_jots
 
-      $.each em_jots_scope, (index, jot) =>
+      $.each ap_jots_scope, (index, jot) =>
         if jot.topic_id == @lj.app.current_topic
           @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, jot.color
 
@@ -133,7 +133,7 @@ class window.Jots extends LiteJot
 
   buildPage: (to, from) =>
     # rel_jots & jots scope is referring to jots stored in the app data, mirroring server
-    # rel_em_jots & all_em_jots refers to jots saved on the browser in emergency mode.
+    # rel_ap_jots & all_ap_jots refers to jots saved on the browser in airplane mode.
     
     # NOTE: at this time, EM-stored jots are not using pagination..
     # they're just being built as a package on topic load in the
@@ -145,18 +145,18 @@ class window.Jots extends LiteJot
       jot.topic_id == @lj.app.current_topic
     )
 
-    # rel_em_jots = @lj.emergency_mode.getStoredJotsObject().filter((jot) => jot.topic_id == @lj.app_current_topic)
+    # rel_ap_jots = @lj.airplane_mode.getStoredJotsObject().filter((jot) => jot.topic_id == @lj.app_current_topic)
     first_jot_pos = -1 * to
     last_jot_pos = -1 * from
 
     jots_scope = $.extend([], rel_jots.slice(first_jot_pos, last_jot_pos)).reverse()
-    # em_jots_scope = $.extend([], rel_em_jots.slice(first_jot_pos, last_jot_pos)).reverse()
+    # ap_jots_scope = $.extend([], rel_ap_jots.slice(first_jot_pos, last_jot_pos)).reverse()
 
-    # remaining_space = @jots_per_page - rel_em_jots.length
+    # remaining_space = @jots_per_page - rel_ap_jots.length
     # jots_scope = jots_scope.slice -1*remaining_space
     total_height = 0
 
-    # $.each em_jots_scope, (index, jot) =>
+    # $.each ap_jots_scope, (index, jot) =>
     #   @insertTempJotElem jot.content, jot.temp_key, jot.jot_type, jot.break, jot.color method='prepend'
     #   total_height += @jots_list.find("li##{jot.temp_key}").outerHeight()
 
@@ -244,7 +244,7 @@ class window.Jots extends LiteJot
       @determineFocusForNewJot()
 
   initResizeListeners: =>
-    @jots_heading.find('#jots-column-options [data-slider]').on 'change.fndtn.slider', () =>
+    $('#jot-options [data-slider]').on 'change.fndtn.slider', () =>
       @updateJotSize()
 
   determineFocusForNewJot: =>
@@ -607,8 +607,8 @@ class window.Jots extends LiteJot
       return 0
 
   submitNewJot: =>
-    if @lj.emergency_mode.active && !@lj.emergency_mode.terms_accepted_by_user
-      @lj.emergency_mode.showTerms()
+    if @lj.airplane_mode.active && !@lj.airplane_mode.terms_accepted_by_user
+      @lj.airplane_mode.showTerms()
       return
 
     content = window.escapeHtml @getJotContent()
@@ -622,9 +622,9 @@ class window.Jots extends LiteJot
       @jots_empty_message_elem.hide()
       @scrollJotsToBottom()
 
-      # If emergency mode is on, then store the jot in local storage. Otherwise send to server
-      if @lj.emergency_mode.active
-        @lj.emergency_mode.storeJot content, key, jot_type, @new_jot_break_value, @palette_current
+      # If airplane mode is on, then store the jot in local storage. Otherwise send to server
+      if @lj.airplane_mode.active
+        @lj.airplane_mode.storeJot content, key, jot_type, @new_jot_break_value, @palette_current
         # reset new jot inputs
         @clearJotInputs()
 
@@ -743,7 +743,7 @@ class window.Jots extends LiteJot
   integrateTempJot: (jot, key) =>
     elem = @jots_list.find("##{key}")
     elem.removeClass('temp').addClass('jot-item')
-    .attr('data-jot', jot.id).attr('id', '').attr('title', '')
+    .attr('data-jot', jot.id).attr('data-created-at', jot.created_at_unix).attr('id', '').attr('title', '')
 
     to_insert = "<i class='fa fa-trash delete' title='Delete jot' />"
 
@@ -775,7 +775,8 @@ class window.Jots extends LiteJot
 
     $html = $("<li />")
     $html.attr 'data-jot', jot.id
-    $html.addClass "jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}'"
+    $html.attr 'data-created-at', jot.created_at_unix
+    $html.addClass "jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}"
     $html.attr 'data-tagged-email-id', jot.tagged_email_id
     $html.append "<div class='timestamp'></div>"
 
@@ -827,6 +828,27 @@ class window.Jots extends LiteJot
       $html.find('.content').css 'color', @lj.colors[jot.color]
 
     @sizeText jot.id
+
+  # If the jot is in the current topic, it determines where
+  # in the list to save it.
+  smartInsertJotElem: (new_jot) =>
+    if @lj.app.current_topic == new_jot.topic_id && !@lj.search.current_terms.length > 0
+      # Check to see that this jot is the newest, or if
+      # it should be inserted before the correct jot
+      older_jots = @lj.app.jots.filter((jot) =>
+        jot.created_at_unix > new_jot.created_at_unix && jot.topic_id == new_jot.topic_id
+      )
+
+      if older_jots.length > 0
+        succeeding_jot = older_jots[0]
+        elem = @lj.jots.jots_list.find("li[data-jot='#{succeeding_jot.id}']")
+        if elem.length == 1
+          @lj.jots.insertJotElem new_jot, method='before', before_id=succeeding_jot.id, flash=true
+
+        # Data stored to client is not in order.. resort
+        @lj.jots.sortJotData()
+      else
+        @lj.jots.insertJotElem new_jot, method='append', before_id=null, flash=true
 
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
@@ -928,14 +950,15 @@ class window.Jots extends LiteJot
 
     if jot.jot_type == 'email_tag'
       elem.find(".email-tag-icon").cooltip()
-      elem.find('.content').click =>
+      elem.find('.content').click (e) =>
+        e.stopPropagation()
         email_id = elem.attr('data-tagged-email-id')
         new window.EmailViewer @lj, email_id
-      .cooltip({
-        direction: 'left'
-        align: 'bottom'
-        zIndex: 1000
-      })
+      # .cooltip({
+      #   direction: 'left'
+      #   align: 'bottom'
+      #   zIndex: 1000
+      # })
 
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item input[type='checkbox']").change (e) => 
@@ -964,9 +987,9 @@ class window.Jots extends LiteJot
     return false
 
   toggleCheckJotItem: (jot, event, checklist_item_id) =>
-    if @lj.emergency_mode.active
+    if @lj.airplane_mode.active
       event.preventDefault()
-      @lj.emergency_mode.feature_unavailable_notice()
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     checkbox = @jots_list.find("li[data-jot='#{jot.id}'] li[data-checklist-item-id='#{checklist_item_id}'] input[type='checkbox']")
@@ -995,8 +1018,8 @@ class window.Jots extends LiteJot
     )
 
   flagJot: (id) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     elem = $("li[data-jot='#{id}']")
@@ -1039,8 +1062,8 @@ class window.Jots extends LiteJot
 
 
   editJot: (id) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     @lj.connection.abortPossibleDataLoadXHR()
@@ -1196,8 +1219,8 @@ class window.Jots extends LiteJot
         @lj.connection.startDataLoadTimer()
 
   deleteJot: (id) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
       
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
@@ -1340,7 +1363,7 @@ class window.Jots extends LiteJot
       @scrollJotsToBottom()
 
   initJotColumnOptionsListener: =>
-    @jots_heading.find('a.options-dropdown-link').click =>
+    $('nav a.options-dropdown-link').click =>
       console.log 'test'
       setTimeout(() =>
         $(document).foundation 'slider', 'reflow'
@@ -1372,7 +1395,7 @@ class window.Jots extends LiteJot
     )
 
   updateJotSize: =>
-    @text_resize_factor = parseInt(@jots_heading.find('#jots-column-options .font-change .range-slider').attr('data-slider')) / 100
+    @text_resize_factor = parseInt($('#jot-options .font-change .range-slider').attr('data-slider')) / 100
     @sizeText()
 
     if @update_jot_size_save_timer
@@ -1444,3 +1467,17 @@ class window.Jots extends LiteJot
 
       @new_jot_content.val(new_val).selectRange(start_pos, end_pos-length_diff)
 
+
+  # This will have to be revisited / refactored / redone come jot reordering..
+  # Given that items are prepended back into the list, there may be problems if 
+  # there is ever supposed to be a non-jot element at the beginning of the list.
+  sortJotsList: => #optimize this
+    jot_elems = @lj.jots.jots_list.children('li[data-jot]')
+    console.log 'here:'
+    console.log jot_elems
+
+    # Sort by jot ID
+    jot_elems.detach().sort (a, b) =>
+        return parseFloat($(a).attr('data-created-at')) - parseFloat($(b).attr('data-created-at'))
+
+    @lj.jots.jots_list.prepend(jot_elems)

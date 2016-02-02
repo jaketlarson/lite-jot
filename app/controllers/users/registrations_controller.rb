@@ -1,5 +1,7 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   before_filter :configure_permitted_parameters
+  before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
+  add_breadcrumb 'Lite Jot', '/'
 
   def create
     build_resource(sign_up_params)
@@ -33,6 +35,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
+  def edit
+    @user = current_user
+    add_breadcrumb 'Account Management'
+  end
+
   def update
     self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
     prev_unconfirmed_email = resource.unconfirmed_email if resource.respond_to?(:unconfirmed_email)
@@ -48,15 +55,31 @@ class Users::RegistrationsController < Devise::RegistrationsController
       if is_flashing_format?
         flash_key = update_needs_confirmation?(resource, prev_unconfirmed_email) ?
           :update_needs_confirmation : :updated
-        set_flash_message :success, flash_key
+        set_flash_message :notice, flash_key
       end
       sign_in resource_name, resource, bypass: true
-      render :json => UserSerializer.new(resource, :root => false), :status => :ok
+      #render :json => UserSerializer.new(resource, :root => false), :status => :ok
+
+      # When users uploads a photo manually we want to make sure we track that,
+      # so that when they sign in with social media we don't overwrite their photo field.
+      if !account_update_params[:photo_url].blank? && !resource.photo_uploaded_manually
+        resource.photo_uploaded_manually = true
+        resource.save
+      end
+
+      redirect_to edit_user_registration_path
     else
-      ap resource
       clean_up_passwords resource
-      ap resource
-      render :json => UserSerializer.new(resource, :root => false), :status => :not_acceptable
+      #render :json => UserSerializer.new(resource, :root => false), :status => :not_acceptable
+
+      error_text = ""
+      resource.errors.each do |key, errors|
+        error_text += "#{User.human_attribute_name(key)} #{errors}<br>"
+      end
+
+      flash[:error] = error_text
+      add_breadcrumb 'Account Management'
+      respond_with resource
     end
 
 
@@ -88,4 +111,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def update_resource_without_password(resource, params)
     resource.update_without_password(params)
   end
+
+  private
+
+  def set_s3_direct_post
+    @s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: '201', acl: 'public-read')
+  end
+
 end

@@ -1,9 +1,9 @@
-.reveal-modal#share-modal data-reveal=true tabindex='5'
+.reveal-modal#folder-share-modal data-reveal=true tabindex='5'
 
-.modal-template#share-modal-template
+.modal-template#folder-share-modal-template
   == render :partial => "folders/share_settings"
 
-#share-template
+#folder-share-template
   li
     h4
       span.recipient-email
@@ -24,7 +24,7 @@
         .topics-empty-message There are no topics in this folder.
         ul.topics
 
-#share-topic-row-template
+#folder-share-topic-row-template
   li
     .topic-check
       i.fa.fa-square-o.not-checked

@@ -1,11 +1,11 @@
-class ShareSerializer < ActiveModel::Serializer
+class FolderShareSerializer < ActiveModel::Serializer
   attributes(
     :id,
     :folder_id,
     :recipient_id,
     :is_all_topics,
     :specific_topics,
-    :owner_id,
+    :sender_id,
     :recipient_email,
     :recipient_display_name,
     :permissions_preview

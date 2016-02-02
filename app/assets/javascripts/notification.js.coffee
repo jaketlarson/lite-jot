@@ -52,8 +52,8 @@ class window.Notification extends LiteJot
       @closeNotification()
 
     elem.find('.new-topic-overlay').click =>
-      if @lj.emergency_mode.active
-        @lj.emergency_mode.feature_unavailable_notice()
+      if @lj.airplane_mode.active
+        @lj.airplane_mode.feature_unavailable_notice()
         return
 
       @lj.calendar.openEventTopicModal @title

@@ -9,7 +9,7 @@
   padding: 0 1rem
   color: $palette-black
   text-align: center
-  z-index: 3
+  z-index: 2
   font-family: 'Monda'
 
   &.active
@@ -39,12 +39,13 @@
       .key
         min-width: 1.5rem
         text-align: center
-        background-color: $palette-black
-        color: $palette-lightest-gray
+        background-color: $palette-light-gray
+        color: $palette-black
         display: inline-block
         line-height: 1.5rem
-        margin-top: calc((2.5rem - 1.5rem) / 2)
+        margin-top: calc((2.5rem - 1.5rem - 1px) / 2)
         border-radius: rem-calc(2px)
+        border: 1px solid darken($palette-light-gray, 17%)
 
         &.long
           padding: 0 .5rem

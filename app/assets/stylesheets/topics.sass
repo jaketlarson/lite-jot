@@ -4,7 +4,7 @@
   opacity: 1
   //box-shadow: 1px 0px 4px rgba(0,0,0,0.35)
   //background-color: $palette-lightest-gray
-  background-color: rgb(245, 245, 245)
+  background-color: $palette-lightest-gray
   outline: 0
   padding: 0
 
@@ -65,8 +65,11 @@ ul#topics-list
     transition: top .25s, margin-left .25s, opacity .25s
     transition-timing-function: ease-out
     //width: 100%
-    font-size: .9rem
-    word-wrap: break-word
+    font-size: .8rem
+    //word-wrap: break-word
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
 
     &.new-topic-form-wrap
       padding: 0
@@ -83,6 +86,7 @@ ul#topics-list
           padding-left: 1rem
           padding-right: 1rem
           transition: none
+          font-size: .8rem
 
           &:focus
             border-bottom: 1px solid $primary-color
@@ -124,6 +128,7 @@ ul#topics-list
         border: 0
         padding-left: 1rem
         padding-right: 1rem
+        font-size: .8rem
 
         &:focus
           border-bottom: 1px solid $primary-color

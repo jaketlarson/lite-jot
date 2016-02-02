@@ -1,0 +1,29 @@
+section.account
+  == link_to edit_user_registration_path, :id => 'profile-details-link', :title => 'Profile Details' do
+    img.user-photo src="#{user_photo(current_user.photo_url)}"
+
+section.app-specific
+  - if current_user.auth_provider == 'google_oauth2'
+    a#calendar-link title='My Calendar'
+      i.fa.fa-lg.fa-calendar-o
+        #cal-icon-date
+
+  a#jot-recovery-modal-link title='Recover Jots'
+    i.fa.fa-lg.fa-history
+
+  a#fullscreen-request title='Toggle Fullscreen'
+    i.fa.fa-lg.fa-expand
+
+section.site-specific
+  == link_to support_path, :id => "support-center-link", :title => "Support Center" do
+    i.fa.fa-lg.fa-support
+
+  == link_to blog_posts_path, :id => "blog-link", :title => "Blog" do
+    i.fa.fa-lg.fa-bullhorn
+
+  - if current_user.admin?
+    a#admin-dashboard-link href="/admin" title='Admin Dashboard'
+      i.fa.fa-lg.fa-dashboard
+
+  == link_to destroy_user_session_path, :id => "sign-out-link", :title => 'Sign Out', :method => :delete do
+    i.fa.fa-lg.fa-sign-out

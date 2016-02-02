@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   delete 'archived_jots' => 'archived_jots#destroy'
   resources :archived_jots
 
-  resources :shares
+  resources :folder_shares
 
   get 'notifications/calendar' => 'notifications#calendar'
   post 'notifications/acknowledge' => 'notifications#acknowledge'

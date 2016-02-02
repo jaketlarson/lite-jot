@@ -1,6 +1,6 @@
 #= require litejot
 
-class window.ShareSettings extends LiteJot
+class window.FolderShareSettings extends LiteJot
   constructor: (@lj, @folder_id) ->
     @initVars()
     @initModal()
@@ -9,14 +9,14 @@ class window.ShareSettings extends LiteJot
     @updateSharedWithCount()
 
   initVars: =>
-    @modal = $('#share-modal')
-    @modal_template = $('#share-modal-template')
-    @share_template = $('#share-template')
-    @share_topic_row_template = $('#share-topic-row-template')
+    @modal = $('#folder-share-modal')
+    @modal_template = $('#folder-share-modal-template')
+    @share_template = $('#folder-share-template')
+    @share_topic_row_template = $('#folder-share-topic-row-template')
 
   initModal: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
       
     @modal.foundation 'reveal', 'open'
@@ -25,12 +25,12 @@ class window.ShareSettings extends LiteJot
 
     @initInstanceVars()
 
-    $('#share-modal .cancel').click =>
-      $('#share-modal').foundation 'reveal', 'close'
+    $('#folder-share-modal .cancel').click =>
+      $('#folder-share-modal').foundation 'reveal', 'close'
 
   initInstanceVars: =>
     @user_list = @modal.find('ul.user-list')
-    @folder_shares = @lj.app.shares.filter((share) => share.folder_id == @folder_id)
+    @folder_shares = @lj.app.folder_shares.filter((fshare) => fshare.folder_id == @folder_id)
     @XHR_update_waiting = false
     @XHR_update_request = null
     @error_wrap = @modal.find('.alert-error')
@@ -57,7 +57,7 @@ class window.ShareSettings extends LiteJot
       @buildShareItem share.id
 
   buildShareItem: (share_id) =>
-    share = @folder_shares.filter((share) => share.id == share_id)[0]
+    share = @folder_shares.filter((fshare) => fshare.id == share_id)[0]
 
     new_elem = $(@share_template.html())
     new_elem.attr('data-share', share.id)
@@ -134,16 +134,16 @@ class window.ShareSettings extends LiteJot
       @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
-        url: '/shares'
+        url: '/folder_shares'
         data: "recipient_email=#{encodeURIComponent(email.val())}&folder_id=#{@folder_id}"
         success: (data) =>
           @lj.connection.startDataLoadTimer()
           @error_wrap.hide()
           @hideSubmitLoading()
-          @lj.app.shares.push data.share
-          @folder_shares.push data.share
-          @buildShareItem data.share.id
-          $("li[data-share='#{data.share.id}']").addClass('active')
+          @lj.app.folder_shares.push data.folder_share
+          @folder_shares.push data.folder_share
+          @buildShareItem data.folder_share.id
+          $("li[data-share='#{data.folder_share.id}']").addClass('active')
           @modal.find('form.new-share-form').hide()
 
         error: (data) =>
@@ -207,13 +207,13 @@ class window.ShareSettings extends LiteJot
     @lj.connection.abortPossibleDataLoadXHR()
     @XHR_update_request = $.ajax(
       type: 'PATCH'
-      url: "/shares/#{share_id}"
+      url: "/folder_shares/#{share_id}"
       data: share
       success: (data) =>
         @lj.connection.startDataLoadTimer()
-        share.permissions_preview = data.share.permissions_preview
-        share.is_all_topics = data.share.is_all_topics
-        share.specific_topics = data.share.specific_topics
+        share.permissions_preview = data.folder_share.permissions_preview
+        share.is_all_topics = data.folder_share.is_all_topics
+        share.specific_topics = data.folder_share.specific_topics
 
         @XHR_update_waiting = false
         @updatePermissionsPreviewText share
@@ -227,16 +227,16 @@ class window.ShareSettings extends LiteJot
     @lj.connection.abortPossibleDataLoadXHR()
     $.ajax(
       type: 'DELETE'
-      url: "/shares/#{share_id}"
+      url: "/folder_shares/#{share_id}"
       success: (data) =>
         @lj.connection.startDataLoadTimer()
         share_key = null
-        $.each @lj.app.shares, (index, share) =>
+        $.each @lj.app.folder_shares, (index, share) =>
           if share.id == share_id
             share_key = index
             return false
 
-        @lj.app.shares.remove(share_key)
+        @lj.app.folder_shares.remove(share_key)
         $("li[data-share='#{share_id}']").remove()
 
       error: (data) =>

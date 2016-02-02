@@ -1,10 +1,13 @@
-class Share < ActiveRecord::Base
+class FolderShare < ActiveRecord::Base
+  # folder_shares exist if any topic within a folder is shared.
   belongs_to :folder
   belongs_to :user, :foreign_key => 'recipient_id'
 
-  serialize :specific_topics
+  #serialize :specific_topics
 
   validates_presence_of :recipient_email
+
+  attr_accessor :specific_topics
   
   default_scope { order("created_at ASC") }
 
@@ -15,13 +18,13 @@ class Share < ActiveRecord::Base
       # If the user is registered, and is opted into emails
       recip_user = User.where('id = ?', self.recipient_id).first
       if recip_user.receives_email
-        sender_user = User.find(self.owner_id)
+        sender_user = User.find(self.sender_id)
         folder_title = Folder.find(self.folder_id).title
         UserNotifier.send_share_with_registered_user_email(recip_user, sender_user, folder_title).deliver
       end
     else
       # If the user is not registered
-      sender_user = User.find(self.owner_id)
+      sender_user = User.find(self.sender_id)
       folder_title = Folder.find(self.folder_id).title
       UserNotifier.send_share_with_nonregistered_user_email(self.recipient_email, sender_user, folder_title).deliver
     end

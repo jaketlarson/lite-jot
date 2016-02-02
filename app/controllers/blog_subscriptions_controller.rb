@@ -1,7 +1,7 @@
 class BlogSubscriptionsController < ApplicationController
   def create
     @blog_subscription = BlogSubscription.new(blog_subscription_params)
-    @blog_subscription.unsub_key = (0...64).map { (65 + rand(26)).chr }.join
+    @blog_subscription.unsub_key = BlogSubscription.generate_key
     already_subscribed = BlogSubscription.already_subscribed(params[:email])
     previously_unsubscribed = BlogSubscription.previously_unsubscribed(params[:email])
     
@@ -20,6 +20,8 @@ class BlogSubscriptionsController < ApplicationController
         render :json => {:success => true}
       else
         if @blog_subscription.save
+          @blog_subscription.send_subscribe_email
+
           render :json => {:success => true}
         else
           render :json => {:success => false, :error => "Please enter a valid email address"}, :status => :bad_request

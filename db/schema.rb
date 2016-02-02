@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160127215032) do
+ActiveRecord::Schema.define(version: 20160201162230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,6 +64,17 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.datetime "updated_at"
   end
 
+  create_table "folder_shares", force: true do |t|
+    t.integer  "folder_id"
+    t.boolean  "is_all_topics"
+    t.text     "specific_topics"
+    t.integer  "recipient_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "sender_id"
+    t.string   "recipient_email"
+  end
+
   create_table "folders", force: true do |t|
     t.integer  "user_id"
     t.string   "title"
@@ -71,6 +82,7 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.datetime "updated_at"
     t.datetime "deleted_at"
     t.boolean  "perm_deleted", default: false
+    t.datetime "restored_at"
   end
 
   add_index "folders", ["deleted_at"], name: "index_folders_on_deleted_at", using: :btree
@@ -103,6 +115,7 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.string   "tagged_email_id"
     t.string   "color"
     t.boolean  "perm_deleted",    default: false
+    t.datetime "restored_at"
   end
 
   add_index "jots", ["deleted_at"], name: "index_jots_on_deleted_at", using: :btree
@@ -115,17 +128,6 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.boolean  "notify_upcoming_event"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "shares", force: true do |t|
-    t.integer  "folder_id"
-    t.boolean  "is_all_topics"
-    t.text     "specific_topics"
-    t.integer  "recipient_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "owner_id"
-    t.string   "recipient_email"
   end
 
   create_table "support_ticket_messages", force: true do |t|
@@ -149,6 +151,16 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.datetime "author_last_read_at"
   end
 
+  create_table "topic_shares", force: true do |t|
+    t.integer  "sender_id"
+    t.string   "recipient_email"
+    t.integer  "folder_id"
+    t.integer  "topic_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "recipient_id"
+  end
+
   create_table "topics", force: true do |t|
     t.integer  "folder_id"
     t.integer  "user_id"
@@ -157,6 +169,7 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.datetime "updated_at"
     t.datetime "deleted_at"
     t.boolean  "perm_deleted", default: false
+    t.datetime "restored_at"
   end
 
   add_index "topics", ["deleted_at"], name: "index_topics_on_deleted_at", using: :btree
@@ -188,6 +201,9 @@ ActiveRecord::Schema.define(version: 20160127215032) do
     t.boolean  "saw_intro",               default: false
     t.text     "preferences"
     t.boolean  "admin",                   default: false
+    t.string   "photo_url"
+    t.boolean  "photo_uploaded_manually", default: false
+    t.datetime "last_seen_at"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

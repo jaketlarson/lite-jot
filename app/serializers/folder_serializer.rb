@@ -19,7 +19,7 @@ class FolderSerializer < ActiveModel::Serializer
     if object.user_id == scope.id
       return nil
     else
-      share = Share.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
+      share = FolderShare.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
       if share
         return share.id
       else
@@ -58,7 +58,7 @@ class FolderSerializer < ActiveModel::Serializer
       # This is only necessary if specific topics are set.
       # Otherwise, if the entire folder is visible,
       # this workaround is unnecessary.
-      share = Share.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
+      share = FolderShare.where('recipient_id = ? AND folder_id = ?', scope.id, object.id).first
       if share.is_all_topics
         return object.updated_at.to_f
       else

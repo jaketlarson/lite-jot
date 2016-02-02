@@ -59,8 +59,6 @@ class window.Calendar extends LiteJot
   closeCal: =>
     @cal_list_wrap.hide()
     @cal_link.removeClass('active')
-    @cal_link.removeClass('active')
-    @cal_link.removeClass('active')
 
   showLoading: =>
     @cal_loading.show()
@@ -69,11 +67,11 @@ class window.Calendar extends LiteJot
     @cal_loading.hide()
 
   positionCal: =>
-    pos_top = @cal_link.offset().top + @cal_link.height()
-    pos_right = $(document).width() - @cal_link.offset().left - @cal_link.outerWidth()
+    pos_top = @cal_link.offset().top
+    pos_left = $('aside').outerWidth()
     @cal_list_wrap.css({
       top: pos_top
-      right: pos_right
+      left: pos_left
     })
 
   loadCalItems: (init=false) =>
@@ -245,8 +243,8 @@ class window.Calendar extends LiteJot
 
 
   submitEventTopicForm: (mode) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     # Define folder create action, based off regular method

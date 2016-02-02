@@ -1,10 +1,6 @@
 #jots-column
   padding: 0
 
-  &.showing-aside
-    #show-aside i
-      transform: rotate(180deg)
-
 #pages-dashboard h2#jots-heading
   position: relative
   padding: 1rem 1rem 0 0
@@ -14,60 +10,12 @@
   &.is-scrolled-from-top
     box-shadow: 0px 1px 4px rgba(0,0,0,0.35)
 
-  #show-aside
-    float: left
-    margin: -1rem 0 0 0
-    background-color: $palette-light-gray
-    line-height: 4rem
-    width: 3rem
-    text-align: center
-    cursor: pointer
-
-    i
-      font-size: 1.25rem
-
   .heading-text
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
     float: left
     padding-left: 1rem
-
-  a.options-dropdown-link
-    float: right
-    color: $palette-dark-gray
-
-    &:hover
-      color: $palette-black
-
-  #jots-column-options
-    font-size: 1rem
-    width: 10rem
-    padding: 1rem
-
-    h3
-      font-size: 1rem
-
-
-    .font-change
-      i.font-icon
-        margin-top: .25rem
-        margin-right: .75rem
-        vertical-align: top
-
-      .slider-wrapper
-        display: inline-block
-        width: 5rem
-        margin-top: -1rem
-
-        .range-slider
-          display: inline-block
-
-          .range-slider-handle
-            background-color: $palette-black
-
-            &:active
-              background-color: $primary-color
 
 #jot-temp-entry-template
   display: none
@@ -104,9 +52,12 @@
 
   ul#jots-list
     list-style: none
+    margin-top: 1rem
     margin-left: 0
     margin-bottom: 0
     outline: 0
+
+      margin-top: 1rem
 
     // Differentiate li from ul>li:not(#new-jot-wrap), so that #new-jot-wrap doesn't inherit
     // all the properties of a jot.
@@ -246,6 +197,11 @@
 
         i.email-tag-icon
           color: $primary-color
+
+        &.email-tag
+          .content
+            cursor: pointer
+            color: $primary-color
 
       a:hover
         text-decoration: underline

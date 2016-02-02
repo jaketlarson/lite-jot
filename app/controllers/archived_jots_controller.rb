@@ -108,14 +108,27 @@ class ArchivedJotsController < ApplicationController
         end
 
         # While restoring jot, make sure folder and topic are also active.
-        deleted_topic = Topic.only_deleted.where("id = ?", jot.topic_id)
-        deleted_folder = Folder.only_deleted.where("id = ?", jot.folder_id)
+        deleted_topic = Topic.only_deleted.where('id = ?', jot.topic_id)
+        deleted_folder = Folder.only_deleted.where('id = ?', jot.folder_id)
         if !deleted_topic.empty?
           Topic.restore(deleted_topic[0].id)
+          deleted_topic.restored_at = DateTime.now
+          deleted_topic.save
         end
         if !deleted_folder.empty?
           Folder.restore(deleted_folder[0].id)
+          deleted_folder.restored_at = DateTime.now
+          deleted_folder.save
         end
+
+        # Now touch folder and topic so that they are the last updated and live sync catches the changes
+        topic = Topic.find(jot.topic_id)
+        folder = Folder.find(jot.folder_id)
+        topic.touch
+
+        folder.touch
+        jot.restored_at = DateTime.now
+        jot.save
       end
 
       # This jot will be restored

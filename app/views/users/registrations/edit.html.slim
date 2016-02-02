@@ -1,0 +1,45 @@
+- content_for :title do
+  = "Profile Details"
+
+.row
+  .column.12
+    #breadcrumb-menu
+      == render_breadcrumbs
+
+.row.content
+  .column.small-12.medium-8
+
+    .panel
+
+      == render :partial => "action_messages"
+
+      == simple_form_for current_user, :url => registration_path(current_user), html: { method: :put, class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } } do |edit|
+      
+        h4 General
+
+        section
+          .photo-upload
+            img.photo src="#{user_photo(current_user.photo_url)}"
+
+            == edit.label :photo_url, "Profile Photo"
+            == edit.file_field :photo_url
+
+          == edit.input :display_name
+          == edit.input :email, :disabled => true
+          == edit.input :receives_email, :label => "Send me email notifications related to my account."
+
+        - if current_user.auth_provider.blank?
+          h4.divider Password Change (optional)
+
+          section
+            == edit.input :current_password, :placeholder => "Confirm current password"
+            == edit.input :password, :placeholder => "New password"
+            == edit.input :password_confirmation, :placeholder => "New password, again"
+
+        button.right Save
+
+  .column.small-12.medium-4
+    ul.side-menu
+      li.active Profile Details
+
+    /== form_for(@user, html: { class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } }) do |f|

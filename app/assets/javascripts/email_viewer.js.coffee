@@ -19,8 +19,8 @@ class window.EmailViewer extends LiteJot
     @loader = @modal.find '.loader'
 
   openModal: =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     @modal.foundation 'reveal', 'open'

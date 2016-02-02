@@ -1,7 +1,7 @@
 class JotsController < ApplicationController
 
   def create
-    # Because the Emergency Mode feature allows users to jot while without internet, those jots need to be
+    # Because the Airplane Mode feature allows users to jot while without internet, those jots need to be
     # sent back to the server eventually, and the most logical way would be as a collection, instead of x
     # number of jots#create requests for x number of jots.
     # This method will take into account the possibility of many jots, and if so, the way the responses
@@ -122,6 +122,30 @@ class JotsController < ApplicationController
 
       jot.content = ActionView::Base.full_sanitizer.sanitize(jot.content)
 
+      # Airplane mode adds extra complexity to recording timestamps
+      # The best we can do is validate the requested creation time (which
+      # is jot.em_created_at) by making sure it's between user.last_seen_at
+      # and now, and then turn off "ActiveRecord::Base.record_timestamps"
+      # while doing so to avoid AR from overriding jot.updated_at.
+      ar_record_timestamps_off = false
+      if !jot.em_created_at.nil? && !jot.em_created_at.blank?
+        ap jot.em_created_at
+        jot.em_created_at = Time.at(jot.em_created_at.to_f / 1000).to_datetime
+        ap jot.em_created_at
+        ap "last seen at:"
+        ap current_user.last_seen_at
+        ap "now:"
+        ap DateTime.now
+        if jot.em_created_at > current_user.last_seen_at && jot.em_created_at < DateTime.now
+          ap "passed the test"
+          ar_record_timestamps_off = true
+          ActiveRecord::Base.record_timestamps = false
+          jot.created_at = jot.em_created_at
+          jot.updated_at = DateTime.now
+        end
+      end
+
+
       if jot.save
         if new_topic && new_folder
           ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
@@ -169,6 +193,12 @@ class JotsController < ApplicationController
         else
           error_list << {:content => jot.content, :jot_type => jot.jot_type, :break_from_top => jot.break_from_top, :error => error_text}
         end
+      end
+
+
+      # Turn ActiveRecord::Base.record_timestamps back on if it was off
+      if ar_record_timestamps_off
+        ActiveRecord::Base.record_timestamps = true
       end
     end
 
@@ -228,12 +258,9 @@ class JotsController < ApplicationController
 
       jot.content = ActionView::Base.full_sanitizer.sanitize(jot.content)
       if jot.update(params)
-        if topic
-          topic.touch
-        end
-        if folder
-          folder.touch
-        end
+        topic.touch
+        folder.touch
+
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
         render :json => {:success => true, :jot => ser_jot}
 
@@ -250,6 +277,7 @@ class JotsController < ApplicationController
     # This allows flagging permissions to be extended shared users
     jot = Jot.find(params[:id])
     folder = Folder.find(jot.folder_id)
+    topic = Topic.find(jot.topic_id)
 
     # Future update: move this into model.. it pretty much mirrors #check_box
     can_flag = false
@@ -266,6 +294,9 @@ class JotsController < ApplicationController
     if can_flag
       jot.is_flagged = !jot.is_flagged
       if jot.save
+        topic.touch
+        folder.touch
+
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
         render :json => {:success => true, :jot => ser_jot}
 
@@ -282,6 +313,7 @@ class JotsController < ApplicationController
     # This allows checkbox-checking permissions to be extended shared users
     jot = Jot.find(params[:id])
     folder = Folder.find(jot.folder_id)
+    topic = Topic.find(jot.topic_id)
 
     # Future update: move this into model.. it pretty much mirrors #flag
     can_check = false
@@ -304,6 +336,8 @@ class JotsController < ApplicationController
       jot.content = checklist.to_json
 
       if jot.save
+        folder.touch
+        topic.touch
         ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
         render :json => {:success => true, :jot => ser_jot}
 
@@ -367,6 +401,6 @@ class JotsController < ApplicationController
   protected
 
     def jot_params
-      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :color, :checklist_item_id, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key, :color])
+      params.permit(:id, :content, :topic_id, :folder_id, :is_flagged, :jot_type, :break_from_top, :color, :checklist_item_id, :jots => [:id, :content, :topic_id, :folder_id, :jot_type, :break_from_top, :temp_key, :color, :em_created_at])
     end
 end

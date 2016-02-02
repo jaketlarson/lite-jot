@@ -8,7 +8,8 @@ class User < ActiveRecord::Base
   has_many :folders
   has_many :topics
   has_many :jots
-  has_many :shares, :foreign_key => 'owner_id'
+  has_many :folder_shares, :foreign_key => 'sender_id'
+  has_many :topic_shares, :foreign_key => 'sender_id'
   has_many :support_tickets
 
   validates :display_name, {
@@ -24,7 +25,7 @@ class User < ActiveRecord::Base
   serialize :notifications_seen
   serialize :preferences
 
-  after_create :send_signup_email, :update_associated_shares
+  after_create :send_signup_email, :update_associated_shares, :create_blog_subscription
 
   self.per_page = 25
 
@@ -41,13 +42,25 @@ class User < ActiveRecord::Base
   def update_associated_shares
     # This method sets the new user's id in any shares that were sent
     # to their email before they registered.
-    shares = Share.where('recipient_email = ?', self.email)
-    if !shares.empty?
-      shares.each do |share|
-        share.recipient_id = self.id
-        share.save
+    fshares = FolderShare.where('recipient_email = ?', self.email)
+    if !fshares.empty?
+      fshares.each do |fshare|
+        fshare.recipient_id = self.id
+        fshare.save
       end
     end
+
+    tshares = TopicShare.where('recipient_email = ?', self.email)
+    if !tshares.empty?
+      tshares.each do |tshare|
+        tshare.recipient_id = self.id
+        tshare.save
+      end
+    end
+  end
+
+  def create_blog_subscription
+    BlogSubscription.create_sub_for_current_user(self.email)
   end
 
   def intro_seen
@@ -80,7 +93,8 @@ class User < ActiveRecord::Base
         :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
         :display_name => data['name'],
         :email => data['email'],
-        :password => Devise.friendly_token[0,16]
+        :password => Devise.friendly_token[0,16],
+        :photo_url => data['image']
       )
     else
       unless access_token['credentials']['refresh_token'].nil?
@@ -89,10 +103,17 @@ class User < ActiveRecord::Base
         auth_refresh_token = user.auth_refresh_token
       end
 
+      unless data['image'].nil? || data['image'].empty? || user.photo_uploaded_manually
+        photo = data['image']
+      else
+        photo = user.photo_url
+      end
+
       user.update!(
         :auth_token => access_token['credentials']['token'],
         :auth_token_expiration => DateTime.strptime(access_token['credentials']['expires_at'].seconds.to_s, '%s'),
-        :auth_refresh_token => auth_refresh_token
+        :auth_refresh_token => auth_refresh_token,
+        :photo_url => photo
       )
     end
     user
@@ -109,7 +130,18 @@ class User < ActiveRecord::Base
         :auth_provider_uid => access_token['uid'],
         :display_name => data['name'],
         :email => data['email'],
-        :password => Devise.friendly_token[0,16]
+        :password => Devise.friendly_token[0,16],
+        :photo_url => data['image']
+      )
+    else
+      unless data['image'].nil? || data['image'].empty? || user.photo_uploaded_manually
+        photo = data['image']
+      else
+        photo = user.photo_url
+      end
+
+      user.update!(
+        :photo_url => photo
       )
     end
     user
@@ -124,11 +156,11 @@ class User < ActiveRecord::Base
 
   # Used on initial data load
   def owned_and_shared_folders
-    Folder.includes(:shares).where("user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at DESC').references(:shares)
+    Folder.includes(:folder_shares).where("user_id = ? OR (folder_shares.recipient_id = ? AND (folder_shares.is_all_topics = ? OR folder_shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at DESC').references(:shares)
   end
 
   # Used on sync cycles
   def owned_and_shared_folders_with_deleted_after_time(begin_at)
-    Folder.with_deleted.includes(:shares).where("(user_id = ? OR (shares.recipient_id = ? AND (shares.is_all_topics = ? OR shares.specific_topics != ?))) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ?)", self.id, self.id, true, '', begin_at, begin_at, begin_at).order('folders.updated_at DESC').references(:shares)
+    Folder.with_deleted.includes(:folder_shares).where("(user_id = ? OR (folder_shares.recipient_id = ? AND (folder_shares.is_all_topics = ? OR folder_shares.specific_topics != ?))) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, self.id, true, '', begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC').references(:shares)
   end
 end

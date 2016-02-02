@@ -90,7 +90,7 @@ class window.Topics extends LiteJot
     @initNewTopicListeners()
 
   insertTopicElem: (topic, append = true) =>
-    build_html = "<li data-topic='#{topic.id}' data-editing='false'>
+    build_html = "<li data-topic='#{topic.id}' data-editing='false' title='#{topic.title}'>
                     <span class='title'>#{topic.title}</span>
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
@@ -111,8 +111,12 @@ class window.Topics extends LiteJot
   updateTopicElem: (topic, append = true) =>
     elem = @topics_list.find("li[data-topic='#{topic.id}']")
     elem.find('.title').html topic.title
+    elem.attr 'title', topic.title
+
+    @lj.setPageHeading()
 
   sortTopicData: =>
+    console.log "sortTopicData called"
     @lj.app.topics.sort((a, b) =>
       return b.updated_at_unix - a.updated_at_unix
     )
@@ -189,10 +193,11 @@ class window.Topics extends LiteJot
 
     @lj.jots.buildJotsList()
     @lj.jots.enableLoadOnScroll()
+    @lj.setPageHeading()
 
   editTopic: (id) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     elem = $("li[data-topic='#{id}']")
@@ -255,8 +260,8 @@ class window.Topics extends LiteJot
           @lj.connection.startDataLoadTimer()
 
   deleteTopicPrompt: (target) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     id = if typeof target != 'undefined' then id = $(target).closest('li').data('topic') else id = $("li[data-keyed-over='true']").data('topic')
@@ -399,8 +404,8 @@ class window.Topics extends LiteJot
       @submitNewTopic()
 
   newTopic: (focus_title=true) =>
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
       
     @showNewTopicForm()
@@ -450,10 +455,12 @@ class window.Topics extends LiteJot
       @lj.key_controls.keyToFirstTopic()
 
   pushTopicIntoData: (topic) =>
-    if @lj.app.topics.length == 0
-      @lj.app.topics.push topic
-    else
-      @lj.app.topics.unshift topic
+    # if @lj.app.topics.length == 0
+    #   @lj.app.topics.push topic
+    # else
+    #   @lj.app.topics.unshift topic
+    # Always place is at the beginning of the data (most recent first)
+    @lj.app.topics.unshift topic
 
     @insertTopicElem topic, false
     @sortTopicsList()

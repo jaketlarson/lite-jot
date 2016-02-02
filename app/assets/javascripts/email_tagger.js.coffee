@@ -67,8 +67,8 @@ class window.EmailTagger extends LiteJot
   openModal: =>
     @topic = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0]
 
-    if @lj.emergency_mode.active
-      @lj.emergency_mode.feature_unavailable_notice()
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
       return
 
     if !@topic

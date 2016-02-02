@@ -62,30 +62,26 @@ class window.PushUI extends LiteJot
         console.log 'added:'
         console.log s_jot
 
-        if @lj.app.current_topic == s_jot.topic_id && !@isSearching()
-          # Check to see that this jot is the newest, or if
-          # it should be inserted before the correct jot
-          older_jots = @lj.app.jots.filter((jot) =>
-            jot.created_at_unix > s_jot.created_at_unix && jot.topic_id == s_jot.topic_id
-          )
-
-          if older_jots.length > 0
-            succeeding_jot = older_jots[0]
-            elem = @lj.jots.jots_list.find("li[data-jot='#{succeeding_jot.id}']")
-            if elem.length == 1
-              @lj.jots.insertJotElem s_jot_copy, method='before', before_id=succeeding_jot.id, flash=true
-
-            # Data stored to client is not in order.. resort
-            @lj.jots.sortJotData()
-          else
-            @lj.jots.insertJotElem s_jot_copy, method='append', before_id=null, flash=true
+        @lj.jots.smartInsertJotElem s_jot_copy
 
       else
         # This is an updated jot
         # Remove the old version, insert the old version, and update the jot elem
         @lj.jots.removeJotFromDataById c_jot[0].id
         v_client.push s_jot_copy
+
+        c_jot = c_jot[0]
+        jot_key = null
+        $.each @lj.app.jots, (index, jot) =>
+          if jot.id == c_jot.id
+            jot_key = index
+            return false
+
+        @lj.app.jots[jot_key] = s_jot_copy
+
         if @lj.app.current_topic == s_jot_copy.topic_id && !@isSearching()
+          console.log "updated:"
+          console.log s_jot_copy
           @lj.jots.updateJotElem s_jot_copy
 
 
@@ -118,7 +114,7 @@ class window.PushUI extends LiteJot
       if c_topic.length == 0
         # This is a new topic
         any_topics_added_or_edited = true
-        v_client.push s_topic_copy
+        v_client.unshift s_topic_copy
         console.log 'added:'
         console.log s_topic
 
@@ -129,14 +125,14 @@ class window.PushUI extends LiteJot
       else
         # This is an updated topic
         # Find current version in data, remove it, and add new version
+        c_topic = c_topic[0]
         topic_key = null
         $.each @lj.app.topics, (index, topic) =>
           if topic.id == c_topic.id
             topic_key = index
             return false
 
-        @lj.app.topics.remove topic_key
-        v_client.push s_topic_copy
+        @lj.app.topics[topic_key] = s_topic_copy
 
         if @lj.app.current_folder == s_topic_copy.folder_id
           @lj.topics.updateTopicElem s_topic_copy
@@ -169,7 +165,7 @@ class window.PushUI extends LiteJot
       if c_folder.length == 0
         # This is a new folder
         any_folders_added_or_edited = true
-        v_client.push s_folder_copy
+        v_client.unshift s_folder_copy
         console.log 'added:'
         console.log s_folder
 
@@ -181,13 +177,17 @@ class window.PushUI extends LiteJot
         # This is an updated folder
         # Find current version in data, remove it, and add new version
         folder_key = null
+        c_folder = c_folder[0]
         $.each @lj.app.folders, (index, folder) =>
           if folder.id == c_folder.id
             folder_key = index
             return false
 
-        @lj.app.folders.remove folder_key
-        v_client.push s_folder_copy
+        @lj.app.folders[folder_key] = s_folder_copy
+
+        # @lj.app.folders.remove folder_key
+        # v_client.unshift s_folder_copy
+        
         @lj.folders.updateFolderElem s_folder_copy
 
 

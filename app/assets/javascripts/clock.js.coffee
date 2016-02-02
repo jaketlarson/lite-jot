@@ -19,7 +19,7 @@ class window.Clock extends LiteJot
 
     $('#clock-text').html("#{hour}:#{minutes}")
 
-    calendar_icon_date = $('nav #cal-icon-date')
+    calendar_icon_date = $('#cal-icon-date')
     calendar_icon_date.html(date.getDate())
 
     setTimeout(() =>

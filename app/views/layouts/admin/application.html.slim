@@ -3,8 +3,8 @@ html
   head
     title
       = page_title(yield(:title))
-    == stylesheet_link_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', media: 'all', 'data-turbolinks-track' => true
-    == stylesheet_link_tag 'litejot', media: 'all', 'data-turbolinks-track' => true
+    == stylesheet_link_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', media: 'all'
+    == stylesheet_link_tag 'litejot', media: 'all'
     == csrf_meta_tags
     meta content='width=device-width, initial-scale=1.0' name='viewport'
     link rel="shortcut icon" href="/favicon.ico"
@@ -19,9 +19,6 @@ html
     == yield
     == render :partial => 'footer'
 
-    == render :partial => "status_bar"
-    == render :partial => "application/modals/support"
-
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
-    == javascript_include_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', 'data-turbolinks-track' => true
-    == javascript_include_tag 'site', 'data-turbolinks-track' => false
+    == javascript_include_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'
+    == javascript_include_tag 'site'

@@ -11,7 +11,27 @@ nav#app-nav.top-bar
   user-select: none
   -webkit-user-select: none
   border-bottom: 1px solid darken($primary-color, 7%)
-  
+
+  // Page heading was getting cut off on medium..
+  @media #{$medium-only}
+    .title-area
+      min-width: 30rem
+
+      h2
+        max-width: 25rem
+
+  // These two can probably be moved to the rest of the h2 styling...
+  @media #{$small-only}
+    h2
+      max-width: 15rem
+
+  @media #{$large-only}
+    h2
+      max-width: 30rem
+
+  &.showing-aside
+    #show-aside:before
+      content: '\f100'
 
   @media #{$large-up}
     height: rem-calc(46) // causes issue with mobile menu, so just show in large-up.
@@ -40,7 +60,31 @@ nav#app-nav.top-bar
         margin-right: .5rem
 
     @media #{$small-only}
-      width: 15rem
+      //width: 15rem
+
+  #show-aside
+    float: left
+    color: $palette-white
+    line-height: 3rem
+    width: 3rem
+    text-align: center
+    cursor: pointer
+    margin-top: -2px
+
+    &:before
+      font-style: normal
+      font-family: 'FontAwesome'
+      font-size: 1.5rem
+      content: '\f101'
+
+  h2
+    margin: 0 0 0 rem-calc(53)
+    padding-left: 1rem
+    font-size: .9rem
+    color: $palette-white
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
 
   #search-wrapper
     width: 9rem
@@ -119,6 +163,9 @@ nav#app-nav.top-bar
       width: 27.5rem
       background-color: $palette-lightest-gray
 
+      @media #{$small-only}
+        width: 100%
+
       input#search-input
         width: 25rem
         color: $palette-black
@@ -135,12 +182,53 @@ nav#app-nav.top-bar
         &:-ms-input-placeholder
           color: $palette-dark-gray
 
+        @media #{$small-only}
+          width: 80%
+
       #search-button
         color: $palette-black
         border-bottom: 1px solid $palette-dark-gray
 
         &:hover
           color: $primary-color
+
+  a.options-dropdown-link
+    float: right
+    
+    i
+      vertical-align: -10%
+
+    @media #{$small-only}
+      float: none
+
+  #jot-options
+    font-size: 1rem
+    width: 10rem
+    padding: 1rem
+
+    h3
+      font-size: 1rem
+
+    .font-change
+      i.font-icon
+        margin-top: .25rem
+        margin-right: .75rem
+        vertical-align: top
+
+      .slider-wrapper
+        display: inline-block
+        width: 5rem
+        margin-top: -1rem
+
+        .range-slider
+          display: inline-block
+
+          .range-slider-handle
+            background-color: $palette-black
+
+            &:active
+              background-color: $primary-color
+
 
   ul
     li
@@ -179,13 +267,6 @@ nav#app-nav.top-bar
         // so that there isn't a weird red line when keyboard
         // shortcuts is open / when hovering over a menu link.
         height: rem-calc(46)
-
-      #cal-icon-date
-        position: absolute
-        top: 4px
-        width: 17px
-        font-size: 10px
-        text-align: center
 
     &.dropdown
       i

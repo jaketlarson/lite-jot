@@ -17,6 +17,16 @@ class ApplicationController < ActionController::Base
   def load_data_init
     # Check if timezone was passed through
     # If so, update it on current_user
+    # Also, we aren't going to update last_seen_at
+    # for this reason:
+    # When a user closes the browser during airplane mode
+    # and then comes back, their jots should be saved according
+    # to the JS timestamp, and that timestamp must be greater
+    # than user.last_seen_at. If we update that on initial load,
+    # when they finally get sent over from local storage via ajax,
+    # this comparison will be false (inside jots_controller.rb)
+    # and the em_created_at attribute that airplane mode sends
+    # over is ignored.
     if !params[:timezone].nil? && !params[:timezone].blank?
       if current_user
         current_user.timezone = params[:timezone]
@@ -32,10 +42,10 @@ class ApplicationController < ActionController::Base
     folders.each do |folder|
       folder.topics.each do |topic|
         if current_user.id != topic.user_id
-          share = Share.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
-          if !share.is_all_topics
-            if share.specific_topics
-              if !share.specific_topics.include?(topic.id.to_s)
+          fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+          if !fshare.is_all_topics
+            if fshare.specific_topics
+              if !fshare.specific_topics.include?(topic.id.to_s)
                 next
               end
             end
@@ -58,13 +68,13 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    shares = current_user.shares
+    fshares = current_user.folder_shares
 
     data = {
       :folders => ActiveModel::ArraySerializer.new(folders, :each_serializer => FolderSerializer, :scope => current_user),
       :topics => ActiveModel::ArraySerializer.new(topics, :each_serializer => TopicSerializer, :scope => current_user),
       :jots => ActiveModel::ArraySerializer.new(jots, :each_serializer => JotSerializer, :scope => current_user),
-      :shares => ActiveModel::ArraySerializer.new(shares, :each_serializer => ShareSerializer, :scope => current_user),
+      :folder_shares => ActiveModel::ArraySerializer.new(fshares, :each_serializer => FolderShareSerializer, :scope => current_user),
       :user => UserSerializer.new(current_user, :root => false),
       :last_update_check => Time.now.to_f
     }
@@ -73,6 +83,10 @@ class ApplicationController < ActionController::Base
   end
 
   def load_updates
+    # Update last_seen_at
+    current_user.last_seen_at = DateTime.now
+    current_user.save
+
     last_time = Time.at(params[:last_update_check_time].to_i)
 
 
@@ -80,17 +94,14 @@ class ApplicationController < ActionController::Base
     topics = []
     jots = []
 
-    ap "so here it is:"
-    ap folders
-
     # collect topics & jots
     folders.each do |folder|
-      folder.topics.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ?", last_time, last_time, last_time).each do |topic|
+      folder.topics.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time).each do |topic|
         if current_user.id != topic.user_id
-          share = Share.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
-          if !share.is_all_topics
-            if share.specific_topics
-              if !share.specific_topics.include?(topic.id.to_s)
+          fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+          if !fshare.is_all_topics
+            if fshare.specific_topics
+              if !fshare.specific_topics.include?(topic.id.to_s)
                 next
               end
             end
@@ -103,7 +114,7 @@ class ApplicationController < ActionController::Base
 
     # collect jots
     topics.each do |topic|
-      topic.jots.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ?", last_time, last_time, last_time).each do |jot|
+      topic.jots.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time).each do |jot|
         # email tags are private, don't show them to other users.
         if jot.jot_type == 'email_tag' && jot.user_id != current_user.id
           next
@@ -123,7 +134,6 @@ class ApplicationController < ActionController::Base
 
     # Now remove all the deleted items from the main items collection.
     # This way we can classify them as the "new or updated" items.
-    ap jots
     folders = folders.select { |folder| folder.deleted_at.nil? }
     topics = topics.select { |topic| topic.deleted_at.nil? }
     jots = jots.select { |jot| jot.deleted_at.nil? }
@@ -163,6 +173,7 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.for(:account_update) << :display_name
     devise_parameter_sanitizer.for(:account_update) << :is_viewing_key_controls
     devise_parameter_sanitizer.for(:account_update) << :receives_email
+    devise_parameter_sanitizer.for(:account_update) << :photo_url
   end
 
   def sign_up_params

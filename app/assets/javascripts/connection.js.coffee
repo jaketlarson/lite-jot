@@ -17,9 +17,9 @@ class window.Connection extends LiteJot
     @connection_retest_timing = 500
 
     # Number of times the connect test fails
-    # before entering emergency mode. If set to one,
+    # before entering airplane mode. If set to one,
     # the connection test may only fail once consecutively
-    @failures_before_emergency_mode = 1
+    @failures_before_airplane_mode = 1
     @consecutive_failures = 0
 
     # @data_load_xhr is checked on every ajax request.
@@ -28,6 +28,10 @@ class window.Connection extends LiteJot
     @data_load_xhr = null
     @data_load_timer = null
     @data_load_timing = 3000
+
+    # Used in the case that ajax is aborted but we don't want to
+    # restart the timer (i.e., some other function is in control).
+    @aborted = true
 
   initBinds: =>
     document.addEventListener "visibilitychange", @handleVisibilityChange, false
@@ -51,10 +55,11 @@ class window.Connection extends LiteJot
         @lj.app.folders = data.folders
         @lj.app.topics = data.topics
         @lj.app.jots = data.jots
-        @lj.app.shares = data.shares
+        @lj.app.folder_shares = data.folder_shares
         @lj.app.user = data.user
         @lj.app.last_update_check = data.last_update_check
         @lj.buildUI()
+        @lj.setPageHeading()
         @lj.initKeyControls()
         @lj.sizeUI()
         @lj.initCalendar()
@@ -84,6 +89,8 @@ class window.Connection extends LiteJot
     if @data_loader_timer
       clearTimeout @data_load_timer()
 
+    @aborted = false
+
     @data_load_xhr = $.ajax(
       type: 'GET'
       url: "/load-updates?last_update_check_time=#{@lj.app.last_update_check}"
@@ -104,18 +111,25 @@ class window.Connection extends LiteJot
         @lj.temp.deleted_jots = data.deleted.jots
         @lj.temp.user = data.user
         @lj.pushUI.mergeData()
-        @startDataLoadTimer()
         @data_load_xhr = null
+
+        @lj.connection.startDataLoadTimer()
 
       error: (data) =>
         # Just restart it, as the connection test (separate routine
         # XHR request) will catch network issues.
-        @startDataLoadTimer()
+        console.log 'error retrieving updates'
         @data_load_xhr = null
         # more error handling, maybe?
+
+        if @aborted
+          @aborted = false
+        else
+          @lj.connection.startDataLoadTimer()
     )
 
   abortPossibleDataLoadXHR: =>
+    console.log 'aborted'
     # This function is called on any ajax request
     # to stop any possible data load request in progress.
     # This way, the client's UI doesn't get messed up
@@ -128,7 +142,10 @@ class window.Connection extends LiteJot
     if @data_load_timer
       clearTimeout @data_load_timer
 
+    @aborted = true
+
   startDataLoadTimer: =>
+    console.log 'started'
     if @data_load_timer
       clearTimeout @data_load_timer
 
@@ -151,8 +168,8 @@ class window.Connection extends LiteJot
 
     ).fail((jqXHR, error_textStatus, errorThrown) =>
       @consecutive_failures++
-      if @consecutive_failures > @failures_before_emergency_mode 
-        @lj.emergency_mode.activate()
+      if @consecutive_failures > @failures_before_airplane_mode 
+        @lj.airplane_mode.activate()
         @attemptReconnect()
       else
         # try again, but quicker this time
@@ -160,7 +177,7 @@ class window.Connection extends LiteJot
     )
 
   # used when trying to get back in touch with server
-  # while in emergency mode
+  # while in airplane mode
   attemptReconnect: =>
     is_connected = =>
       $.get(@connection_test_url)
@@ -168,7 +185,9 @@ class window.Connection extends LiteJot
     is_connected().done(() =>
       @consecutive_failures = 0
       @startConnectionTestTimer()
-      @lj.emergency_mode.deactivate()
+      # airplane_mode.deactivate will eventually
+      # restart live sync.
+      @lj.airplane_mode.deactivate()
       return true
 
     ).fail((jqXHR, error_textStatus, errorThrown) =>

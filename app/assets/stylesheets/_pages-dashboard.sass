@@ -1,8 +1,84 @@
 body#pages-dashboard
-  //background-color: rgb(250, 250, 250)
   background-color: $palette-white
   padding-top: rem-calc(45)
   overflow-x: hidden
+  overflow-y: hidden
+
+  aside
+    width: rem-calc(53)
+    height: 100%
+    background-color: $palette-black
+    display: inline-block
+    float: left
+    text-align: center
+    user-select: none
+    -webkit-user-select: none
+    margin-left: rem-calc(-53)
+
+    @media #{$large-up}
+      margin-left: 0
+
+    a
+      color: $palette-gray
+      display: block
+      padding: 1rem .25rem 1rem 0 // Wasn't completely centered.
+
+      &:hover
+        color: $palette-white
+
+      i
+        font-size: 1.1rem
+
+      &.active
+        background-color: $palette-lightest-gray
+        color: $primary-color
+        border-top: .4rem solid $primary-color
+        padding-top: .6rem
+        // We want to hover over a popout's box-shadow
+        position: relative
+        z-index: 3
+
+        i #cal-icon-date
+          color: $palette-black !important
+
+    section.account
+      min-height: 2rem
+      max-height: 10rem
+      border-bottom: 1px solid #444
+      padding: 2rem 0
+
+      img.user-photo
+        width: 2.25rem
+        height: 2.25rem
+        border-radius: 50%
+        border: 1px solid #444
+        margin-right: .25rem
+
+    section.app-specific
+      border-bottom: 1px solid #444
+      padding: 1rem 0
+
+      i.fa-calendar-o
+        position: relative
+
+        #cal-icon-date
+          position: absolute
+          top: 2.5px
+          width: 16px
+          font-size: 7px
+          text-align: center
+          color: $palette-lightest-gray
+
+    section.site-specific
+      padding: 1rem 0
+
+
+  main
+    display: inline-block
+    width: 100%
+
+    @media #{$large-up}
+      width: calc(100% - 53px)
 
   h2
     font-size: 1.5rem
@@ -42,7 +118,7 @@ body#pages-dashboard
     position: relative
 
     &.showing-aside
-      transform: translate3d(80%, 0, 0)
+      transform: translate3d(calc(80% + 53px), 0, 0)
       transition: all .25s linear
 
   // Override all the off-canvas-type CSS when large and up.
