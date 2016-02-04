@@ -32,7 +32,7 @@ nav#site-nav
           - unless user_signed_in?
             - if action_name == 'welcome'
               li
-                a data-reveal-id='auth-modal' Sign in
+                a href='#' data-reveal-id='auth-modal' Sign in
             - else
               li
                 a href='/getting-started' Sign in
