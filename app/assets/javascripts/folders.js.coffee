@@ -452,6 +452,7 @@ class window.Folders extends LiteJot
         @lj.app.current_folder = null
         @newFolder()
         @lj.topics.buildTopicsList() # will render empty topics/jots
+        @lj.setPageHeading()
 
     @sortFoldersList false
 

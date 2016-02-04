@@ -112,6 +112,10 @@ class window.UserSettings extends LiteJot
   #     console.log @lj.app.user.preferences.jot_color
 
   updatePreference: (preference, value) =>
+    # If user data hasn't been populated yet then do not run
+    if @lj.app.user == null
+      return
+
     if !@lj.app.user.preferences
       @lj.app.user.preferences = {}
     @lj.app.user.preferences[preference] = value

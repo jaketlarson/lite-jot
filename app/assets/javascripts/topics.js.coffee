@@ -354,6 +354,8 @@ class window.Topics extends LiteJot
         @lj.app.current_topic = null
         @lj.jots.updateHeading()
         @lj.jots.clearJotsList()
+        @lj.setPageHeading()
+
         @newTopic()
 
     @sortTopicsList false

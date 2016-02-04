@@ -102,11 +102,21 @@ class JotSerializer < ActiveModel::Serializer
   end
 
   def author_display_name
-    return User.find(object.user_id).display_name
+    user = User.where('id = ?', object.user_id)
+    unless user.empty?
+      user.first.display_name
+    else
+      "Unknown user"
+    end
   end
 
   def author_email
-    return User.find(object.user_id).email
+    user = User.where('id = ?', object.user_id)
+    unless user.empty?
+      user.first.email
+    else
+      "Unknown email"
+    end
   end
 
   def created_at_unix

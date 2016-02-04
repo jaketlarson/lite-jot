@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.4'
+gem 'rails', '4.2.0'
 # Use sqlite3 as the database for Active Record, development
 gem 'sqlite3', group: [:development, :test]
 # Postgresql for production
@@ -43,7 +43,7 @@ gem 'chronic'
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2', :git => 'https://github.com/zquestz/omniauth-google-oauth2.git'
-gem 'google-api-client', :require => 'google/api_client'
+gem 'google-api-client', '~> 0.7.1', :require => 'google/api_client'
 
 gem 'seed_dump'
 
