@@ -27,7 +27,7 @@ module LiteJot
     # Errors
     config.exceptions_app = self.routes
 
-    config.serve_static_assets = true
+    config.serve_static_files = true
 
     # Email
     ActionMailer::Base.smtp_settings = {

@@ -284,7 +284,7 @@ class JotsController < ApplicationController
     if jot.user_id == current_user.id || folder.user_id == current_user.id
       can_flag = true
     else
-      share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
+      share_check = TopicShare.where("recipient_id = ? AND topic_id = ?", current_user.id, jot.topic_id)
       if share_check.length == 1
         # This user is shared with the containing folder, so they can flag.
         can_flag = true
@@ -320,7 +320,7 @@ class JotsController < ApplicationController
     if jot.user_id == current_user.id || folder.user_id == current_user.id
       can_check = true
     else
-      share_check = Share.where("recipient_id = ? AND folder_id = ?", current_user.id, jot.folder_id)
+      share_check = TopicShare.where("recipient_id = ? AND topic_id = ?", current_user.id, jot.topic_id)
       if share_check.length == 1
         # This user is shared with the containing folder, so they can check boxes.
         can_check = true
