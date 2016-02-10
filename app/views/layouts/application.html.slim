@@ -1,8 +1,7 @@
 doctype html
 html
   head
-    title
-      = page_title(yield(:title))
+    == page_meta(yield(:title), yield(:type), yield(:url), yield(:image), yield(:description))
     == stylesheet_link_tag 'litejot', media: 'all'
     == csrf_meta_tags
     meta content='width=device-width, initial-scale=1.0' name='viewport'

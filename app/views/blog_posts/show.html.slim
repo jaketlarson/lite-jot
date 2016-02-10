@@ -1,5 +1,14 @@
 - content_for :title do
-  = @blog_post.title
+  == @blog_post.title
+
+- content_for :description do
+  == ActionView::Base.full_sanitizer.sanitize(truncate_html @blog_post.body, :length => 160)
+
+- content_for :type do 
+  == "blog"
+
+- content_for :url do
+  == blog_post_path(@blog_post)
 
 .row
   .column.small-1.hide-for-small-only &nbsp;

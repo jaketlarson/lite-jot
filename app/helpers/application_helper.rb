@@ -6,13 +6,39 @@ module ApplicationHelper
     return body_id
   end
 
-  def page_title(custom='')
-    if !custom.blank?
-      title =  "#{custom} - #{I18n.t('meta.site_title')}"
-    else
+  def page_meta(title='', type='', url='', image='', description='')
+    if title.blank?
       title = I18n.t('meta.site_title')
+    else
+      title =  "#{title} - #{I18n.t('meta.site_title')}"
     end
-    title
+
+    if type.blank?
+      type = I18n.t('meta.site_type')
+    end
+
+    if url.blank?
+      url = I18n.t('meta.site_url')
+    end
+
+    if image.blank?
+      image = I18n.t('meta.site_image')
+    end
+
+    if description.blank?
+      description = I18n.t('meta.site_description')
+    end
+
+    return "
+      <title>#{title}</title>
+      <meta name=\"description\" content=\"#{description}\">
+      <meta property=\"og:description\" content=\"#{description}\">
+      <meta property=\"og:title\" content=\"#{title}\">
+      <meta property=\"og:type\" content=\"#{type}\">
+      <meta property=\"og:url\" content=\"#{url}\">
+      <meta property=\"og:image\" content=\"#{image}\">
+    "
+
   end
   
   def sortable(column, title = nil, mode = nil)
