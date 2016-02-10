@@ -75,10 +75,24 @@ class window.FolderShareSettings extends LiteJot
     if share.is_all_topics
       list_elem.find('.topics-wrap').hide()
 
-    $("input[type='checkbox']#toggle-topics-#{share.id}").click =>
-      console.log 'clicked toggle'
-      share.is_all_topics = $("input[type='checkbox']#toggle-topics-#{share.id}").is(':checked')
-      console.log $("input[type='checkbox']#toggle-topics-#{share.id}").is(':checked')
+    $("input[type='checkbox']#toggle-topics-#{share.id}").click (e) =>
+      elem = $(e.currentTarget)[0]
+
+      if elem.checked
+        # Add all topics to this share (only need to record IDs, the backend will create TopicShares based off these)
+        all_topics_in_folder = $.map @lj.app.topics.filter((topic) -> topic.folder_id == share.folder_id), (topic) =>
+          topic.id
+
+        share.specific_topics = all_topics_in_folder
+      else
+        share.specific_topics = []
+
+        # Uncheck any checked topic checkboxes
+        $("li[data-share='#{share.id}'] ul.topics .topic-check").attr 'data-checked', false
+
+
+      share.is_all_topics = elem.checked
+
       if share.is_all_topics
         list_elem.find('.topics-wrap').slideUp()
       else
@@ -121,13 +135,9 @@ class window.FolderShareSettings extends LiteJot
         list_elem.addClass('active')
 
   inSpecificTopics: (topic_id, tshares) =>
-    console.log topic_id
-    console.log tshares
     found = false
     $.each tshares, (key, tshare_id) =>
-      console.log "does #{tshare_id} == parseInt(#{topic_id})?"
       if parseInt(tshare_id) == parseInt(topic_id)
-        console.log 'yay'
         found = true
 
     return found
@@ -198,32 +208,27 @@ class window.FolderShareSettings extends LiteJot
 
   addTopicToShareList: (share_id, topic_id) =>
     share = @folder_shares.filter((share) => share.id == share_id)[0]
+
     if !@inSpecificTopics(topic_id, share.specific_topics)
       if !share.specific_topics
         share.specific_topics = [String(topic_id)]
       else
         share.specific_topics.push String(topic_id)
+
       @updateShare share_id
 
   removeTopicFromShareList: (share_id, topic_id) =>
     share = @folder_shares.filter((share) => share.id == share_id)[0]
-    console.log '1'
+
     if @inSpecificTopics(topic_id, share.specific_topics)
       share.specific_topics.splice(share.specific_topics.indexOf(String(topic_id)), 1)
-      console.log 'index:'
-      console.log share.specific_topics.indexOf(topic_id)
-      console.log share.specific_topics
-      console.log topic_id
       @updateShare share_id
 
-
   updateShare: (share_id) =>
-    console.log 'updateShare called for '+ share_id
     if @XHR_update_waiting
       @XHR_update_request.abort()
 
     share = @folder_shares.filter((share) => share.id == share_id)[0]
-    console.log share
 
     @lj.connection.abortPossibleDataLoadXHR()
     @XHR_update_request = $.ajax(

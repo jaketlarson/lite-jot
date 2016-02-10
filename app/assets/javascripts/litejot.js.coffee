@@ -215,7 +215,7 @@ class window.LiteJot
 
   hideLoader: =>
     setTimeout(() =>
-      @dash_loading_overlay.fadeOut(500).css { marginLeft: -1*@dash_loading_overlay.width() }
+      @dash_loading_overlay.fadeOut(500).css { marginLeft: -1*$('body').width() }
     , 500)
 
   initAsideToggleListener: =>

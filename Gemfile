@@ -51,7 +51,7 @@ gem 'seed_dump'
 # and allows users to permanently delete their jots later
 gem 'paranoia', '~> 2.0'
 
-gem 'rails_12factor'
+gem 'rails_12factor', :group => :production
 
 # Breadcrumb menus
 gem "breadcrumbs_on_rails"

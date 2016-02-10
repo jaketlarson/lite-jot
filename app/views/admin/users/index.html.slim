@@ -16,6 +16,10 @@ article
             td #{user.id}
             td #{user.email}
             td #{user.display_name}
-            td #{I18n.l(user.last_seen_at)}
+            td
+              - if user.last_seen_at.nil? || user.last_seen_at.blank?
+                | Never
+              - else
+                #{I18n.l(user.last_seen_at)}
 
     == will_paginate @users

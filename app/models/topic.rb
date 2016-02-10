@@ -4,6 +4,7 @@ class Topic < ActiveRecord::Base
   belongs_to :user
   belongs_to :folder
   has_many :jots, :dependent => :destroy
+  has_many :topic_shares, :dependent => :destroy
 
   validates_presence_of :user_id
 

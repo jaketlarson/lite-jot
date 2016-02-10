@@ -65,7 +65,7 @@ class FolderSerializer < ActiveModel::Serializer
         return object.updated_at.to_f
       else
         most_recent_topic = nil
-        topics = share.specific_topics
+        topics = fshare.specific_topics
         topics = Topic.where('folder_id = ?', fshare.folder_id)
         topics.each do |topic|
           tshare_check = TopicShare.where('recipient_id = ? and topic_id = ?', scope.id, topic.id)

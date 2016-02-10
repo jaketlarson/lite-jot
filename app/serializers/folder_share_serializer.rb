@@ -29,11 +29,13 @@ class FolderShareSerializer < ActiveModel::Serializer
   end
 
   def permissions_preview
-    if object.is_all_topics
+    tshare_count = TopicShare.where('folder_id = ?', object.folder_id).count
+    topic_count = Topic.where('folder_id = ?', object.folder_id).count
+
+    if tshare_count == topic_count
       "sharing all topics"
     else
-      tshares = TopicShare.where('folder_id = ?', object.folder_id)
-      if tshares.count > 0
+      if tshare_count > 0
         "sharing specific topics"
       else
         "sharing nothing"

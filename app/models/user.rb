@@ -84,8 +84,6 @@ class User < ActiveRecord::Base
     data = access_token.info
     user = User.where(:email => data['email']).first
 
-    ap data
-
     unless user
       user = User.create!(
         :auth_provider => access_token['provider'],
@@ -125,8 +123,6 @@ class User < ActiveRecord::Base
     data = access_token.info
     user = User.where(:email => data['email']).first
 
-    ap data
-
     # Uncomment the section below if you want users to be created if they don't exist
     unless user
       user = User.create!(
@@ -160,7 +156,8 @@ class User < ActiveRecord::Base
 
   # Used on initial data load
   def owned_and_shared_folders
-    Folder.includes(:folder_shares).where("user_id = ? OR (folder_shares.recipient_id = ? AND (folder_shares.is_all_topics = ? OR folder_shares.specific_topics != ?))", self.id, self.id, true, '').order('folders.updated_at DESC').references(:shares)
+    folders = Folder.includes(:topic_shares).where("user_id = ? OR topic_shares.recipient_id = ?", self.id, self.id).order('folders.updated_at DESC').references(:shares)
+    folders
   end
 
   # Used on sync cycles
@@ -176,9 +173,6 @@ class User < ActiveRecord::Base
     .includes(:topic_shares)
     .where("(user_id = ? OR topic_shares.recipient_id = ?) AND (folders.updated_at > ? OR folders.created_at > ? OR folders.deleted_at > ? OR folders.restored_at > ?)", self.id, self.id, begin_at, begin_at, begin_at, begin_at).order('folders.updated_at DESC')
     .references(:topic_shares)
-
-    ap "here you go:::"
-    ap updated_folders
 
     unshared_folders = []
     unshared_folders_tracked = []

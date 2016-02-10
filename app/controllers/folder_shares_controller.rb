@@ -42,90 +42,55 @@ class FolderSharesController < ApplicationController
   def update
     fshare = current_user.folder_shares.find(params[:id])
 
-    ap fshare
-
     if fshare.update(fshare_params)
-      ap "updating!"
-      ap fshare
-      ap "specific topics:"
-      ap params[:specific_topics]
-      ap "is_all_topics:"
-      ap params[:is_all_topics]
+      specific_topics = params[:specific_topics] || []
 
-      if !params[:specific_topics].nil? && params[:is_all_topics] == 'false'
-        ap 'specific topics not all topics'
-        # Specific topics are selected
-        topics = Topic.where('folder_id = ?', fshare.folder_id)
+      # topics_to_add will be updated as we validate
+      topics_to_add = specific_topics
 
-        # If this topic is in the specific_topics list, create the share if not already
-        # created.
-        topics.each do |topic|
-          if params[:specific_topics].include? topic.id.to_s
-            tshare_exists = !TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email).empty?
-            ap tshare_exists
-            if !tshare_exists
-              tshare = TopicShare.new(
-                :recipient_email => fshare.recipient_email,
-                :recipient_id => fshare.recipient_id,
-                :topic_id => topic.id,
-                :folder_id => fshare.folder_id,
-                :sender_id => current_user.id
-              )
+      # We have a list of specific_topics shared with a user in a given folder.
+      # The FolderShare does not actually store the specific_topics. We maintain
+      # a TopicShare for every topic referenced in specific_topics.
+      # The way to do that is to go through each TopicShare and seeing if it is not
+      # inside of specific_topics. If it is not, then we delete that TopicShare.
+      # Then whichever topic ids are left in the array must be added as new TopicShares.
 
-              tshare.save
+      # Check for deletes (must loop through all topics in folder)
+      topics = Topic.where('folder_id = ? AND user_id = ?', fshare.folder_id, current_user.id)
+      topics.each do |topic|
+        tshare_found = TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email)
 
-            end
-
-          else
-            ap "LET US DELETE THIS NOW OKAY COOL"
-            # If a topic share exists right now, delete it
-            tshare_check = TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email)
-            if tshare_check.count == 1
-              tshare_check[0].destroy
-            end
-          end
-
+        if !tshare_found.empty? && !(specific_topics.include? topic.id.to_s)
+          # This topic is no longer included in specific_topics, destroy the TopicShare found.
+          tshare_found.first.destroy
         end
-
-      elsif params[:is_all_topics] == 'true'
-        ap 'all topics'
-        # All topics are selected
-        topics = Topic.where('folder_id = ?', fshare.folder_id)
-
-        topics.each do |topic|
-          tshare_exists = !TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email).empty?
-
-          if !tshare_exists
-            tshare = TopicShare.new(
-              :recipient_email => fshare.recipient_email,
-              :recipient_id => fshare.recipient_id,
-              :topic_id => topic.id,
-              :folder_id => fshare.folder_id,
-              :sender_id => current_user.id
-            )
-
-            tshare.save
-
-          end
-        end
-
-      elsif params[:specific_topics].nil? && params[:is_all_topics] == 'false'
-        ap 'destroy all!!!'
-        # No topics selected, remove all topic_shares for this recipient in the folder,
-        TopicShare.destroy_all "folder_id = '#{fshare.folder_id}' AND recipient_email='#{fshare.recipient_email}'"
-      else
-        # is_all_topics is not even set. Let's make it false
-        fshare.is_all_topics = false
-        fshare.save
       end
 
-      # else
-      #   #fshare.specific_topics = nil # REMOVE THIS OKAY YES DO REMOVE IT DEFS REMOVE THIS
-      #   fshare.save
-      # end
+      specific_topics.each do |topic_id|
+        topic = Topic.where('id = ? AND user_id = ?', topic_id, current_user.id)
+
+        # Validate existence of topic
+        if topic.empty?
+          # Doesn't exist
+          topics_to_add -= [topic_id.to_s]
+          next
+        end
+        topic = topic.first
+
+        tshare_exists = !TopicShare.where('topic_id = ? AND recipient_email = ?', topic.id, fshare.recipient_email).empty?
+        if tshare_exists
+          # TopicShare already exists, let's remove it from specific_topics and consider it OK
+          topics_to_add -= [topic_id.to_s]
+          next
+        end
+      end
+
+      topics_to_add.each do |topic_id|
+        topic = Topic.where('id = ? AND user_id = ?', topic_id, current_user.id).first
+        TopicShare.add_new(fshare, topic, current_user)
+      end
 
       render :json => {:success => true, :folder_share => FolderShareSerializer.new(fshare, :root => false)}
-
     else
       render :json => {:success => false}, :status => :bad_request
     end

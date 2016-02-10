@@ -42,14 +42,19 @@ class ApplicationController < ActionController::Base
     folders.each do |folder|
       folder.topics.each do |topic|
         if current_user.id != topic.user_id
-          fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
-          if !fshare.is_all_topics
-            if fshare.specific_topics
-              if !fshare.specific_topics.include?(topic.id.to_s)
-                next
-              end
-            end
+          # Okay, so the topic doesn't belong to this user. So we only show it if it was shared with them
+          tshare = TopicShare.where('topic_id = ? AND recipient_id = ?', topic.id, current_user.id)
+          if tshare.empty?
+            next
           end
+          # fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+          # if !fshare.is_all_topics
+          #   if fshare.specific_topics
+          #     if !fshare.specific_topics.include?(topic.id.to_s)
+          #       next
+          #     end
+          #   end
+          # end
         end
 
         topics << topic
@@ -96,32 +101,33 @@ class ApplicationController < ActionController::Base
 
     # collect topics & jots
     folders.each do |folder|
-      ap "so there's a topic.."
-      find_topics = folder.topics.with_deleted.where("created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?", last_time, last_time, last_time, last_time)
+      find_topics = folder.topics.with_deleted.where('created_at > ? OR updated_at > ? OR deleted_at > ? OR restored_at > ?', last_time, last_time, last_time, last_time)
       find_topics.each do |topic|
-        ap topic
-        tshares = TopicShare.where("recipient_id = ? AND topic_id = ?", current_user.id, topic.id)
-        ap "allowed to view:"
-        ap tshares
-        shared_topic_ids = tshares.map { |tshare| tshare.topic_id }
-        ap "ids:"
-        ap shared_topic_ids
-
         if current_user.id != topic.user_id
-          #fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
-          if !shared_topic_ids.include?(topic.id)
+          tshare = TopicShare.where('topic_id = ? AND recipient_id = ?', topic.id, current_user.id)
+          if tshare.empty?
             next
           end
-
-          # if !fshare.is_all_topics
-          #   # Can't use all topics
-          #   if fshare.specific_topics
-          #     if !fshare.specific_topics.include?(topic.id.to_s)
-          #       next
-          #     end
-          #   end
-          # end
         end
+
+        # tshares = TopicShare.where('recipient_id = ? AND topic_id = ?', current_user.id, topic.id)
+        # shared_topic_ids = tshares.map { |tshare| tshare.topic_id }
+
+        # if current_user.id != topic.user_id
+        #   #fshare = FolderShare.where("folder_id = ? AND recipient_id = ?", topic.folder_id, current_user.id).first
+        #   if !shared_topic_ids.include?(topic.id)
+        #     next
+        #   end
+
+        #   # if !fshare.is_all_topics
+        #   #   # Can't use all topics
+        #   #   if fshare.specific_topics
+        #   #     if !fshare.specific_topics.include?(topic.id.to_s)
+        #   #       next
+        #   #     end
+        #   #   end
+        #   # end
+        # end
 
         topics << topic
       end
@@ -148,11 +154,7 @@ class ApplicationController < ActionController::Base
 
     # Add shares handling to this.
     unshared_folders = updated_data[:unshared]
-    ap "shared folders deleted:"
-    ap unshared_folders
     unshared_folders.each do |folder|
-      ap "DELETING:"
-      ap folder
       del_folders << folder
     end
 
@@ -164,11 +166,18 @@ class ApplicationController < ActionController::Base
 
     # If there are newly shared folders..
     newly_shared_folders = updated_data[:newly_shared]
-    ap "newly_shared_folders:"
-    ap newly_shared_folders
     newly_shared_folders.each do |folder|
       folders << folder
       folder.topics.each do |topic|
+
+        # Check ownership or if shared with first
+        if current_user.id != topic.user_id
+          tshare = TopicShare.where('topic_id = ? AND recipient_id = ?', topic.id, current_user.id)
+          if tshare.empty?
+            next
+          end
+        end
+
         topics << topic
         topic.jots.each do |jot|
           # email tags are private, don't show them to other users.

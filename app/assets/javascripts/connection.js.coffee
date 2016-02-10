@@ -84,7 +84,6 @@ class window.Connection extends LiteJot
     )
 
   loadUpdates: =>
-    console.log 'called'
     # Avoid extra timers
     if @data_loader_timer
       clearTimeout @data_load_timer()
@@ -129,7 +128,6 @@ class window.Connection extends LiteJot
     )
 
   abortPossibleDataLoadXHR: =>
-    console.log 'aborted'
     # This function is called on any ajax request
     # to stop any possible data load request in progress.
     # This way, the client's UI doesn't get messed up
