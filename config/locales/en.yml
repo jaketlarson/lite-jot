@@ -36,7 +36,7 @@ en:
     site_title: Lite Jot
     site_type: website
     site_description:  Take notes faster, easier, and more organized. Live note-taking at meetings, task-management, keyboard-optimized, and much more.
-    site_image: https://www.litejot.com/assets/images/logos/facebook-share.png
+    site_image: https://www.litejot.com/assets/images/logos/share.png
     site_url: https://www.litejot.com
 
   activerecord:
