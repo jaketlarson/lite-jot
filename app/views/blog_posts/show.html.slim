@@ -8,7 +8,7 @@
   == "blog"
 
 - content_for :url do
-  == blog_post_path(@blog_post)
+  == request.original_url
 
 .row
   .column.small-1.hide-for-small-only &nbsp;
