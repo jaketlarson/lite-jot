@@ -6,4 +6,13 @@ module Users::RegistrationsHelper
       url
     end
   end
+
+  def user_display_name_by_id(id)
+    user = User.where('id = ?', id).first
+    if user.nil?
+      "Unknown User"
+    else
+      user.display_name
+    end
+  end
 end

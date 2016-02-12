@@ -35,9 +35,12 @@ article
 
         - else
           .author-info
-            - user = User.find(message.user_id)
+            - user = User.where('id = ?', message.user_id).first
             p
-              a href='/admin/users/#{user.id}' #{user.display_name}
+              - if user.nil?
+                |Unknown User
+              - else
+                a href='/admin/users/#{user.id}' #{user.display_name}
 
             - if by_support_rep?(message)
               p.title

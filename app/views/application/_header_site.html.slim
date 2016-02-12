@@ -41,14 +41,25 @@ nav#site-nav
 
           - else
             li
-              == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
-                  |Sign out
+              a#user-image-profile-links href='javascript:;' data-dropdown='profile-links' aria-controls='profile-links' aria-expanded='false' data-options='align: left'
+                img.user-photo src="#{user_photo(current_user.photo_url)}"
 
           li
             a href='https://www.twitter.com/litejot'
               i.fa.fa-twitter.twitter-icon
 
-        a#mobile-menu-link.show-for-small-only href='javascript:;' data-dropdown='mobile-menu' aria-controls='drop1' aria-expanded='false'
+
+              
+        - if user_signed_in?
+          ul#profile-links.f-dropdown data-dropdown-content=true aria-hidden='true' tabindex='-1'
+            li
+              == link_to edit_user_registration_path do
+                |Profile Details
+            li
+              == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
+                |Sign out
+
+        a#mobile-menu-link.show-for-small-only href='javascript:;' data-dropdown='mobile-menu' aria-controls='mobile-menu' aria-expanded='false'
           i.fa.fa-bars
 
       ul#mobile-menu.f-dropdown data-dropdown-content=true aria-hidden='true' tabindex='-1'
@@ -64,6 +75,9 @@ nav#site-nav
 
         - else
           li
+            == link_to edit_user_registration_path do
+              |Profile Details
+          li
             == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
               |Sign out
 
@@ -71,3 +85,4 @@ nav#site-nav
           a href='https://www.twitter.com/litejot'
             i.fa.fa-twitter.twitter-icon
             |@litejot
+

@@ -18,8 +18,7 @@ table.answered-tickets
     - tickets.each do |ticket|
       tr onclick="window.location='/admin/support-tickets/#{ticket.unique_id}'"
         td #{ticket.unique_id}
-        - user = User.find(ticket.user_id)
-        td #{user.display_name}
+        td #{user_display_name_by_id(ticket.user_id)}
         td #{ticket.subject}
         td #{concise_date(ticket.last_answered_at)}
         td #{concise_date(ticket.author_last_read_at)}

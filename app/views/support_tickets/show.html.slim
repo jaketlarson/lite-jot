@@ -38,9 +38,8 @@ article
 
         - else
           .author-info
-            - user = User.find(message.user_id)
             p
-              = user.display_name
+              == user_display_name_by_id(message.user_id)
 
             - if by_support_rep?(message)
               p.title
