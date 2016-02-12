@@ -10,12 +10,8 @@ nav#site-nav
           - if controller_name == 'blog_posts'
             a.blog-wordmark-extension href='/blog' Blog
 
-        ul.right
-          - unless user_signed_in?
-            li.home-link data-magellan-arrival='get-started'
-              a href='/'
-                  |Home
-          - else
+        ul.right.show-for-medium-up
+          - if user_signed_in?
             li
               a href='/'
                 |Jots
@@ -31,10 +27,18 @@ nav#site-nav
           - unless user_signed_in?
             - if action_name == 'welcome'
               li
-                a href='#' data-reveal-id='auth-modal' Sign in
+                a href='#' data-reveal-id='log-in-modal' Log in
             - else
               li
-                a href='/getting-started' Sign in
+                a href='/log-in' Log in
+
+            - if action_name == 'welcome'
+              li
+                a.sign-up-link href='#' data-reveal-id='auth-modal' Sign up
+            - else
+              li
+                a.sign-up-link href='/sign-up' Sign up
+
           - else
             li
               == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
@@ -43,3 +47,27 @@ nav#site-nav
           li
             a href='https://www.twitter.com/litejot'
               i.fa.fa-twitter.twitter-icon
+
+        a#mobile-menu-link.show-for-small-only href='javascript:;' data-dropdown='mobile-menu' aria-controls='drop1' aria-expanded='false'
+          i.fa.fa-bars
+
+      ul#mobile-menu.f-dropdown data-dropdown-content=true aria-hidden='true' tabindex='-1'
+        li
+          a href='/blog' Blog
+
+        - unless user_signed_in?
+          li
+            a href='/log-in' Log in
+
+          li
+            a href='/sign-up' Sign up
+
+        - else
+          li
+            == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
+              |Sign out
+
+        li
+          a href='https://www.twitter.com/litejot'
+            i.fa.fa-twitter.twitter-icon
+            |@litejot

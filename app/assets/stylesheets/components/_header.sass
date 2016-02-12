@@ -308,15 +308,11 @@ nav#site-nav, nav#admin-nav
       margin-left: .4rem
       color: $palette-darker-gray
 
-  ul
+  ul:not(#mobile-menu)
     list-style: none
 
     li
       display: inline-block
-      
-      &.home-link
-        @media #{$small-only}
-          display: none
 
       a
         padding: 0 .5rem
@@ -325,14 +321,29 @@ nav#site-nav, nav#admin-nav
         font-size: .9rem
         margin: 0 .25rem
 
-        @media #{$small-only}
-          font-size: .8rem
-
         &:hover
           color: $primary-color
 
+        &.sign-up-link
+          font-weight: bold
+
+  a#mobile-menu-link
+    float: right
+    color: $palette-darker-gray
+    padding: 0 .5rem
+    line-height: 4rem
+    font-size: 1.25rem
+
+  ul#mobile-menu
+    li
+      padding: .25rem .5rem
+
+      a
+        i
+          margin-right: .4rem
+
 #breadcrumb-menu
-  //padding: .5rem
+  margin-top: 1rem
   
   &, a
     font-size: .9rem

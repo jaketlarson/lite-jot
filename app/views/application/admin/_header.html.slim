@@ -8,7 +8,7 @@ nav#admin-nav
             |Lite Jot
           a.admin-wordmark-extension href='/admin' Admin
 
-        ul.right
+        ul.right.show-for-medium-up
           li
             a href='/admin' Admin
 
@@ -21,3 +21,20 @@ nav#admin-nav
           li
             == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
               |Sign out
+
+        a#mobile-menu-link.show-for-small-only href='javascript:;' data-dropdown='mobile-menu' aria-controls='drop1' aria-expanded='false'
+          i.fa.fa-bars
+
+      ul#mobile-menu.f-dropdown data-dropdown-content=true aria-hidden='true' tabindex='-1'
+        li
+          a href='/admin' Admin
+
+        li
+          a href='/' Jots
+
+        li
+          a href='/blog' Blog
+
+        li
+          == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
+            |Sign out
