@@ -8,20 +8,7 @@ h4
     i.fa.fa-user-plus
     |Add new share
 
-form.new-share-form
-  .recipient-email-wrap
-    input class='recipient-email' type='email' placeholder='Enter a recipient email address'
-
-  .button-wrap
-    button
-      .submit-text Next&nbsp;&rarr;
-      .loading
-        i.fa.fa-cog.fa-spin
-
-  
-div.alert-error
-  i.fa.fa-exclamation-circle.fa-lg
-  .error-text
+== render :partial => 'folder_shares/new'
 
 ul.user-list
 

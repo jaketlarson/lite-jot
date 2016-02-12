@@ -1,6 +1,12 @@
-button
+button, .button
   background-color: $primary-color-accent
   font-family: 'Monda'
+  padding: rem-calc(8) rem-calc(20) rem-calc(9) rem-calc(20)
+  border-radius: rem-calc(2)
+
+  &.suffix
+    border-top-left-radius: 0
+    border-bottom-left-radius: 0
 
   .default-text
     display: block
