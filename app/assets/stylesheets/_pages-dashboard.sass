@@ -14,8 +14,10 @@ body#pages-dashboard
     user-select: none
     -webkit-user-select: none
     margin-left: rem-calc(-53)
+    z-index: 4
+    position: relative
 
-    @media #{$large-up}
+    @media #{$medium-up}
       margin-left: 0
 
     a
@@ -52,7 +54,7 @@ body#pages-dashboard
         height: 2.25rem
         border-radius: 50%
         border: 1px solid #444
-        margin-right: .25rem
+        //margin-right: .25rem
 
     section.app-specific
       border-bottom: 1px solid #444
@@ -77,7 +79,7 @@ body#pages-dashboard
     display: inline-block
     width: 100%
 
-    @media #{$large-up}
+    @media #{$medium-up}
       width: calc(100% - 53px)
 
   h2
@@ -87,53 +89,111 @@ body#pages-dashboard
     font-family: 'Monda'
 
   // Keeping the responsive grid for folders, topics, and jots columns in here.
+  // While some of this code could be condensed, it's better to make it understandable.
 
-  #folders-column, #topics-column
-    width: 10rem
-    float: left
-    position: relative
-
-    &.showing-aside
+  // Small view
+  @media #{$small-only}
+    #folders-column, #topics-column
+      float: left
       margin-left: 0%
       position: absolute
-      top: rem-calc(46px)
+      top: rem-calc(45px)
       width: 40%
 
-  #folders-column
-    margin-left: -20rem
-
-    &.showing-aside
+    #folders-column
       left: 0
 
-  #topics-column
-    margin-left: -10rem
-  
-    &.showing-aside
+    #topics-column
       left: 40%
       transition: all .25s linear
 
-  #jots-column
-    width: 100%
-    float: left
-    position: relative
-
-    &.showing-aside
+    #jots-column
+      width: 100%
+      float: left
+      position: relative
       transform: translate3d(calc(80% + 53px), 0, 0)
       transition: all .25s linear
 
-  // Override all the off-canvas-type CSS when large and up.
+  // Medium view
+  @media #{$medium-only}
+    #folders-column, #topics-column
+      float: left
+      margin-left: 0%
+      position: absolute
+      top: rem-calc(45px)
+      width: 40%
+
+    #folders-column
+      left: calc(0 + 53px) // aside shows on medium
+
+    #topics-column
+      left: calc(40% + 53px) // aside shows on medium
+      transition: all .25s linear
+
+    #jots-column
+      width: 100%
+      float: left
+      position: relative
+      transform: translate3d(calc(80% + 53px), 0, 0)
+      transition: all .25s linear
+
+  // Large-and-up views
   @media #{$large-up}
-    #folders-column, #folders-column.showing-aside, #topics-column, #topics-column.showing-aside
+    #folders-column, #topics-column
       width: 16%
       margin-left: 0
       position: relative
       top: 0
       left: 0
+      float: left
 
-    #jots-column, #jots-column.showing-aside
+    #jots-column
       width: 68%
       float: left
       transform: none
+
+  // if body has class .hide-aside
+  // This is not to be confused with the 'aside' element. Here we consider
+  // the folders and topics as the aside, too.
+  &.hide-aside
+    // Small view
+    @media #{$small-only}
+      #folders-column, #topics-column
+        width: 0
+      #folders-column
+        margin-left: -40%
+      #topics-column
+        margin-left: -80%
+      #jots-column
+        width: 100%
+        transform: none
+
+    // Medium view
+    @media #{$medium-only}
+      #folders-column, #topics-column
+        width: 0
+      #folders-column
+        margin-left: -40%
+      #topics-column
+        margin-left: -80%
+      #jots-column
+        width: 100%
+        transform: none
+
+    // Large-and-up views
+    @media #{$large-up}
+      #folders-column, #topics-column
+        width: 0
+      #folders-column
+        margin-left: -10rem
+      #topics-column
+        margin-left: -20rem
+      #jots-column
+        width: 100%
+
+    // Change the toggle button icon when hiding the columns
+    #show-aside:before
+      content: '\f101'
 
   #dash-loading-overlay
     background-color: $palette-lightest-gray
@@ -144,3 +204,6 @@ body#pages-dashboard
     left: rem-calc(53)
     z-index: 2
     transition: margin .5s
+
+    @media #{$small-only}
+      left: 0

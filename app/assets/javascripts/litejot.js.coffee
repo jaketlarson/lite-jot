@@ -75,6 +75,7 @@ class window.LiteJot
     @initTips()
     @jot_recovery = new JotRecovery(@)
     @initAsideToggleListener()
+    @determineAsideStateOnInit()
     @initUnloadListener()
 
   initVars: =>
@@ -113,7 +114,7 @@ class window.LiteJot
     keyboard_shortcuts_height = if $('#keyboard-shortcuts').is(':visible') then $('#keyboard-shortcuts').height() else 0
     airplane_notice_height = if @airplane_mode.header_notice.is(':visible') then @airplane_mode.header_notice.height() else 0
     nav_height = parseInt($('body').css('paddingTop'))
-    console.log nav_height
+
     folders_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - $('#folders-heading').outerHeight(true)
     @folders.folders_wrapper.css 'height', folders_height
 
@@ -123,7 +124,6 @@ class window.LiteJot
     jots_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - 0*@jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
-    @jots.positionEmptyMessage()
 
   setUIInterval: =>
     @UIInterval = setInterval(() =>
@@ -209,7 +209,7 @@ class window.LiteJot
     @temp.deleted_jots = null
 
   checkIfIntroduction: =>
-    if !@app.user.saw_intro
+    if !@app.user.saw_intro && Foundation.utils.is_large_up()
       $(document).foundation 'joyride', 'start'
       @user_settings.sawIntro()
 
@@ -222,19 +222,30 @@ class window.LiteJot
     @show_aside_trigger.click =>
       @toggleAside()
 
+    $('nav h2').click =>
+      @toggleAside()
+
+
+  determineAsideStateOnInit: =>
+    # Determine, based on viewport, if we hide folder/topic columns on init
+    if !Foundation.utils.is_large_up()
+      $('body').addClass('hide-aside')
+
   toggleAside: =>
-    # This could be way cleaner.. like making body have class 'showing-aside' and then bringing all
-    # of that CSS into it's own stylesheet
-
-    if $('nav').hasClass('showing-aside')
-      @folders.folders_column.removeClass('showing-aside')
-      @topics.topics_column.removeClass('showing-aside')
-      $('nav').removeClass('showing-aside')
-
+    if $('body').hasClass('hide-aside')
+      $('body').removeClass('hide-aside')
     else
-      @folders.folders_column.addClass('showing-aside')
-      @topics.topics_column.addClass('showing-aside')
-      $('nav').addClass('showing-aside')
+      $('body').addClass('hide-aside')
+
+    # if $('nav').hasClass('showing-aside')
+    #   @folders.folders_column.removeClass('showing-aside')
+    #   @topics.topics_column.removeClass('showing-aside')
+    #   $('nav').removeClass('showing-aside')
+
+    # else
+    #   @folders.folders_column.addClass('showing-aside')
+    #   @topics.topics_column.addClass('showing-aside')
+    #   $('nav').addClass('showing-aside')
 
   initUnloadListener: =>
     window.onbeforeunload = (e) =>

@@ -43,6 +43,7 @@ class window.Jots extends LiteJot
     @text_resize_factor = parseInt($('#jot-options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
     @timestamp_text_max_px = .55*16 # .55rem * 16px/rem
     @content_text_default_px = .95*16 # .95rem * 16px/rem
+    @content_heading_default_px = 1.3*16 # 1.3rem * 16px/rem
     @update_jot_size_save_timer = null # used to prevent flooding of requests when saving jot size pref
     @update_jot_size_save_timer_length = 2000
 
@@ -287,10 +288,11 @@ class window.Jots extends LiteJot
     @new_jot_current_tab = tab
 
     # Toggle jot break automatically
-    # For instance, headings are probably better off being broken from top.
+    # For instance, headings are probably better off being broken from top,
+    # if it's not the first jot in the topic.
     if tab == 'standard'
       @jotBreakOff()
-    else if tab == 'heading'
+    else if tab == 'heading' && @jots_list.find('.jot-item').length > 0
       @jotBreakOn()
     else if tab == 'checklist'
       @jotBreakOff()
@@ -1377,22 +1379,33 @@ class window.Jots extends LiteJot
     else
       selector = "li.jot-item[data-jot='#{id}'], li.temp"
 
-    if @content_text_default_px*@text_resize_factor > @content_text_default_px
-      timestamp_size = @timestamp_text_max_px
-      timestamp_lineheight = @content_text_default_px*1.5
-    else
-      timestamp_size = @timestamp_text_max_px*@text_resize_factor
-    timestamp_lineheight = @content_text_default_px*1.5*@text_resize_factor
+    # Since there are headings and headings have different font sizes,
+    # we must check each jot and size appropriately.
+    $.each @jots_list.find(selector).find('.checklist-item, i:not(.flag-icon)').andSelf(), (key, elem) =>
+      # Account for different size font in headings
+      if $(elem).hasClass('heading')
+        jot_default_px = @content_heading_default_px
+      else
+        jot_default_px = @content_text_default_px
 
-    @jots_list.find(selector).find('.checklist-item, i:not(.flag-icon)').andSelf().css(
-      fontSize: @content_text_default_px*@text_resize_factor+'px'
-      lineHeight: @content_text_default_px*1.5*@text_resize_factor+'px'
-    )
 
-    @jots_list.find(selector).find('.timestamp, .timestamp i').css(
-      fontSize: timestamp_size+'px'
-      lineHeight: timestamp_lineheight+'px'
-    )
+      if jot_default_px*@text_resize_factor > jot_default_px
+        timestamp_size = @timestamp_text_max_px
+        timestamp_lineheight = @content_text_default_px*1.5
+      else
+        timestamp_size = @timestamp_text_max_px*@text_resize_factor
+
+      timestamp_lineheight = jot_default_px*1.5*@text_resize_factor
+
+      $(elem).css(
+        fontSize: jot_default_px*@text_resize_factor+'px'
+        lineHeight: jot_default_px*1.5*@text_resize_factor+'px'
+      )
+
+      $(elem).find('.timestamp, .timestamp i').css(
+        fontSize: timestamp_size+'px'
+        lineHeight: timestamp_lineheight+'px'
+      )
 
   updateJotSize: =>
     @text_resize_factor = parseInt($('#jot-options .font-change .range-slider').attr('data-slider')) / 100

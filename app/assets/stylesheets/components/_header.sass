@@ -29,10 +29,6 @@ nav#app-nav.top-bar
     h2
       max-width: 30rem
 
-  &.showing-aside
-    #show-aside:before
-      content: '\f100'
-
   @media #{$large-up}
     height: rem-calc(46) // causes issue with mobile menu, so just show in large-up.
 
@@ -75,16 +71,16 @@ nav#app-nav.top-bar
       font-style: normal
       font-family: 'FontAwesome'
       font-size: 1.5rem
-      content: '\f101'
+      content: '\f100'
 
   h2
     margin: 0 0 0 rem-calc(53)
-    padding-left: 1rem
     font-size: .9rem
     color: $palette-white
     overflow: hidden
     text-overflow: ellipsis
     white-space: nowrap
+    cursor: pointer
 
   #search-wrapper
     width: 9rem
