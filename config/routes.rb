@@ -8,8 +8,19 @@ Rails.application.routes.draw do
   }
 
   devise_scope :user do
+    get '/log-in' => 'users/sessions#new', :as => 'log_in'
+    get '/sign-up' => 'users/registrations#new', :as => 'sign_up'
     get '/user/saw-intro' => 'users/registrations#saw_intro'
     patch '/user/update_preferences' => 'users/registrations#update_preferences'
+    get '/reset-password' => 'users/passwords#new', :as => :reset_password
+    get '/new-password' => 'users/passwords#edit', :as => :new_password
+    post '/send-reset-email' => 'users/passwords#create', :as => :create_password
+    put '/change-password' =>  'users/passwords#update', :as => :update_password
+    get '/password-reset-success' => 'users/passwords#success', :as => :password_reset_success
+
+    # When submitting a form such as sign up, the user might end up on /users via POST,
+    # and if they entered this url via GET they would hit a 404. Patching that...
+    get '/users' => 'pages#welcome'
   end
 
 
@@ -76,7 +87,6 @@ Rails.application.routes.draw do
   get 'terms' => 'pages#terms'
   get 'privacy' => 'pages#privacy'
   get 'support' => 'pages#support'
-  get 'getting-started' => 'pages#getting_started'
 
   match '/404', :to => 'errors#file_not_found', :via => :all
   match '/422', :to => 'errors#unprocessable', :via => :all

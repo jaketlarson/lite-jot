@@ -1,22 +1,25 @@
-h4
-  |New Lite Jot Accounts
+== link_to user_omniauth_authorize_path(:google_oauth2), :class => 'auth-service google' do
+  i.fa.fa-google-plus
+  |Sign up with Google
 
-.form-wrap#sign-up-form
-  = simple_form_for @user_sign_up, :url => user_registration_path(@user_sign_up) do |sign_up|
+#google-cal-sign-in-notice
+  i.fa.fa-calendar-check-o
+  |To enable Email (Gmail) Tagging and Google Calendar integration, sign up with Google.
 
-    == sign_up.input :display_name, :label => false, :error => false, :autofocus => true
+== link_to user_omniauth_authorize_path(:facebook), :class => 'auth-service facebook' do
+  i.fa.fa-facebook
+  |Sign up with Facebook
 
-    == sign_up.input :email, :label => false, :error => false
+.or-bar
+  .or-text or
 
-    == sign_up.input :password, :label => false, :error => false
-
-    == sign_up.input :password_confirmation, :label => false, :error => false
-
+.form-wrap#sign-in-form
+  == simple_form_for @user_sign_up, :url => user_registration_path(@user_sign_up) do |user|
+    == user.input :display_name, :label => false, :error => false, :autofocus => true
+    == user.input :email, :label => false, :error => false
+    == user.input :password, :label => false, :error => false
     button.right Sign up
 
-    p.terms-disclaimer
-      | By clicking &ldquo;Sign up&rdquo;, you agree to the&nbsp;
-      a href='/terms' target='_blank' terms of service
-      | &nbsp;and&nbsp;
-      a href='/privacy' target='_blank' privacy policy
-      |.
+hr
+  .more-options
+    |Already have an account? <a href="/log-in">Log in</a> instead

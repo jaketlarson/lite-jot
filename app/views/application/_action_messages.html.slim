@@ -3,20 +3,20 @@
 - $msg_notice_icon = "fa fa-check fa-lg"
 
 - flash.each do |type, msg|
-  - if type.to_s == "error" || type.to_s == "success" || type.to_s == "notice" || type.to_s == "alert"
-  
-  .row
-    .large-12.columns
-      div class="alert-#{type.to_s}"
+  - if (type.to_s == "error" || type.to_s == "success" || type.to_s == "notice" || type.to_s == "alert") && !msg.blank?
+    
+    .row
+      .large-12.columns
+        div class="alert-#{type.to_s}"
 
-        - if type.to_s == "success"
-          - flash_icon = $msg_success_icon
+          - if type.to_s == "success"
+            - flash_icon = $msg_success_icon
 
-        - elsif type.to_s == "error" || type.to_s == "alert"
-          - flash_icon = $msg_error_icon
-          
-        - elsif type.to_s == "notice"
-          - flash_icon = $msg_notice_icon
+          - elsif type.to_s == "error" || type.to_s == "alert"
+            - flash_icon = $msg_error_icon
+            
+          - elsif type.to_s == "notice"
+            - flash_icon = $msg_notice_icon
 
-        i class="#{flash_icon}"
-        == msg
+          i class="#{flash_icon}"
+          == msg

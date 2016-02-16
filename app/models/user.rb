@@ -36,7 +36,14 @@ class User < ActiveRecord::Base
   end
 
   def send_signup_email
-    UserNotifier.send_signup_email(self).deliver
+    UserNotifier.send_signup_email(self).deliver_now
+  end
+
+  def send_reset_password_instructions
+    token = set_reset_password_token
+    UserNotifier.send_reset_password_email(self, token).deliver_now
+
+    token
   end
 
   def update_associated_shares

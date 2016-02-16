@@ -1,0 +1,11 @@
+h2 Password Reset
+
+== render :partial => "action_messages"
+
+article
+  == simple_form_for(resource, :as => resource_name, :url => create_password_path, :html => { method: :post }) do |f|
+    .form-inputs
+      == f.input :email, :required => true, :autofocus => true
+
+    .form-actions
+      button Send me reset password instructions

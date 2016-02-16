@@ -1,8 +1,27 @@
-h4
-  |Current Lite Jot Accounts
+== link_to user_omniauth_authorize_path(:google_oauth2), :class => 'auth-service google' do
+  i.fa.fa-google-plus
+  |Log in with Google
+
+#google-cal-sign-in-notice
+  i.fa.fa-calendar-check-o
+  |To enable Email (Gmail) Tagging and Google Calendar integration, log in with Google.
+
+== link_to user_omniauth_authorize_path(:facebook), :class => 'auth-service facebook' do
+  i.fa.fa-facebook
+  |Log in with Facebook
+
+.or-bar
+  .or-text or
 
 .form-wrap#sign-in-form
-  = simple_form_for @user_sign_in, :url => user_session_path(@user_sign_in) do |sign_in|
-    = sign_in.input :email, :label => false
-    = sign_in.input :password, :label => false
-    button.right Sign in
+  == simple_form_for @user_log_in, :url => user_session_path(@user_log_in) do |user|
+    == user.input :email, :label => false
+    == user.input :password, :label => false
+    button.right Log in
+
+hr
+  .more-options
+    == link_to reset_password_path do
+      |Forgot your password?
+    br
+    |No account? <a href="/sign-up">Sign up</a> instead

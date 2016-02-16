@@ -7,6 +7,10 @@
       == render_breadcrumbs
 
 .row.content
+  .column.small-12.medium-4.right
+    ul.side-menu
+      li.active Profile Details
+
   .column.small-12.medium-8
 
     .panel
@@ -37,9 +41,3 @@
             == edit.input :password_confirmation, :placeholder => "New password, again"
 
         button.right Save
-
-  .column.small-12.medium-4
-    ul.side-menu
-      li.active Profile Details
-
-    /== form_for(@user, html: { class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } }) do |f|

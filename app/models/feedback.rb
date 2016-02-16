@@ -4,10 +4,10 @@ class Feedback < ActiveRecord::Base
   validates_presence_of :message
 
   def send_admin_notification_email
-    FeedbackNotifier.admin_notification_email(self).deliver
+    FeedbackNotifier.admin_notification_email(self).deliver_now
   end
 
   def send_confirmation_email
-    FeedbackNotifier.sender_confirmation_email(self).deliver
+    FeedbackNotifier.sender_confirmation_email(self).deliver_now
   end
 end

@@ -29,4 +29,15 @@ class UserNotifier < ActionMailer::Base
     m.transport_encoding = "base64"
     m
   end
+
+  def send_reset_password_email(user, token)
+    @user = user
+    @token = token
+    m = mail( :to => @user.email,
+    :from => Rails.application.secrets.support_email_address,
+    :subject => 'Here are your password reset instructions, '+@user.display_name+'!' )
+    m.transport_encoding = "base64"
+    m.headers['X-MC-Track'] = "False, False"
+    m
+  end
 end

@@ -14,22 +14,22 @@ class SupportTicket < ActiveRecord::Base
 
   def send_creation_email
     user = User.find(self.user_id)
-    SupportTicketNotifier.send_creation_email(self, user).deliver
+    SupportTicketNotifier.send_creation_email(self, user).deliver_now
   end
 
   def send_response_email
     user = User.find(self.user_id)
-    SupportTicketNotifier.send_response_email(self, user).deliver
+    SupportTicketNotifier.send_response_email(self, user).deliver_now
   end
 
   def send_creation_admin_notification_email
     user = User.find(self.user_id)
-    SupportTicketNotifier.send_creation_admin_notification_email(self, user).deliver
+    SupportTicketNotifier.send_creation_admin_notification_email(self, user).deliver_nw
   end
 
   def send_response_admin_notification_email
     user = User.find(self.user_id)
-    SupportTicketNotifier.send_response_admin_notification_email(self, user).deliver
+    SupportTicketNotifier.send_response_admin_notification_email(self, user).deliver_now
   end
 
   def change_status(status, user_id)

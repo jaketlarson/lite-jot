@@ -1,0 +1,14 @@
+h2 Change Your Password
+
+== render :partial => "action_messages"
+
+article
+  == simple_form_for(resource, :as => resource_name, :url => update_password_path, :html => { method: :put }) do |f|
+    .form-inputs
+      == f.full_error :reset_password_token
+      == f.input :reset_password_token, :as => :hidden
+      == f.input :password, label: "New password", required: true, autofocus: true
+      == f.input :password_confirmation, label: "Confirm your new password", required: true
+
+    .form-actions
+      button Change Password

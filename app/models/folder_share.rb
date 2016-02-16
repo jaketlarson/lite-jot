@@ -1,3 +1,4 @@
+
 class FolderShare < ActiveRecord::Base
   # folder_shares exist if any topic within a folder is shared.
   belongs_to :folder
@@ -21,13 +22,13 @@ class FolderShare < ActiveRecord::Base
       if recip_user.receives_email
         sender_user = User.find(self.sender_id)
         folder_title = Folder.find(self.folder_id).title
-        UserNotifier.send_share_with_registered_user_email(recip_user, sender_user, folder_title).deliver
+        UserNotifier.send_share_with_registered_user_email(recip_user, sender_user, folder_title).deliver_now
       end
     else
       # If the user is not registered
       sender_user = User.find(self.sender_id)
       folder_title = Folder.find(self.folder_id).title
-      UserNotifier.send_share_with_nonregistered_user_email(self.recipient_email, sender_user, folder_title).deliver
+      UserNotifier.send_share_with_nonregistered_user_email(self.recipient_email, sender_user, folder_title).deliver_now
     end
   end
 end

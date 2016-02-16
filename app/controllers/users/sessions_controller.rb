@@ -1,14 +1,19 @@
 class Users::SessionsController < Devise::SessionsController
+  add_breadcrumb 'Lite Jot', '/'
+
   # GET /resource/sign_in
   def new
-    self.resource = resource_class.new(sign_in_params)
-    clean_up_passwords(resource)
-    yield resource if block_given?
-    respond_with(resource, serialize_options(resource))
+    @user_log_in = User.new
+    session['omniauth_error_return'] = 'log_in'
 
-    if params[:redirect_to].present?
-      store_location_for(resource, params[:redirect_to])    
-    end
+    # self.resource = resource_class.new(sign_in_params)
+    # clean_up_passwords(resource)
+    # yield resource if block_given?
+    # respond_with(resource, serialize_options(resource))
+
+    # if params[:redirect_to].present?
+    #   store_location_for(resource, params[:redirect_to])    
+    # end
   end
 
   # POST /resource/sign_in

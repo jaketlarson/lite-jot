@@ -19,7 +19,15 @@ nav#admin-nav
             a href='/blog' Blog
 
           li
-            == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete, :class => 'secondary' do
+            a#user-image-profile-links href='javascript:;' data-dropdown='profile-links' aria-controls='profile-links' aria-expanded='false' data-options='align: left'
+              img.user-photo src="#{user_photo(current_user.photo_url)}"
+
+        ul#profile-links.f-dropdown data-dropdown-content=true aria-hidden='true' tabindex='-1'
+          li
+            == link_to edit_user_registration_path do
+              |Profile Details
+          li
+            == link_to destroy_user_session_path, :title => 'Sign out', :method => :delete do
               |Sign out
 
         a#mobile-menu-link.show-for-small-only href='javascript:;' data-dropdown='mobile-menu' aria-controls='drop1' aria-expanded='false'

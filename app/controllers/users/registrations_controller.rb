@@ -3,6 +3,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
   add_breadcrumb 'Lite Jot', '/'
 
+  def new
+    @user_sign_up = User.new
+    session['omniauth_error_return'] = 'sign_in'
+  end
+
   def create
     build_resource(sign_up_params)
 
@@ -31,7 +36,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
       @user_sign_up = resource
       @user_sign_in = User.new
-      render :template => "/pages/getting_started"
+      render :template => "/users/registrations/new"
     end
   end
 

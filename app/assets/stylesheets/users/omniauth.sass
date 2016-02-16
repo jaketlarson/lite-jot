@@ -1,0 +1,44 @@
+a.auth-service
+  color: $palette-white
+  padding: 0rem 1rem
+  line-height: 3rem
+  display: inline-block
+  font-family: 'Monda'
+  width: 100%
+  font-size: .9rem
+  transition: all .25s linear
+  border-radius: rem-calc(2)
+
+  i
+    line-height: 3rem
+    display: inline-block
+    padding-right: .4rem
+    margin-right: .4rem
+    vertical-align: -5%
+    font-size: 1.2rem
+
+  &.google
+    background-color: $palette-google
+
+    &:hover
+      background-color: darken($palette-google, 10%)
+
+  &.facebook
+    background-color: $palette-facebook
+    margin-top: 1rem
+
+    &:hover
+      background-color: darken($palette-facebook, 10%)
+
+#google-cal-sign-in-notice
+  margin-top: .75rem
+  font-size: .85rem
+  font-family: 'Monda'
+  margin-bottom: .5rem
+
+  i
+    margin-right: .4rem
+    vertical-align: 3%
+    font-size: .9rem
+    display: none
+    

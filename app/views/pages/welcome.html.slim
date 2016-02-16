@@ -14,7 +14,7 @@
         br
         |Lite Jot is in beta mode and already feature-packed &mdash; and it's free.
 
-        button data-reveal-id='auth-modal' Get Started in Seconds
+        button data-reveal-id='sign-up-modal' Get Started in Seconds
 
 .panel#uses
   .row
@@ -150,20 +150,13 @@ a name='features'
   .row
     .large-12.columns
       h3 See how Lite Jot can make a better note-taker out of you
-      button data-reveal-id='auth-modal' Get Started!
+      button data-reveal-id='sign-up-modal' Get Started!
 
-.reveal-modal#auth-modal data-reveal=true
-  .row.collapse
-    .large-12.columns
 
-        h3
-          |Sign into Lite Jot
+.reveal-modal#sign-up-modal data-reveal=true
+  h3 Sign up
+  == render :partial => "users/registrations/new"
 
-        == render :partial => "action_messages"
-
-        .row
-          .medium-6.columns#sign-up-column
-            = render :partial => 'users/registrations/new'
-          .medium-6.columns#sign-in-column
-            = render :partial => 'users/omniauth/new'
-            = render :partial => 'users/sessions/new'
+.reveal-modal#log-in-modal data-reveal=true
+  h3 Log in
+  == render :partial => "users/sessions/new"

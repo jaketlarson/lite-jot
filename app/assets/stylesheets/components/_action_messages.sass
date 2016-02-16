@@ -1,10 +1,12 @@
 .alert-error, .alert-alert
-  background-color: $palette-lightest-gray
+  background-color: lighten($palette-soft-red, 38%)
   color: $palette-soft-red
+  border-left: .25rem solid $palette-soft-red
 
 .alert-notice
-  background-color: $palette-lightest-gray
+  background-color: lighten($palette-dark-green, 58%)
   color: $palette-dark-green
+  border-left: .25rem solid $palette-dark-green
 
 .alert-error, .alert-notice, .alert-alert
   border-radius: 0
@@ -12,6 +14,8 @@
   width: 100%
   margin-top: 1rem
   position: relative
+  font-size: 1rem
+  font-family: 'Monda'
 
   i
     display: inline-block

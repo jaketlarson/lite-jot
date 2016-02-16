@@ -248,7 +248,7 @@ class ApplicationController < ActionController::Base
   end
 
   def auth_user
-    redirect_to getting_started_url unless user_signed_in?
+    redirect_to log_in_url unless user_signed_in?
   end
 
 end
