@@ -13,7 +13,7 @@
 .or-bar
   .or-text or
 
-.form-wrap#sign-in-form
+.form-wrap#sign-up-form
   == simple_form_for @user_sign_up, :url => user_registration_path(@user_sign_up) do |user|
     == user.input :display_name, :label => false, :error => false, :autofocus => true
     == user.input :email, :label => false, :error => false
@@ -21,5 +21,12 @@
     button.right Sign up
 
 hr
-  .more-options
-    |Already have an account? <a href="/log-in">Log in</a> instead
+.more-options
+  |Already have an account? <a href="/log-in">Log in</a> instead
+
+p.terms-disclaimer
+  | By signing up, you agree to the&nbsp;
+  a href='/terms' target='_blank' terms of service
+  | &nbsp;and&nbsp;
+  a href='/privacy' target='_blank' privacy policy
+  |.

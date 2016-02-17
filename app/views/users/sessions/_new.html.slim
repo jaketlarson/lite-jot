@@ -20,8 +20,15 @@
     button.right Log in
 
 hr
-  .more-options
-    == link_to reset_password_path do
-      |Forgot your password?
-    br
-    |No account? <a href="/sign-up">Sign up</a> instead
+.more-options
+  == link_to reset_password_path do
+    |Forgot your password?
+  br
+  |No account? <a href="/sign-up">Sign up</a> instead
+
+p.terms-disclaimer
+  | By logging in, you agree to the&nbsp;
+  a href='/terms' target='_blank' terms of service
+  | &nbsp;and&nbsp;
+  a href='/privacy' target='_blank' privacy policy
+  |.

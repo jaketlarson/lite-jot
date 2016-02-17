@@ -1,4 +1,5 @@
-body#users_registrations-new, body#users_registrations-create
+body#users_registrations-new, body#users_registrations-create, #sign-up-modal
+  h2
   h2
     margin-top: 3rem
     font-size: 1.5rem
@@ -14,11 +15,15 @@ body#users_registrations-new, body#users_registrations-create
     overflow: auto
 
   #sign-up-form
-    p.terms-disclaimer
-      font-family: 'Monda'
-      font-size: .8rem
+    button
+      margin-left: 1rem
 
   .more-options
     &, a
-      font-size: .85rem
+      font-size: .8rem
       font-family: 'Monda'
+
+  p.terms-disclaimer
+    padding-top: .5rem
+    font-family: 'Monda'
+    font-size: .8rem
