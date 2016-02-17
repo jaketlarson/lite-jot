@@ -54,6 +54,9 @@ GEM
       addressable (>= 2.3.1)
       extlib (>= 0.9.15)
       multi_json (>= 1.0.0)
+    autoprefixer-rails (6.3.3)
+      execjs
+      json
     awesome_print (1.6.1)
     aws-sdk (2.2.14)
       aws-sdk-resources (= 2.2.14)
@@ -62,6 +65,9 @@ GEM
     aws-sdk-resources (2.2.14)
       aws-sdk-core (= 2.2.14)
     bcrypt (3.1.10)
+    bootstrap-sass (3.3.6)
+      autoprefixer-rails (>= 5.2.1)
+      sass (>= 3.3.4)
     bootsy (2.2.1)
       carrierwave (~> 0.10)
       mini_magick (~> 4.3)
@@ -252,6 +258,7 @@ DEPENDENCIES
   active_model_serializers (~> 0.8.0)
   awesome_print
   aws-sdk (~> 2)
+  bootstrap-sass (~> 3.3.6)
   bootsy
   breadcrumbs_on_rails
   chronic

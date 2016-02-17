@@ -2,7 +2,6 @@ doctype html
 html
   head
     == page_meta(yield(:title), yield(:type), yield(:url), yield(:image), yield(:description))
-    == stylesheet_link_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', media: 'all'
     == stylesheet_link_tag 'litejot', media: 'all'
     == csrf_meta_tags
     meta content='width=device-width, initial-scale=1.0' name='viewport'
@@ -19,5 +18,9 @@ html
     == render :partial => 'footer'
 
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
-    == javascript_include_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'
-    == javascript_include_tag 'site'
+    /== javascript_include_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'
+    - if controller_name == 'blog_posts' && action_name != 'index'
+        == javascript_include_tag 'site_no_foundation'
+        == stylesheet_link_tag 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', media: 'all'
+    - else
+        == javascript_include_tag 'site'

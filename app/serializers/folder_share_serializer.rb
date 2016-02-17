@@ -29,7 +29,7 @@ class FolderShareSerializer < ActiveModel::Serializer
   end
 
   def permissions_preview
-    tshare_count = TopicShare.where('folder_id = ?', object.folder_id).count
+    tshare_count = TopicShare.where('folder_id = ? AND recipient_email = ?', object.folder_id, object.recipient_email).count
     topic_count = Topic.where('folder_id = ?', object.folder_id).count
 
     if tshare_count == topic_count
@@ -45,8 +45,8 @@ class FolderShareSerializer < ActiveModel::Serializer
 
   def specific_topics
     topics = []
+    tshares = TopicShare.where('folder_id = ? AND recipient_email = ?', object.folder_id, object.recipient_email)
 
-    tshares = TopicShare.where('folder_id = ?', object.folder_id)
     tshares.each do |tshare|
       topics.push(tshare.topic_id.to_s)
     end

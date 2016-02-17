@@ -61,6 +61,7 @@ gem 'will_paginate', '~> 3.0.6'
 
 # WYSIWYG for blog
 gem 'bootsy'
+gem 'bootstrap-sass', '~> 3.3.6'
 
 # Friendly urls
 gem 'friendly_id', '~> 5.1.0'
