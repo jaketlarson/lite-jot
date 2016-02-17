@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   serialize :notifications_seen
   serialize :preferences
 
-  after_create :send_signup_email, :update_associated_shares, :create_blog_subscription
+  after_create :send_signup_email, :update_associated_shares, :create_blog_subscription, :autocreate_folder_and_topic
 
   self.per_page = 25
 
@@ -68,6 +68,12 @@ class User < ActiveRecord::Base
 
   def create_blog_subscription
     BlogSubscription.create_sub_for_current_user(self.email)
+  end
+
+  def autocreate_folder_and_topic
+    folder = Folder.autocreate_first_folder(self.id)
+    topic = Topic.autocreate_first_topic(folder.id, self.id)
+    return
   end
 
   def intro_seen

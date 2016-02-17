@@ -9,4 +9,10 @@ class Topic < ActiveRecord::Base
   validates_presence_of :user_id
 
   default_scope { order("updated_at DESC") }
+
+  def self.autocreate_first_topic(folder_id, user_id)
+    topic = Topic.new(:title => "My First Topic", :folder_id => folder_id, :user_id => user_id)
+    topic.save!
+    topic
+  end
 end

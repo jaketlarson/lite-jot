@@ -8,4 +8,10 @@ class Folder < ActiveRecord::Base
   belongs_to :user
 
   validates_presence_of :user_id
+
+  def self.autocreate_first_folder(user_id)
+    folder = Folder.new(:title => "My First Folder", :user_id => user_id)
+    folder.save!
+    folder
+  end
 end
