@@ -55,7 +55,7 @@ Bootsy.setup do |config|
   #   'fog' to your Gemfile and create and configure your credentials in an
   #   initializer file, as described in Carrierwave's docs:
   #   https://github.com/carrierwaveuploader/carrierwave#using-amazon-s3
-  # config.storage = :file
+  # config.storage = :fog
   #
   #
   # Store directory (inside 'public') for storage = :file

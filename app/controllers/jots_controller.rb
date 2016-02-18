@@ -1,4 +1,6 @@
 class JotsController < ApplicationController
+  # May not be necessary.. consider removing if this doesn't fix merging jots in order after airplane mode.
+  around_filter :set_time_zone
 
   def create
     # Because the Airplane Mode feature allows users to jot while without internet, those jots need to be

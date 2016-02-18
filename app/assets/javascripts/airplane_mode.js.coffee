@@ -14,6 +14,7 @@ class window.AirplaneMode extends LiteJot
     @terms_modal_template = $('#airplane-mode-terms-modal-template')
     @unsaved_jots_modal = $('#airplane-mode-unsaved-jots-modal')
     @unsaved_jots_modal_template = $('#airplane-mode-unsaved-jots-modal-template')
+    @max_save_attempts = 3
 
   activate: =>
     @active = true
@@ -80,7 +81,7 @@ class window.AirplaneMode extends LiteJot
     @hideTerms()
     new HoverNotice(@lj, 'Connection to Lite Jot server restored.', 'success')
     
-    @saveStoredJots()
+    @saveStoredJots @max_save_attempts
     return
 
   # not sure why this is not camelcase.. should go through and fix this
@@ -112,10 +113,12 @@ class window.AirplaneMode extends LiteJot
     else
       return []
 
-  saveStoredJots: =>
+  saveStoredJots: (save_attempts_left) =>
     stored_jots = @getStoredJotsObject()
 
-    if stored_jots.length > 0
+    if stored_jots.length > 0 && save_attempts_left > 0
+      console.log "Attempting to save airplone mode jots with #{save_attempts_left} attempts left..."
+
       @lj.connection.abortPossibleDataLoadXHR()
       $.ajax(
         type: 'POST'
@@ -147,12 +150,7 @@ class window.AirplaneMode extends LiteJot
           @clearLocalStorage()
 
         error: (data) =>
-          # still can't save the jots..
-          # if this happens to often, an improvement could be
-          # to reattempt this ajax request again before firing
-          # the unsaved-jots-alert message.
-          errorWhileAttemptingToSaveJots()
-          @clearLocalStorage()
+          @saveStoredJots (save_attempts_left - 1)
 
         complete: (xhr, status) =>
           @lj.connection.startDataLoadTimer()
@@ -210,6 +208,12 @@ class window.AirplaneMode extends LiteJot
       @unsaved_jots_modal.find('.close').click =>
         @unsaved_jots_modal.foundation 'reveal', 'close'
 
+    if save_attempts_left == 0
+      # Still can't save the jots.. let's give up and show what we couldn't save.
+      errorWhileAttemptingToSaveJots()
+      @clearLocalStorage()
+      return
+
   clearLocalStorage: =>
     localStorage.clear()
 
@@ -226,5 +230,4 @@ class window.AirplaneMode extends LiteJot
   checkLocalStorageContents: =>
     stored_jots = @getStoredJotsObject()
     if stored_jots.length > 0
-      @saveStoredJots()
-
+      @saveStoredJots @max_save_attempts

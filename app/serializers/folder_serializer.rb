@@ -32,7 +32,12 @@ class FolderSerializer < ActiveModel::Serializer
     if object.user_id == scope.id
       scope.email
     else
-      User.find(object.user_id).email
+      user = User.where('id = ?', object.user_id)
+      if user.empty?
+        "Unknown Email"
+      else
+        user.first.email
+      end
     end
   end
 
@@ -40,7 +45,12 @@ class FolderSerializer < ActiveModel::Serializer
     if object.user_id == scope.id
       scope.display_name
     else
-      User.find(object.user_id).display_name
+      user = User.where('id = ?', object.user_id)
+      if user.empty?
+        "Unknown User"
+      else
+        user.first.display_name
+      end
     end
   end
 
