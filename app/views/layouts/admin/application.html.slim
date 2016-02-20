@@ -19,8 +19,18 @@ html
 
     == javascript_include_tag '//code.jquery.com/jquery-2.1.4.min.js'
     /== javascript_include_tag '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'
+
+    // Blog posts need Tiny MCE
     - if controller_name == 'blog_posts' && action_name != 'index'
-        == javascript_include_tag 'site_no_foundation'
-        == stylesheet_link_tag 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', media: 'all'
-    - else
-        == javascript_include_tag 'site'
+      script src='//cdn.tinymce.com/4/tinymce.min.js'
+      javascript:
+        tinymce.init({ selector:'textarea',
+          height: 500,
+          plugins: [
+                "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime media table contextmenu paste imagetools"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+          imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io']
+        });

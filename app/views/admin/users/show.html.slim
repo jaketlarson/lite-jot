@@ -40,7 +40,7 @@ article
 
         .data-row
           .field Last seen at:
-          .value #{@user.last_seen_at}
+          .value #{I18n.l(@user.last_seen_at)}
 
         .data-row
           .field Auth provider (blank if none):
