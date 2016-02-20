@@ -21,7 +21,7 @@
   .column.small-1.hide-for-small-only.medium-1 &nbsp;
   .column.small-12.medium-10
     article
-      h3 #{@blog_post.title}
+      h3.title #{@blog_post.title}
 
       .info
         i.time-icon.fa.fa-clock-o
@@ -32,7 +32,7 @@
           |&nbsp;&nbsp;&#8226&nbsp;&nbsp;
           == link_to "Edit", edit_admin_blog_post_path(@blog_post)
 
-      p #{raw(@blog_post.body)}
+      == raw(@blog_post.body)
 
       == render :partial => 'social_buttons', :locals => { :blog_post => @blog_post }
 
