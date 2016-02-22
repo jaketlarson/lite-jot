@@ -9,7 +9,7 @@ class BlogPostsController < ApplicationController
   def show
     @blog_post = BlogPost.friendly.find(params[:id])
 
-    if !@blog_post.public? && !current_user.admin?
+    if !@blog_post.public? && !current_user.try(:admin?)
       redirect_to blog_posts_path
     else
       if !current_user.admin?
