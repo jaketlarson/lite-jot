@@ -1074,9 +1074,6 @@ class window.Jots extends LiteJot
     if @currently_editing_id
       @finishEditing editingAnother=true
 
-    @currently_editing_id = id
-    elem = $("li[data-jot='#{id}']")
-    content_elem = elem.find('.content')
     jot_object = @lj.app.jots.filter((jot) => jot.id == id)[0]
     raw_content = window.unescapeHtml(jot_object.content)
 
@@ -1087,6 +1084,10 @@ class window.Jots extends LiteJot
     if jot_object.jot_type == 'email_tag'
       new HoverNotice(@lj, 'At this time, email tags cannot be edited.', 'error')
       return
+
+    @currently_editing_id = id
+    elem = $("li[data-jot='#{id}']")
+    content_elem = elem.find('.content')
 
     @new_jot_wrap.insertAfter elem
     elem.hide()

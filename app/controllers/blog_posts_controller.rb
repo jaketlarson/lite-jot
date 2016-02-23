@@ -12,7 +12,7 @@ class BlogPostsController < ApplicationController
     if !@blog_post.public? && !current_user.try(:admin?)
       redirect_to blog_posts_path
     else
-      if !current_user.admin?
+      if !current_user.try(:admin?)
         @blog_post.hits = @blog_post.hits+1
         @blog_post.save
       end
