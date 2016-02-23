@@ -227,6 +227,7 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.for(:account_update) << :is_viewing_key_controls
     devise_parameter_sanitizer.for(:account_update) << :receives_email
     devise_parameter_sanitizer.for(:account_update) << :photo_url
+    devise_parameter_sanitizer.for(:account_update) << :subscribes_to_blog
   end
 
   def sign_up_params

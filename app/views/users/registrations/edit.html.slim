@@ -30,7 +30,8 @@
 
           == edit.input :display_name
           == edit.input :email, :disabled => true
-          == edit.input :receives_email, :label => "Send me email notifications related to my account."
+          == edit.input :receives_email, :label => "Send me email notifications related to my account"
+          == edit.input :subscribes_to_blog, :label => "Send me emails regarding blog updates", :as => :boolean, :input_html => { :checked => BlogSubscription.already_subscribed(current_user.email) }
 
         - if current_user.auth_provider.blank?
           h4.divider Password Change (optional)

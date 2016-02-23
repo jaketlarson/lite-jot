@@ -72,6 +72,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
         resource.save
       end
 
+      # Blog subscription control was extended to the user view, too.
+      if !account_update_params[:subscribes_to_blog].blank?
+        if account_update_params[:subscribes_to_blog] == "0"
+          BlogSubscription.ensure_unsubscribed(resource.email)
+        elsif account_update_params[:subscribes_to_blog] == "1"
+          BlogSubscription.ensure_subscribed(resource.email)
+        end
+      end
+
       redirect_to edit_user_registration_path
     else
       clean_up_passwords resource

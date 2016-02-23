@@ -27,8 +27,10 @@ class BlogSubscription < ActiveRecord::Base
     BlogSubscriptionNotifier.send_blog_alert_as_test_to_admin_email(self, blog_post, email).deliver_now
   end
 
-  def self.create_sub_for_current_user(email)
-    if self.already_subscribed(email)
+  def self.create_sub_for_current_user(email, skip_already_subscribed_check=false)
+    # skip_already_subscribed_check to short circuit in order to avoid another database query
+    # if we've already checked before calling this method
+    if !skip_already_subscribed_check && self.already_subscribed(email)
       # Don't subscribe a user a second time
       return
 
@@ -39,6 +41,19 @@ class BlogSubscription < ActiveRecord::Base
     else
       new_sub = self.new(:email => email, :unsub_key => self.generate_key)
       new_sub.save!
+    end
+  end
+
+  def self.ensure_subscribed(email)
+    unless self.already_subscribed(email)
+      self.create_sub_for_current_user(email, true)
+    end
+  end
+
+  def self.ensure_unsubscribed(email)
+    if self.already_subscribed(email)
+      blog_subscription = BlogSubscription.where("email = ?", email).first
+      blog_subscription.destroy
     end
   end
 end

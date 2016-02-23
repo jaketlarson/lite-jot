@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
 
   self.per_page = 25
 
-  attr_accessor :current_password
+  attr_accessor :current_password, :subscribes_to_blog
 
   def freeze_email
     errors.add(:email, 'cannot be changed') if self.email_changed?
