@@ -55,6 +55,6 @@ class Admin::BlogPostsController < ApplicationController
   protected
 
     def blog_post_params
-      params.permit(:blog_post => [:title, :body, :bootsy_image_gallery_id, :public, :tags])
+      params.permit(:blog_post => [:title, :body, :public, :tags])
     end
 end

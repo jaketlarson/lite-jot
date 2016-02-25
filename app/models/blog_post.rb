@@ -1,5 +1,4 @@
 class BlogPost < ActiveRecord::Base
-  include Bootsy::Container
   extend FriendlyId
   friendly_id :title, :use => :slugged
   self.per_page = 10
