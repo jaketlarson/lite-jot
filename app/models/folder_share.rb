@@ -20,15 +20,13 @@ class FolderShare < ActiveRecord::Base
       # If the user is registered, and is opted into emails
       recip_user = User.where('id = ?', self.recipient_id).first
       if recip_user.receives_email
-        sender_user = User.find(self.sender_id)
         folder_title = Folder.find(self.folder_id).title
-        UserNotifier.send_share_with_registered_user_email(recip_user, sender_user, folder_title).deliver_now
+        UserNotifier.send_share_with_registered_user_email(recip_user.id, self.sender_id, folder_title).deliver_later
       end
     else
       # If the user is not registered
-      sender_user = User.find(self.sender_id)
       folder_title = Folder.find(self.folder_id).title
-      UserNotifier.send_share_with_nonregistered_user_email(self.recipient_email, sender_user, folder_title).deliver_now
+      UserNotifier.send_share_with_nonregistered_user_email(self.recipient_email, self.sender_id, folder_title).deliver_later
     end
   end
 end

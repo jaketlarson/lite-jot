@@ -36,12 +36,12 @@ class User < ActiveRecord::Base
   end
 
   def send_signup_email
-    UserNotifier.send_signup_email(self).deliver_now
+    UserNotifier.send_signup_email(self.id).deliver_later
   end
 
   def send_reset_password_instructions
     token = set_reset_password_token
-    UserNotifier.send_reset_password_email(self, token).deliver_now
+    UserNotifier.send_reset_password_email(self.id, token).deliver_later
 
     token
   end

@@ -88,6 +88,11 @@ GEM
       execjs
     coffee-script-source (1.10.0)
     concurrent-ruby (1.0.0)
+    delayed_job (4.1.1)
+      activesupport (>= 3.0, < 5.0)
+    delayed_job_active_record (4.1.0)
+      activerecord (>= 3.0, < 5)
+      delayed_job (>= 3.0, < 5)
     devise (3.5.6)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -282,6 +287,7 @@ DEPENDENCIES
   carrierwave
   chronic
   coffee-rails (~> 4.0.0)
+  delayed_job_active_record
   devise
   fog-aws
   foundation-rails (~> 5.5.1.2)

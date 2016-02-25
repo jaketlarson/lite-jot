@@ -25,7 +25,7 @@ class Admin::BlogSubscriptionsController < ApplicationController
     subscribers = BlogSubscription.all
 
     subscribers.each do |subscriber|
-      subscriber.send_blog_alert_email(@blog_post, subscriber.email)
+      subscriber.send_blog_alert_email(@blog_post.id, subscriber.email)
     end
 
     @blog_post.subscriber_alert_sent = true
@@ -37,7 +37,7 @@ class Admin::BlogSubscriptionsController < ApplicationController
   def send_blog_alert_test_email
     @blog_post = BlogPost.friendly.find(params[:blog_post_id])
 
-    BlogSubscription.send_blog_alert_as_test_to_admin_email(@blog_post, Rails.application.secrets.blog_alert_test_email)
+    BlogSubscription.send_blog_alert_as_test_to_admin_email(@blog_post.id, Rails.application.secrets.blog_alert_test_email)
 
     flash[:notice] = "Blog alert sent to admin test email: #{Rails.application.secrets.blog_alert_test_email}."
     redirect_to admin_blog_posts_path

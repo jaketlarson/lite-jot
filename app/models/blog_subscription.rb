@@ -16,15 +16,15 @@ class BlogSubscription < ActiveRecord::Base
   end
 
   def send_subscribe_email
-    BlogSubscriptionNotifier.send_subscribe_email(self).deliver_now
+    BlogSubscriptionNotifier.send_subscribe_email(self.id).deliver_later
   end
 
-  def send_blog_alert_email(blog_post, email)
-    BlogSubscriptionNotifier.send_blog_alert_email(self, blog_post, email).deliver_now
+  def send_blog_alert_email(blog_post_id, email)
+    BlogSubscriptionNotifier.send_blog_alert_email(self.id, blog_post_id, email).deliver_later
   end
 
-  def self.send_blog_alert_as_test_to_admin_email(blog_post, email)
-    BlogSubscriptionNotifier.send_blog_alert_as_test_to_admin_email(self, blog_post, email).deliver_now
+  def self.send_blog_alert_as_test_to_admin_email(blog_post_id, email)
+    BlogSubscriptionNotifier.send_blog_alert_as_test_to_admin_email(blog_post_id, email).deliver_later
   end
 
   def self.create_sub_for_current_user(email, skip_already_subscribed_check=false)

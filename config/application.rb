@@ -39,6 +39,9 @@ module LiteJot
       :authentication => Rails.application.secrets.smtp['authentication'],
       :enable_starttls_auto => Rails.application.secrets.smtp['enable_starttls_auto']
     }
+
+    # Active Job
+    config.active_job.queue_adapter = :delayed_job
     
   end
 end

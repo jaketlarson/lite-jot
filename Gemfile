@@ -76,3 +76,7 @@ gem 'htmlentities'
 gem 'truncate_html'
 
 gem 'aws-sdk', '~> 2'
+
+# Background processes
+gem 'delayed_job_active_record'
+
