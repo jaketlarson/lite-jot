@@ -5,7 +5,7 @@ class Admin::BlogSubscriptionsController < ApplicationController
   add_breadcrumb "Admin", :admin_path
 
   def index
-    add_breadcrumb "Blog Subscriptions", :admin_blog_posts_path
+    add_breadcrumb "Blog Subscriptions", :admin_blog_subscriptions_path
     @blog_subscriptions = BlogSubscription.order("created_at desc").paginate(:page => params[:page])
     # It should be noted that the table on this view uses "updated_at" to show the subscription time.
     # This is referring to the last time they've subscribed, since they can unsubscribe and reactivate
@@ -19,19 +19,34 @@ class Admin::BlogSubscriptionsController < ApplicationController
     redirect_to admin_blog_subscriptions_path
   end
 
+  # Mass emails require a pin, so this action will show the form for entering the pin.
+  def verify_blog_email_pin
+    add_breadcrumb "Blog Posts", :admin_blog_posts_path
+    add_breadcrumb "Mass Email Authentication"
+  end
+
   def send_blog_alert_email
-    @blog_post = BlogPost.friendly.find(params[:blog_post_id])
+    if params[:pin].nil? || params[:pin].to_i != Rails.application.secrets.mass_email_pin
+      flash[:alert] = "Invalid mass email pin"
 
-    subscribers = BlogSubscription.all
+      add_breadcrumb "Blog Posts", :admin_blog_posts_path
+      add_breadcrumb "Mass Email Authentication"
+      render :template => '/admin/blog_subscriptions/verify_blog_email_pin'
 
-    subscribers.each do |subscriber|
-      subscriber.send_blog_alert_email(@blog_post.id, subscriber.email)
+    else
+      @blog_post = BlogPost.friendly.find(params[:blog_post_id])
+
+      subscribers = BlogSubscription.all
+
+      subscribers.each do |subscriber|
+        subscriber.send_blog_alert_email(@blog_post.id, subscriber.email)
+      end
+
+      @blog_post.subscriber_alert_sent = true
+      @blog_post.save
+      flash[:notice] = "Blog alert sent to subscribers!"
+      redirect_to admin_blog_posts_path
     end
-
-    @blog_post.subscriber_alert_sent = true
-    @blog_post.save
-    flash[:notice] = "Blog alert sent to subscribers!"
-    redirect_to admin_blog_posts_path
   end
 
   def send_blog_alert_test_email

@@ -1,0 +1,13 @@
+article
+  h3 Mass Email Authentication
+  p Enter pin to confirm mass email action.
+
+  == render :partial => "action_messages"
+
+  == form_tag "/admin/blog_posts/#{params[:blog_post_id]}/send_blog_alert_email" do
+    == label_tag 'pin'
+    == password_field_tag 'pin'
+
+    button.right
+      i.fa.fa-send
+      |Send
