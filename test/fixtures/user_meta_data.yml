@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  upload_size_this_month: 1.5
+  upload_limit_resets_at: 2016-03-17 22:56:55
+  user_id: 
+
+two:
+  upload_size_this_month: 1.5
+  upload_limit_resets_at: 2016-03-17 22:56:55
+  user_id: 

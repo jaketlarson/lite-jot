@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
   has_many :folder_shares, :foreign_key => 'sender_id'
   has_many :topic_shares, :foreign_key => 'sender_id'
   has_many :support_tickets
+  has_many :uploads
+  has_one :meta, :class_name => 'UserMetaDatum'
 
   validates :display_name, {
     :presence => true,
@@ -25,7 +27,7 @@ class User < ActiveRecord::Base
   serialize :notifications_seen
   serialize :preferences
 
-  after_create :send_signup_email, :update_associated_shares, :create_blog_subscription, :autocreate_folder_and_topic
+  after_create :create_meta, :send_signup_email, :update_associated_shares, :create_blog_subscription, :autocreate_folder_and_topic
 
   self.per_page = 25
 
@@ -33,6 +35,12 @@ class User < ActiveRecord::Base
 
   def freeze_email
     errors.add(:email, 'cannot be changed') if self.email_changed?
+  end
+
+  # Create the user's meta data row
+  def create_meta
+    meta = UserMetaDatum.new(:user_id => self.id)
+    meta.save
   end
 
   def send_signup_email
@@ -196,7 +204,6 @@ class User < ActiveRecord::Base
         unshared_folders += Folder.with_deleted.where("id = ?", tshare.folder_id)
       end
     end
-
 
     # could there be conflict in one live sync polling where a folder/topic is shared and unshared? what happens then?
     newly_shared_folders = []

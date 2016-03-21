@@ -42,6 +42,7 @@ class window.Topics extends LiteJot
 
     if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
+      @lj.updateUploader()
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
     @new_topic_form_wrap = @topics_wrapper.find('li.new-topic-form-wrap')
@@ -189,6 +190,7 @@ class window.Topics extends LiteJot
     $("li[data-topic='#{@lj.app.current_topic}']").removeClass('current')
     elem = $("li[data-topic='#{topic_id}']")
     @lj.app.current_topic = topic_id
+    @lj.updateUploader()
     elem.addClass('current')#.attr('data-keyed-over', true)
 
     @lj.jots.buildJotsList()
@@ -246,8 +248,8 @@ class window.Topics extends LiteJot
 
             success: (data) =>
               @lj.connection.startDataLoadTimer()
+              @lj.setPageHeading()
               new HoverNotice(@lj, 'Topic updated.', 'success')
-              @lj.jots.updateHeading()
 
             error: (data) =>
               @lj.connection.startDataLoadTimer()

@@ -7,7 +7,8 @@ class UserSerializer < ActiveModel::Serializer
     :notifications_seen,
     :receives_email,
     :saw_intro,
-    :preferences
+    :preferences,
+    :meta
   )
   
   def errors
@@ -27,4 +28,9 @@ class UserSerializer < ActiveModel::Serializer
       return nil
     end
   end
+
+  def meta
+    UserMetaDatumSerializer.new(object.meta, :root => false)
+  end
+
 end

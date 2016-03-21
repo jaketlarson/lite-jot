@@ -11,4 +11,40 @@ class Jot < ActiveRecord::Base
   validates_presence_of :user_id
 
   default_scope { order("created_at ASC") }
+
+  def self.generate_checklist_item_id
+    16.times.map { [*'0'..'9', *'a'..'z', *'A'..'Z'].sample }.join
+  end
+
+  def self.append_id_to_new_checklist(content)
+    checklist = JSON.parse(content)
+    checklist.each do |item|
+      # Using a random ID generator for now..
+      # Move this into a separate method. Same for #update (same line)
+      rid = self.generate_checklist_item_id
+      item['id'] = rid
+    end
+    return checklist.to_json
+  end
+
+  # Creates a jot based off an uploaded item.
+  # The content of the jot is just the id to the upload.
+  # When it comes time to show the jot, the serializer will use the upload
+  # id to get the image path.
+  def self.create_jot_from_upload(user_id, upload_id, topic_id)
+    topic = Topic.find(topic_id)
+    folder = Folder.find(topic.folder_id)
+
+    jot = Jot.create(
+      :user_id => user_id,
+      :content => upload_id,
+      :jot_type => 'upload',
+      :topic_id => topic.id,
+      :folder_id => folder.id,
+    )
+
+    return jot
+  end
+
+
 end

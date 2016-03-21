@@ -25,28 +25,39 @@ class JotSerializer < ActiveModel::Serializer
   delegate :current_user, to: :scope
 
   def content
-    if object.jot_type != 'checklist'
+    if object.jot_type == 'checklist' 
+      # Since checklists insert dates and user id's into the checklist meta,
+      # the content needs to be up to date.
+      # This means localizing datetime and pulling current user display_name
+
+      checklist = JSON.parse(object.content)
+      checklist.each do |item|
+      item['toggled_text'] = "Click to toggle checkbox.<br />"
+        if item['toggled_by'] && !item['toggled_by'].blank?
+          if item['toggled_by'] == scope.id
+            display_name = scope.display_name
+          else
+            user = User.where('id = ?', item['toggled_by'])
+            display_name = !user.empty? ? user[0].display_name : "Unknown"
+          end
+          item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime.in_time_zone(scope.timezone))}."
+        end
+      end
+      return checklist.to_json
+
+    elsif object.jot_type == 'upload'
+      # The jot object's content is the upload id. Grab the url from the upload:
+      upload = Upload.where('id = ?', object.content)
+
+      if upload.empty?
+        return { :thumbnail => "", :original => "" }.to_json
+      else
+        return { :thumbnail => upload.first.thumbnail_url, :original => upload.first.original_url }.to_json
+      end
+
+    else
       return object.content
     end
-
-    # Since checklists insert dates and user id's into the checklist meta,
-    # the content needs to be up to date.
-    # This means localizing datetime and pulling current user display_name
-
-    checklist = JSON.parse(object.content)
-    checklist.each do |item|
-    item['toggled_text'] = "Click to toggle checkbox.<br />"
-      if item['toggled_by'] && !item['toggled_by'].blank?
-        if item['toggled_by'] == scope.id
-          display_name = scope.display_name
-        else
-          user = User.where('id = ?', item['toggled_by'])
-          display_name = !user.empty? ? user[0].display_name : "Unknown"
-        end
-        item['toggled_text'] += "Last toggled by #{display_name} on #{I18n.l(item['toggled_at'].to_datetime.in_time_zone(scope.timezone))}."
-      end
-    end
-    return checklist.to_json
   end
 
   def created_at_short

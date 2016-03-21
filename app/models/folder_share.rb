@@ -1,4 +1,3 @@
-
 class FolderShare < ActiveRecord::Base
   # folder_shares exist if any topic within a folder is shared.
   belongs_to :folder

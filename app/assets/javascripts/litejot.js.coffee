@@ -77,6 +77,7 @@ class window.LiteJot
     @initAsideToggleListener()
     @determineAsideStateOnInit()
     @initUnloadListener()
+    @initUploader()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -104,6 +105,7 @@ class window.LiteJot
 
     @dash_loading_overlay = $('#dash-loading-overlay')
     @show_aside_trigger = $('#show-aside')
+    @uploader = $('#uploader')
 
   setViewport: =>
     @viewport =
@@ -267,3 +269,69 @@ class window.LiteJot
       topic_name = @app.topics.filter((topic) => topic.id == @app.current_topic)[0].title
 
     $('nav h2').html "#{folder_name} &nbsp; / &nbsp; #{topic_name}"
+
+
+  initUploader: =>
+    @uploader.S3Uploader(
+      remove_completed_progress_bar: false,
+      allow_multiple_files: false,
+      progress_bar_target: $('#uploads-progress')
+    )
+
+    @uploader.bind 's3_upload_failed', (e, content) =>
+      $('#uploads-progress').hide().find('.upload').remove()
+      new HoverNotice(@, 'Upload(s) unsuccessful: Unable to save file. Please contact us if this issue persists.', 'error')
+
+      # Needs to be set every time files are uploaded.
+      # Not sure why.
+      # Also set in jots.js on init.
+      @jots.image_upload_input = @uploader.find("input[type='file']")
+
+    @uploader.bind 's3_uploads_start', (e, content) =>
+      console.log content
+      $('#uploads-progress').show()
+      @jots.scrollJotsToBottom()
+
+    @uploader.bind 'ajax:success', (e, data) =>
+      # This method is called on the last upload in the list of uploads.
+      # So, if there are multiple uploads this will only return data on the last
+      # response. The other images tend to trickle in via live reload, and for now
+      # that seems to be fine.
+      $('#uploads-progress').hide().find('.upload').remove()
+      jot = data.jot
+      @app.jots.push jot
+      @jots.smartInsertJotElem jot
+      new HoverNotice(@, 'Upload(s) successful! Images may take a moment to process.', 'success')
+
+      # Needs to be set every time files are uploaded.
+      # Not sure why.
+      # Also set in jots.js on init.
+      @jots.image_upload_input = @uploader.find("input[type='file']")
+
+    @uploader.bind 'ajax:error', (e, data) =>
+      $('#uploads-progress').hide().find('.upload').remove()
+
+      response = data.responseJSON
+      if response && response.errors && response.errors.upload && response.errors.upload.indexOf "monthly_limit_exceeded" > -1
+        new HoverNotice(@, 'Upload(s) unsuccessful: Monthly limit exceeded.', 'error')
+      else
+        new HoverNotice(@, 'Internal Server Error: Please contact us if this issue persists.', 'error')
+
+
+      # Needs to be set every time files are uploaded.
+      # Not sure why.
+      # Also set in jots.js on init.
+      @jots.image_upload_input = @uploader.find("input[type='file']")
+
+  # When the user changes topics this function will be called so we can make sure
+  # their next upload references the current topic id.
+  updateUploader: =>
+    # If there is a way to update 'additional_data' without having to pass in
+    # the same parameters each time, that'd be great.
+
+    @uploader.S3Uploader(
+      additional_data: { 'topic_id': @app.current_topic },
+      remove_completed_progress_bar: false,
+      allow_multiple_files: false,
+      progress_bar_target: $('#uploads-progress')
+    )

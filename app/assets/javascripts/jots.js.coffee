@@ -19,6 +19,12 @@ class window.Jots extends LiteJot
     @new_jot_checklist_tab = @new_jot_wrap.find('.tab-wrap#jot-checklist-tab')
     @new_jot_wrap_clicking = false
     @new_jot_current_tab = 'standard'
+    @image_upload_link = $('#jot-toolbar-image-upload')
+
+    # This needs to be set every time something is uploaded. Not sure why. It's later set on file upload
+    # success callback (last seen in litejot.js)
+    @image_upload_input = @lj.uploader.find("input[type='file']")
+
     @new_jot_break_option_wrap = @new_jot_toolbar.find('#jot-toolbar-break-option')
     @new_jot_break_value = false
     @palette_icon = $('#jot-palette-icon-wrap')
@@ -243,6 +249,13 @@ class window.Jots extends LiteJot
       @append_jot_link.hide()
       @finishEditing()
       @determineFocusForNewJot()
+
+    @image_upload_link.click =>
+      @image_upload_input.click()
+
+    @image_upload_input.change =>
+      console.log 'nice'
+
 
   initResizeListeners: =>
     $('#jot-options [data-slider]').on 'change.fndtn.slider', () =>
@@ -794,10 +807,16 @@ class window.Jots extends LiteJot
 
     if jot.jot_type == 'checklist'
       $html.find('.content').append @parseCheckListToHTML jot.content
+
     else if jot.jot_type == 'email_tag'
       $html.find('.content').append "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
+
+    else if jot.jot_type == 'upload'
+      images = JSON.parse(jot.content)
+      $html.find('.content').append "<a href='#{images.original}' class='th' target='_new'><img class='upload' src='#{images.thumbnail}' /></a>"
+
     else
       $html.find('.content').append jot_content
 
@@ -944,9 +963,9 @@ class window.Jots extends LiteJot
     elem.find("a").click (e) =>
       e.stopPropagation()
 
-    @initPrivateAndEmailTagBinds jot
+    @initSpecialJotBinds jot
 
-  initPrivateAndEmailTagBinds: (jot) =>
+  initSpecialJotBinds: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
     elem.find(".private-jot-icon").cooltip()
 
@@ -956,11 +975,17 @@ class window.Jots extends LiteJot
         e.stopPropagation()
         email_id = elem.attr('data-tagged-email-id')
         new window.EmailViewer @lj, email_id
-      # .cooltip({
-      #   direction: 'left'
-      #   align: 'bottom'
-      #   zIndex: 1000
-      # })
+    
+    if jot.jot_type == 'upload'
+      elem.find('.content').click (e) =>
+        e.stopPropagation()
+
+      elem.find('.content img.upload').hover =>
+        # Move over image
+        console.log 'in'
+      , =>
+        # Mouse away from image
+        console.log 'out'
 
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item input[type='checkbox']").change (e) => 
@@ -1083,6 +1108,10 @@ class window.Jots extends LiteJot
 
     if jot_object.jot_type == 'email_tag'
       new HoverNotice(@lj, 'At this time, email tags cannot be edited.', 'error')
+      return
+
+    if jot_object.jot_type == 'upload'
+      new HoverNotice(@lj, 'Uploads cannot be edited', 'error')
       return
 
     @currently_editing_id = id
@@ -1495,3 +1524,15 @@ class window.Jots extends LiteJot
         return parseFloat($(a).attr('data-created-at')) - parseFloat($(b).attr('data-created-at'))
 
     @lj.jots.jots_list.prepend(jot_elems)
+
+  uploadImage: =>
+    @topic = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0]
+
+    if @lj.airplane_mode.active
+      @lj.airplane_mode.feature_unavailable_notice()
+      return
+
+    if !@topic
+      new HoverNotice(@lj, 'Please create or select a topic to upload images.', 'error')
+      return
+

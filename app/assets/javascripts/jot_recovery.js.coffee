@@ -124,6 +124,10 @@ class window.JotRecovery extends LiteJot
         content = item.content
       else if item.jot_type == 'email_tag'
         content = "<i class='fa fa-envelope email-tag-icon'></i>#{item.content}"
+      else if item.jot_type == 'upload'
+        console.log item.content
+        images = JSON.parse(item.content)
+        content = "<a href='#{images.original}' class='th' target='_new'><img class='upload' src='#{images.thumbnail}' /></a>"
       else
         content = item.content
 

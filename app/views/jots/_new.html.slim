@@ -1,4 +1,16 @@
 li#new-jot-wrap
+
+  #uploads-progress
+
+  script id="template-upload" type="text/x-tmpl"
+    <div id="upload_{%=o.unique_id%}" class="upload">
+      <h5>Uploading image: {%=o.name%}</h5>
+      <div class='progress progress-striped active'>
+        <div class='bar' style='width: 0%'></div>
+      </div>
+    </div>
+
+
   #jot-palette-icon-wrap
     i.fa.fa-paint-brush
 
@@ -40,6 +52,10 @@ li#new-jot-wrap
       i.fa.fa-th-list
       |Checklist
 
+    li#jot-toolbar-image-upload
+      i.fa.fa-image
+      |Image
+
     - if current_user.auth_provider == 'google_oauth2'
       li#jot-toolbar-email-tag
         i.fa.fa-lg.fa-envelope
@@ -52,3 +68,10 @@ li#new-jot-wrap
         i.fa.fa-square-o
 
       |Separate
+
+  == s3_uploader_form :callback_url => uploads_url,
+    :id => "uploader",
+    :callback_param => "upload[direct_upload_url]",
+    :expiration => 24.hours.from_now.utc.iso8601,
+    :max_file_size => 10.megabytes do
+    == file_field_tag :file, :multiple => true

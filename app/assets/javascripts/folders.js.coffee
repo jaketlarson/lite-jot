@@ -345,6 +345,7 @@ class window.Folders extends LiteJot
 
             success: (data) =>
               @lj.connection.startDataLoadTimer()
+              @lj.setPageHeading()
               new HoverNotice(@lj, 'Folder updated.', 'success')
 
             error: (data) =>

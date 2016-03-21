@@ -67,8 +67,14 @@ gem 'nokogiri'
 gem 'htmlentities'
 gem 'truncate_html'
 
-gem 'aws-sdk', '~> 2'
+# Use AWS SDK version 1 and 2
+gem 'aws-sdk'
+gem 'aws-sdk-v1', '~> 1.61.0'
+gem 'paperclip' # file attachment syntax and callbacks
+gem 's3_direct_upload' # direct upload form helper and assets
 
 # Background processes
 gem 'delayed_job_active_record'
+
+gem 'protected_attributes' # attr_accessible
 

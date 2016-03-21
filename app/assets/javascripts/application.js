@@ -2,6 +2,7 @@
 // jQuery2 is included via CDN, called before this file is in layout.
 //= require jstz
 //= require jquery_ujs
+//= require s3_direct_upload
 // DON'T require turbolinks
 //= require vendor/modernizr
 //= require foundation

@@ -40,7 +40,6 @@ Rails.application.routes.draw do
   patch 'jots/flag/:id' => 'jots#flag'
   patch 'jots/check_box/:id' => 'jots#check_box'
   post 'jots/create_email_tag' => 'jots#create_email_tag'
-  post 'jots/upload' => 'jots#upload'
   resources :jots
 
   resources :uploads
