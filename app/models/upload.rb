@@ -63,6 +63,9 @@ class Upload < ActiveRecord::Base
 
     upload.processed = true
     upload.save
+    ap upload
+    upload.postprocess_jot_update
+    ap upload
 
     # Update user meta
     user = User.find(upload.user_id)
@@ -78,7 +81,24 @@ class Upload < ActiveRecord::Base
   def thumbnail_url
     self.upload.url(:thumbnail)
   end
-      
+
+  # Since we use delayed jobs to handle processing, we need to go back to the jot that is currently
+  # showing a placeholder and show them the newly processed image..
+  # Has to be a public method (for delayed jobs)
+  def postprocess_jot_update
+    jot = Jot.where('jot_type = ? AND content = ?', 'upload', self.id.to_s)
+    ap "okay here is the jot we just processed:"
+    ap jot
+    if !jot.empty?
+      jot = jot.first
+      topic = Topic.find(jot.topic_id)
+      folder = Folder.find(jot.folder_id)
+      folder.touch
+      topic.touch
+      jot.touch
+    end
+  end
+
   protected
   
   # Set attachment attributes from the direct upload
@@ -105,7 +125,7 @@ class Upload < ActiveRecord::Base
   
   # Queue file processing
   def queue_processing
-    Upload.transfer_and_cleanup(id)
+    Upload.delay.transfer_and_cleanup(id)
   end
 
   def check_upload_limit
@@ -114,4 +134,5 @@ class Upload < ActiveRecord::Base
     ap self.upload_file_size
     errors.add(:upload, 'monthly_limit_exceeded') if user.meta.exceeds_upload_limit?(self.upload_file_size)
   end
+
 end

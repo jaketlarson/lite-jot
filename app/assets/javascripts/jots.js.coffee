@@ -907,6 +907,7 @@ class window.Jots extends LiteJot
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
     else if jot.jot_type == 'upload'
+      console.log jot.content
       jot_content = @parseUploadJotToHTML(jot.content)
 
     # parse possible links

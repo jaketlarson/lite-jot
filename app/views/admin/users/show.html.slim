@@ -50,6 +50,14 @@ article
           .field Subscribed to emails:
           .value #{@user.receives_email}
 
+        .data-row
+          .field Upload size this month:
+          .value #{(@user.meta.upload_size_this_month.to_f / 1024.0 / 1024.0).round(2)}MB
+
+        .data-row
+          .field Upload usage reset day:
+          .value #{@user.meta.usage_reset_day}
+
     .column.medium-3.small-1 &nbsp;
 
   .row.back-link-container

@@ -126,7 +126,6 @@ class window.LiteJot
     jots_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - 0*@jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
 
-
   setUIInterval: =>
     @UIInterval = setInterval(() =>
       if @viewport.width != window.innerWidth || @viewport.height != window.innerHeight
@@ -198,10 +197,6 @@ class window.LiteJot
     @pushUI = new PushUI(@)
 
   resetTempData: =>
-    # @temp.folders = null
-    # @temp.topics = null
-    # @temp.jots = null
-    # @temp.shares = null
     @temp.user = null
     @temp.new_or_updated_folders = null
     @temp.new_or_updated_topics = null
@@ -238,16 +233,6 @@ class window.LiteJot
       $('body').removeClass('hide-aside')
     else
       $('body').addClass('hide-aside')
-
-    # if $('nav').hasClass('showing-aside')
-    #   @folders.folders_column.removeClass('showing-aside')
-    #   @topics.topics_column.removeClass('showing-aside')
-    #   $('nav').removeClass('showing-aside')
-
-    # else
-    #   @folders.folders_column.addClass('showing-aside')
-    #   @topics.topics_column.addClass('showing-aside')
-    #   $('nav').addClass('showing-aside')
 
   initUnloadListener: =>
     window.onbeforeunload = (e) =>
@@ -337,3 +322,6 @@ class window.LiteJot
       progress_bar_target: $('#uploads-progress'),
       max_file_size: 1024*1024*10
     )
+
+  closeAllDropdowns: =>
+    $(document).foundation('dropdown', 'closeall')

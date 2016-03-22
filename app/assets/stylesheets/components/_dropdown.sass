@@ -1,0 +1,19 @@
+// Foundation dropdown, overriding folder and topic column styles
+#folders-column, #topics-column
+  ul.f-dropdown
+    li
+      position: relative
+
+      &:hover
+        box-shadow: none
+        background-color: $palette-white
+
+        a
+          color: $primary-color
+
+      a
+        color: $palette-black
+        padding: 0
+
+        i
+          margin-right: .5rem

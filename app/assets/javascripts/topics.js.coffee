@@ -96,13 +96,24 @@ class window.Topics extends LiteJot
                     <div class='input-edit-wrap'>
                       <input type='text' class='input-edit' />
                     </div>"
-    if topic.has_manage_permissions
-      build_html += "<div class='options'>
-                      <i class='fa fa-pencil edit' data-edit title='Edit topic' />
-                      <i class='fa fa-trash delete' data-delete title='Delete topic' />
-                    </div>"
-    
+
+    # Attribute data-ignore-topic-select is used so when the topic li element click listener goes off,
+    # clicks on the menu link will be ignored.
+    build_html += "<a class='options-link' data-ignore-topic-select='true' data-dropdown='topic-options-#{topic.id}' aria-controls='topic-options-#{topic.id}' aria-expanded='false'>
+                    <i class='fa fa-ellipsis-v options-icon' title='Options' data-ignore-topic-select='true' />
+                  </a>"
+
+    # End li element here. The following html deals with the dropdown which needs to be outside of the
+    # absolutely-positioned topic li element
     build_html += "</li>"
+
+    # Build dropdown list
+    build_html += "<ul id='topic-options-#{topic.id}' class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>"
+    if topic.has_manage_permissions
+      build_html += "<li data-edit><a href='#'><i class='fa fa-pencil' />Edit Topic Title</a></li>
+                    <li data-delete><a href='#'><i class='fa fa-trash' />Delete Topic</a></li>"
+    
+    build_html += "</ul>"
 
     if append
       @topics_list.append build_html
@@ -155,26 +166,40 @@ class window.Topics extends LiteJot
 
 
   initTopicBinds: (topic_id) =>
-    @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>   
+    @topics_list.find("li:not(.new-topic-form-wrap)[data-topic='#{topic_id}']").click (e) =>
+      # Don't select topic when clicking options menu.. Not using the option menu link's own click
+      # bind because we don't want to stop Foundation's dropdown menu from appearing
+      if e.target.hasAttribute('data-ignore-topic-select')
+        return
+
       @lj.key_controls.clearKeyedOverData()
       @selectTopic($(e.currentTarget).data('topic'))
       $(e.currentTarget).attr('data-keyed-over', true)
 
-    @topics_list.find("li[data-topic='#{topic_id}'] [data-edit]").click (e) =>
-      @editTopic(topic_id)
-      return false
-    .cooltip({
-      align: 'left'
-    })
-
     @topics_list.find("li[data-topic='#{topic_id}'] .input-edit").click (e) =>
       return false
 
-    @topics_list.find("li[data-topic='#{topic_id}'] [data-delete]").click (e) =>
-      @deleteTopicPrompt e.currentTarget
-    .cooltip({
-      align: 'left'
-    })
+    @initTopicOptionsBinds topic_id
+
+  initTopicOptionsBinds: (topic_id) =>
+    @topics_list.find("ul#topic-options-#{topic_id} [data-share]").click (e) =>
+      @lj.closeAllDropdowns()
+      new TopicShareSettings @lj, topic_id
+      return false
+
+    @topics_list.find("ul#topic-options-#{topic_id} [data-unshare]").click (e) =>
+      @lj.closeAllDropdowns()
+      @unshare topic_id, e.currentTarget
+      return false
+
+    @topics_list.find("ul#topic-options-#{topic_id} [data-edit]").click (e) =>
+      @lj.closeAllDropdowns()
+      @editTopic topic_id 
+      return false
+
+    @topics_list.find("ul#topic-options-#{topic_id} [data-delete]").click (e) =>
+      @lj.closeAllDropdowns()
+      @deleteTopicPrompt $("li[data-topic='#{topic_id}']")[0]
 
   selectTopic: (topic_id) =>
     # Make sure we wrap up any editing.
@@ -272,6 +297,9 @@ class window.Topics extends LiteJot
     if topic_object && !topic_object.has_manage_permissions
       new HoverNotice(@lj, 'You do not have permission to delete this topic.', 'error')
       return
+
+    console.log 'heres the id:'
+    console.log id
 
     $('#delete-topic-modal').foundation 'reveal', 'open'
     $('#delete-topic-modal').html($('#delete-topic-modal-template').html())

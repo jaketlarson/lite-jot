@@ -14,9 +14,6 @@
       background-color: $primary-color
       color: $palette-white
 
-      .options
-        background-color: $primary-color
-
 #pages-dashboard h2#folders-heading
   position: relative
   padding: 1rem
@@ -92,27 +89,21 @@ ul#folders-list
     i.shared-icon-prefix
       margin-right: .4rem
 
-    .options
-      height: rem-calc(29)
-      display: none
+    .options-link
+      font-size: 1rem
+      padding-top: .35rem
+      color: $palette-lightest-gray
+      width: 1.75rem
+      text-align: center
       position: absolute
-      top: 13%
+      top: 0
       right: 0
-      padding-right: .5rem
-      background-color: $primary-color
+      bottom: 0
+      display: none
 
-      i.edit, i.delete, i.share, i.unshare
-        font-size: .8rem
-        border-radius: 50%
-        padding: .5rem
-        color: $palette-lightest-gray
-        width: rem-calc(29)
-        height: rem-calc(29)
-        text-align: center
-
-        &:hover
-          background-color: $palette-black
-          cursor: pointer
+      &:hover
+        cursor: pointer
+        color: $palette-black
 
     .input-edit-wrap
       position: absolute
@@ -146,7 +137,7 @@ ul#folders-list
       cursor: pointer
       color: $palette-white
 
-      .options
+      .options-link
         display: block
 
     &[data-editing='true']

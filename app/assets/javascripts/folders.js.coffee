@@ -78,16 +78,26 @@ class window.Folders extends LiteJot
                       <input type='text' class='input-edit' />
                     </div>"
 
-    build_html += "<div class='options'>"
+    # Attribute data-ignore-folder-select is used so when the folder li element click listener goes off,
+    # clicks on the menu link will be ignored.
+    build_html += "<a class='options-link' data-ignore-folder-select='true' data-dropdown='folder-options-#{folder.id}' aria-controls='folder-options-#{folder.id}' aria-expanded='false'>
+                    <i class='fa fa-ellipsis-v options-icon' title='Options' data-ignore-folder-select='true' />
+                  </a>"
+
+    # End li element here. The following html deals with the dropdown which needs to be outside of the
+    # absolutely-positioned folder li element
+    build_html += "</li>"
+
+    # Build dropdown list
+    build_html += "<ul id='folder-options-#{folder.id}' class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>"
     if folder.has_manage_permissions
-      build_html +="<i class='fa fa-share share' data-share title='Share folder' />
-                    <i class='fa fa-pencil edit' data-edit title='Edit folder' />
-                    <i class='fa fa-trash delete' data-delete title='Delete folder' />"
+      build_html += "<li data-share><a href='#'><i class='fa fa-share share' />Share Folder</a></li>
+                    <li data-edit><a href='#'><i class='fa fa-pencil edit' />Edit Folder Title</a></li>
+                    <li data-delete><a href='#'><i class='fa fa-trash delete' />Delete Folder</a></li>"
     else
-      build_html += "<i class='fa fa-times unshare' data-unshare title='Stop sharing folder with me' />"
+      build_html += "<li data-unshare><i class='fa fa-times unshare' />Stop Sharing with Me</li>"
     
-    build_html += "</div>
-                  </li>"
+    build_html += "</ul>"
 
     if append
       @folders_list.append build_html
@@ -138,44 +148,44 @@ class window.Folders extends LiteJot
 
   initFolderBinds: (folder_id) =>
     @folders_list.find("li:not(.new-folder-form-wrap)[data-folder='#{folder_id}']").click (e) =>
+      # Don't select folder when clicking options menu.. Not using the option menu link's own click
+      # bind because we don't want to stop Foundation's dropdown menu from appearing
+      if e.target.hasAttribute('data-ignore-folder-select')
+        return
+
       @lj.key_controls.clearKeyedOverData()
       @selectFolder($(e.currentTarget).data('folder'))
 
-    @folders_list.find("li[data-folder='#{folder_id}'] [data-share]").click (e) =>
-      new FolderShareSettings @lj, folder_id
+    @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
       return false
-    .cooltip({
-      align: 'right'
-    })
 
     @folders_list.find("li[data-folder='#{folder_id}'] .shared-icon-prefix")
     .cooltip({
       align: 'right'
     })
 
-    @folders_list.find("li[data-folder='#{folder_id}'] [data-unshare]").click (e) =>
+    @initFolderOptionsBinds folder_id
+
+  initFolderOptionsBinds: (folder_id) =>
+    @folders_list.find("ul#folder-options-#{folder_id} [data-share]").click (e) =>
+      @lj.closeAllDropdowns()
+      new FolderShareSettings @lj, folder_id
+      return false
+
+    @folders_list.find("ul#folder-options-#{folder_id} [data-unshare]").click (e) =>
+      @lj.closeAllDropdowns()
       @unshare folder_id, e.currentTarget
       return false
-    .cooltip({
-      align: 'right'
-    })
 
-    @folders_list.find("li[data-folder='#{folder_id}'] [data-edit]").click (e) =>
+    @folders_list.find("ul#folder-options-#{folder_id} [data-edit]").click (e) =>
+      @lj.closeAllDropdowns()
       @editFolder folder_id 
       return false
-    .cooltip({
-      align: 'right'
-    })
 
-    @folders_list.find("li[data-folder='#{folder_id}'] .input-edit").click (e) =>
-      return false
+    @folders_list.find("ul#folder-options-#{folder_id} [data-delete]").click (e) =>
+      @lj.closeAllDropdowns()
+      @deleteFolderPrompt $("li[data-folder='#{folder_id}']")[0]
 
-    @folders_list.find("li[data-folder='#{folder_id}'] [data-delete]").click (e) =>
-      @deleteFolderPrompt e.currentTarget
-    .cooltip({
-      align: 'right'
-    })
-    
   initNewFolderListeners: =>
     $('button.new-folder-button').mousedown (e) =>
       e.preventDefault()

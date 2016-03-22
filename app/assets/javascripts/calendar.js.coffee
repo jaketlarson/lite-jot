@@ -74,6 +74,10 @@ class window.Calendar extends LiteJot
       left: pos_left
     })
 
+    # Adapt height of #cal-items:
+    set_height = @cal_list_wrap.innerHeight() - (@cal_items_elem.offset().top - @cal_list_wrap.offset().top)
+    @cal_items_elem.css('height', set_height+'px')
+
   loadCalItems: (init=false) =>
     if init
       @showLoading()

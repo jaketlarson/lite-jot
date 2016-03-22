@@ -33,7 +33,7 @@ class UserMetaDatum < ActiveRecord::Base
   # May be better in a helper
   def upload_usage_fraction
     # Show in megabytes
-    used = (self.upload_size_this_month / 1024 / 1024).to_s
+    used = (self.upload_size_this_month.to_f / 1024.0 / 1024.0).round(2).to_s
     limit = (Rails.application.secrets.monthly_upload_byte_limit / 1024 / 1024).to_s
     "#{used} MB / #{limit} <span title='megabytes'>MB</span>".html_safe
   end
@@ -45,5 +45,15 @@ class UserMetaDatum < ActiveRecord::Base
 
   def upload_limit_remaining
     Rails.application.secrets.monthly_upload_byte_limit - self.upload_size_this_month
+  end
+
+  # Called by a scheduler add-on to refresh cycles for monthly upload limits
+  def self.reset_applicable_cycles
+    meta_to_update = UserMetaDatum.where('upload_limit_resets_at <= ?', DateTime.now)
+    meta_to_update.each do |meta|
+      meta.upload_size_this_month = 0
+      meta.upload_limit_resets_at = DateTime.now + 30
+      meta.save
+    end
   end
 end

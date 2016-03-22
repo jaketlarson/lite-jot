@@ -52,7 +52,15 @@ class JotSerializer < ActiveModel::Serializer
       if upload.empty?
         return { :thumbnail => "", :original => "" }.to_json
       else
-        return { :thumbnail => upload.first.thumbnail_url, :original => upload.first.original_url }.to_json
+        upload = upload.first
+
+        # Show a placeholder if an upload has not yet been processed
+        if !upload.processed
+          placeholder = "https://s3.amazonaws.com/litejot/uploads/image-processing-placeholder.png"
+          return { :thumbnail => placeholder, :original => placeholder }.to_json
+        else
+          return { :thumbnail => upload.thumbnail_url, :original => upload.original_url }.to_json
+        end
       end
 
     else
