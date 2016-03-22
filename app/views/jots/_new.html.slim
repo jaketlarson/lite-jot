@@ -73,5 +73,5 @@ li#new-jot-wrap
     :id => "uploader",
     :callback_param => "upload[direct_upload_url]",
     :expiration => 24.hours.from_now.utc.iso8601,
-    :max_file_size => 10.megabytes do
-    == file_field_tag :file, :multiple => true
+    :max_file_size => (Rails.application.secrets.monthly_upload_byte_limit - current_user.meta.upload_size_this_month).bytes do
+    == file_field_tag :file, :multiple => true, :accept => "image/*"

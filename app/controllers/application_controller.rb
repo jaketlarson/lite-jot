@@ -95,6 +95,8 @@ class ApplicationController < ActionController::Base
     last_time = Time.at(params[:last_update_check_time].to_i)
 
     updated_data = current_user.owned_and_shared_folders_with_deleted_after_time(last_time)
+    ap "HERE YOU GO: #{current_user.display_name}"
+    ap updated_data
     folders = updated_data[:updated]
     topics = []
     jots = []

@@ -251,6 +251,10 @@ class window.Jots extends LiteJot
       @determineFocusForNewJot()
 
     @image_upload_link.click =>
+      if @lj.airplane_mode.active
+        @lj.airplane_mode.feature_unavailable_notice()
+        return
+
       @image_upload_input.click()
 
     @image_upload_input.change =>
@@ -611,6 +615,10 @@ class window.Jots extends LiteJot
   focusLastCheckListItem: =>
     @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').last().focus()
 
+  parseUploadJotToHTML: (content) =>
+    images = JSON.parse(content)
+    "<a href='#{images.original}' class='th' target='_new'><img class='upload' src='#{images.thumbnail}' /></a>"
+
   newJotLength: =>
     if @new_jot_current_tab == 'heading'
       return @new_jot_heading.val().trim().length
@@ -814,8 +822,9 @@ class window.Jots extends LiteJot
                      #{jot_content}"
 
     else if jot.jot_type == 'upload'
-      images = JSON.parse(jot.content)
-      $html.find('.content').append "<a href='#{images.original}' class='th' target='_new'><img class='upload' src='#{images.thumbnail}' /></a>"
+      $html.find('.content').append @parseUploadJotToHTML(jot.content)
+      img_elem = $html.find('.content img.upload')
+      @setJotUploadLoadBind img_elem
 
     else
       $html.find('.content').append jot_content
@@ -853,6 +862,9 @@ class window.Jots extends LiteJot
   # If the jot is in the current topic, it determines where
   # in the list to save it.
   smartInsertJotElem: (new_jot) =>
+    # Keep track of whether or not they were scrolled to bottom:
+    was_scrolled_to_bottom = @isScrolledToBottom()
+
     if @lj.app.current_topic == new_jot.topic_id && !@lj.search.current_terms.length > 0
       # Check to see that this jot is the newest, or if
       # it should be inserted before the correct jot
@@ -871,6 +883,13 @@ class window.Jots extends LiteJot
       else
         @lj.jots.insertJotElem new_jot, method='append', before_id=null, flash=true
 
+    if was_scrolled_to_bottom
+      @lj.jots.scrollJotsToBottom()
+
+  setJotUploadLoadBind: (elem) =>
+    elem.load =>
+      elem.css('height', 'auto')
+
   updateJotElem: (jot) =>
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
     classes = "jot-item "
@@ -887,12 +906,14 @@ class window.Jots extends LiteJot
       jot_content = "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
+    else if jot.jot_type == 'upload'
+      jot_content = @parseUploadJotToHTML(jot.content)
 
     # parse possible links
     jot_content = Autolinker.link jot_content
 
     elem.find('.content').html jot_content
-    @initPrivateAndEmailTagBinds jot
+    @initSpecialJotBinds jot
 
     @setTimestamp jot
     if jot.jot_type == 'checklist'
@@ -979,13 +1000,6 @@ class window.Jots extends LiteJot
     if jot.jot_type == 'upload'
       elem.find('.content').click (e) =>
         e.stopPropagation()
-
-      elem.find('.content img.upload').hover =>
-        # Move over image
-        console.log 'in'
-      , =>
-        # Mouse away from image
-        console.log 'out'
 
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item input[type='checkbox']").change (e) => 

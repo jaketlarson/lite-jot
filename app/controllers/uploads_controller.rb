@@ -4,9 +4,12 @@ class UploadsController < ApplicationController
 
   def create
     # add validation to topic_id being an int and existing in database
-    ap 'create start'
-    ap upload_params
     @upload = current_user.uploads.new(upload_params)
+
+    # Set upload_file_size so the upload validator for monthly upload limits can take it into
+    # consideration when saving the file. Perhaps there are better methods?
+    @upload.upload_file_size = params[:filesize].to_i
+
     if @upload.valid?
       @upload.save
       jot = Jot.create_jot_from_upload(current_user.id, @upload.id, params[:topic_id].to_i)
@@ -15,7 +18,6 @@ class UploadsController < ApplicationController
       ap 'create done'
     else
       render :json => {:success => false, :errors => @upload.errors}, :status => :unprocessable_entity
-      ap "uh no"
     end
 
   end

@@ -57,7 +57,7 @@ class window.PushUI extends LiteJot
 
       if c_jot.length == 0
         # This is a new jot
-        any_jots_added_or_edited = true
+        any_new = true
         v_client.push s_jot_copy
         console.log 'added:'
         console.log s_jot
@@ -86,8 +86,6 @@ class window.PushUI extends LiteJot
 
 
     if any_new
-      @lj.jots.scrollJotsToBottom()
-
       # Check if jots empty.. this function handles the empty message, etc.
       @lj.jots.checkIfJotsEmpty()
 

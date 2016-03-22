@@ -41,4 +41,15 @@
             == edit.input :password, :placeholder => "New password"
             == edit.input :password_confirmation, :placeholder => "New password, again"
 
+        h4 Usage
+
+        section
+          .label-text
+            |Monthly Upload Limit: #{current_user.meta.upload_usage_fraction} (#{current_user.meta.upload_usage_percent})
+          .bar-wrap
+            .bar-current style="width: #{current_user.meta.upload_usage_percent}"
+          span.resets-on Your monthly upload limit resets on #{current_user.meta.usage_reset_day}
+
+
+
         button.right Save

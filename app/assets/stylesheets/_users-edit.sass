@@ -39,8 +39,12 @@ body#users_registrations-edit, body#users_registrations-update
 
   h4
     font-family: 'Monda'
-    font-size: 1.3rem
+    font-size: 1.4rem
     clear: both
+
+  h5
+    font-family: 'Monda'
+    font-size: 1rem
 
   .row.content
     margin-top: 2rem
@@ -54,7 +58,7 @@ body#users_registrations-edit, body#users_registrations-update
       overflow: auto
 
       section:not(:last-child)
-        margin-bottom: 3rem
+        margin-bottom: 2rem
 
       .photo-upload
         margin: 2rem 0 1rem 0
@@ -69,6 +73,22 @@ body#users_registrations-edit, body#users_registrations-update
         input
           display: inline-block
           width: auto
+
+      .bar-wrap
+        width: 100%
+        border: 1px solid $palette-gray
+        background-color: $palette-white
+        height: 1rem
+
+        .bar-current
+          width: 0
+          height: 100%
+          background-color: $primary-color
+
+      span.resets-on
+        display: inline-block
+        margin-top: .4rem
+        font-family: 'Monda'
 
   ul.side-menu
     margin: 0 0 2rem 0

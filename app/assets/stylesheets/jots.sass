@@ -132,7 +132,10 @@
 
           img.upload
             width: auto
-            height: auto
+            // Note that height will be updated to 'auto' by JS.
+            // It's only set in here so that the page scrollbar doesn't have weird offset issues
+            // when the images load from 0px in height to some number and mess up scrolling.
+            height: rem-calc(120)
             padding: 0
             margin: 0
             border: 0

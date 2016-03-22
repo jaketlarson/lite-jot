@@ -41,7 +41,12 @@ class Jot < ActiveRecord::Base
       :jot_type => 'upload',
       :topic_id => topic.id,
       :folder_id => folder.id,
+      :color => 'default'
     )
+
+    # Updated updated_at for topic and folder
+    topic.touch
+    folder.touch
 
     return jot
   end

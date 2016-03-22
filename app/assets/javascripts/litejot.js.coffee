@@ -280,7 +280,7 @@ class window.LiteJot
 
     @uploader.bind 's3_upload_failed', (e, content) =>
       $('#uploads-progress').hide().find('.upload').remove()
-      new HoverNotice(@, 'Upload(s) unsuccessful: Unable to save file. Please contact us if this issue persists.', 'error')
+      new HoverNotice(@, 'Upload(s) unsuccessful: File size may exceed monthly allowance. Please contact us if this issue persists.', 'error')
 
       # Needs to be set every time files are uploaded.
       # Not sure why.
@@ -288,6 +288,7 @@ class window.LiteJot
       @jots.image_upload_input = @uploader.find("input[type='file']")
 
     @uploader.bind 's3_uploads_start', (e, content) =>
+      console.log e
       console.log content
       $('#uploads-progress').show()
       @jots.scrollJotsToBottom()
@@ -333,5 +334,6 @@ class window.LiteJot
       additional_data: { 'topic_id': @app.current_topic },
       remove_completed_progress_bar: false,
       allow_multiple_files: false,
-      progress_bar_target: $('#uploads-progress')
+      progress_bar_target: $('#uploads-progress'),
+      max_file_size: 1024*1024*10
     )
