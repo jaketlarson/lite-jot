@@ -99,9 +99,10 @@ class window.Topics extends LiteJot
 
     # Attribute data-ignore-topic-select is used so when the topic li element click listener goes off,
     # clicks on the menu link will be ignored.
-    build_html += "<a class='options-link' data-ignore-topic-select='true' data-dropdown='topic-options-#{topic.id}' aria-controls='topic-options-#{topic.id}' aria-expanded='false'>
-                    <i class='fa fa-ellipsis-v options-icon' title='Options' data-ignore-topic-select='true' />
-                  </a>"
+    if topic.has_manage_permissions
+      build_html += "<a class='options-link' data-ignore-topic-select='true' data-dropdown='topic-options-#{topic.id}' aria-controls='topic-options-#{topic.id}' aria-expanded='false'>
+                      <i class='fa fa-ellipsis-v options-icon' title='Options' data-ignore-topic-select='true' />
+                    </a>"
 
     # End li element here. The following html deals with the dropdown which needs to be outside of the
     # absolutely-positioned topic li element

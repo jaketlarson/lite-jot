@@ -95,7 +95,7 @@ class window.Folders extends LiteJot
                     <li data-edit><a href='#'><i class='fa fa-pencil edit' />Edit Folder Title</a></li>
                     <li data-delete><a href='#'><i class='fa fa-trash delete' />Delete Folder</a></li>"
     else
-      build_html += "<li data-unshare><i class='fa fa-times unshare' />Stop Sharing with Me</li>"
+      build_html += "<li data-unshare><a href='#'><i class='fa fa-times unshare' />Stop Sharing with Me</a></li>"
     
     build_html += "</ul>"
 
