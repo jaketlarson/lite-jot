@@ -40,7 +40,7 @@ class Folder < ActiveRecord::Base
         folder_id = new_folder.id
       else
         time = Time.new
-        folder = current_user.folders.new
+        folder = user.folders.new
         folder.title = "New #{time.strftime('%b %d')}"
         folder.save
 

@@ -10,7 +10,7 @@ class FeedbackController < ApplicationController
   def create
     @feedback = Feedback.new(feedback_params)
 
-    if @feedback.valid?
+    if @feedback.save
       @feedback.send_admin_notification_email
       @feedback.send_confirmation_email
 

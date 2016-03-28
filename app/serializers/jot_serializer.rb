@@ -57,7 +57,7 @@ class JotSerializer < ActiveModel::Serializer
         # Show a placeholder if an upload has not yet been processed
         if !upload.processed
           placeholder = "https://s3.amazonaws.com/litejot/uploads/image-processing-placeholder.png"
-          return { :thumbnail => placeholder, :original => placeholder }.to_json
+          return { :thumbnail => upload.direct_upload_url, :original => placeholder }.to_json
         else
           return { :thumbnail => upload.thumbnail_url, :original => upload.original_url }.to_json
         end
