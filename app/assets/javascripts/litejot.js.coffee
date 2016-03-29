@@ -1,57 +1,3 @@
-# Array Remove - By John Resig (MIT Licensed)
-Array::remove = (from, to) ->
-  rest = @slice((to or from) + 1 or @length)
-  @length = if from < 0 then @length + from else from
-  @push.apply this, rest
-
-window.randomKey = =>
-  build_key = ""
-  possibilities = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
-
-  for i in [0..50]
-    build_key += possibilities.charAt(Math.floor(Math.random() * possibilities.length))
-
-  return build_key;
-
-# escapeHtml/unescapeHtml: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-window.escapeHtml = (str) ->
-  div = document.createElement('div')
-  div.appendChild document.createTextNode(str)
-  div.innerHTML
-window.unescapeHtml = (escapedStr) ->
-  div = document.createElement('div')
-  div.innerHTML = escapedStr
-  child = div.childNodes[0]
-  if child then child.nodeValue else ''
-
-$ ->
-  # hasScrollBar: http://stackoverflow.com/questions/4814398/how-can-i-check-if-a-scrollbar-is-visible
-  $.fn.hasScrollBar = ->
-    @get(0).scrollHeight > @height()
-  
-  if $('body#pages-dashboard').length > 0
-    window.lj = {
-      litejot: new window.LiteJot()
-    }
-    $(document).foundation()
-
-  else
-    $('navNO').attr('data-magellan-expedition', 'fixed')
-    $(document).foundation(
-      "magellan-expedition": {
-        destination_threshold: 250
-    })
-
-    # This event listener is an override on Foundation's Magellan module
-    # The module buffers the anchor with the destination_threshold
-    # property, which makes the click-to-scroll functionality useless,
-    # since the section it scrolls to is only partly scrolled to.
-    $("[data-magellan-arrival]").click (e) ->
-      name = $(e.currentTarget).find('a').attr('href').replace(/#/, '')
-      buffer = 50
-      e.stopPropagation()
-      $('html,body').animate({scrollTop: $("a[name='#{name}']").offset().top - buffer},'slow')
-
 class window.LiteJot
   constructor: ->
     @init_data_loaded = false
@@ -60,11 +6,13 @@ class window.LiteJot
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
     @airplane_mode = new AirplaneMode(@)
+    @jot_uploader = new JotUploader(@)
     @folders = new Folders(@)
     @topics = new Topics(@)
     @jots = new Jots(@)
     @search = new Search(@)
     @user_settings = new UserSettings(@)
+    @aside = new Aside(@)
     @connection = new Connection(@)
     @setUIInterval()
     @connection.loadDataFromServer()
@@ -74,10 +22,9 @@ class window.LiteJot
     @airplane_mode.checkLocalStorageContents()
     @initTips()
     @jot_recovery = new JotRecovery(@)
-    @initAsideToggleListener()
-    @determineAsideStateOnInit()
     @initUnloadListener()
-    @initUploader()
+
+    $(document).foundation()
 
   initVars: =>
     @app = {} # all loaded app data goes here
@@ -104,8 +51,6 @@ class window.LiteJot
       'purple': '#8e44ad'
 
     @dash_loading_overlay = $('#dash-loading-overlay')
-    @show_aside_trigger = $('#show-aside')
-    @uploader = $('#uploader')
 
   setViewport: =>
     @viewport =
@@ -215,28 +160,6 @@ class window.LiteJot
       @dash_loading_overlay.fadeOut(500).css { marginLeft: -1*$('body').width() }
     , 500)
 
-  initAsideToggleListener: =>
-    @show_aside_trigger.click =>
-      @toggleAside()
-
-    $('nav h2').click =>
-      @toggleAside()
-
-  # Since it's hidden on load...
-  showAsideToggle: =>
-    @show_aside_trigger.show()
-
-  determineAsideStateOnInit: =>
-    # Determine, based on viewport, if we hide folder/topic columns on init
-    if !Foundation.utils.is_large_up()
-      $('body').addClass('hide-aside')
-
-  toggleAside: =>
-    if $('body').hasClass('hide-aside')
-      $('body').removeClass('hide-aside')
-    else
-      $('body').addClass('hide-aside')
-
   initUnloadListener: =>
     window.onbeforeunload = (e) =>
       if !@jots.jotContentEmpty()
@@ -258,74 +181,6 @@ class window.LiteJot
 
     $('nav h2').html "#{folder_name} &nbsp; / &nbsp; #{topic_name}"
     window.document.title = "#{folder_name} / #{topic_name} | Lite Jot"
-
-
-  initUploader: =>
-    @uploader.S3Uploader(
-      remove_completed_progress_bar: false,
-      allow_multiple_files: false,
-      progress_bar_target: $('#uploads-progress')
-    )
-
-    @uploader.bind 's3_upload_failed', (e, content) =>
-      $('#uploads-progress').hide().find('.upload').remove()
-      new HoverNotice(@, 'Upload(s) unsuccessful: File size may exceed monthly allowance. Please contact us if this issue persists.', 'error')
-
-      # Needs to be set every time files are uploaded.
-      # Not sure why.
-      # Also set in jots.js on init.
-      @jots.image_upload_input = @uploader.find("input[type='file']")
-
-    @uploader.bind 's3_uploads_start', (e, content) =>
-      console.log e
-      console.log content
-      $('#uploads-progress').show()
-      @jots.scrollJotsToBottom()
-
-    @uploader.bind 'ajax:success', (e, data) =>
-      # This method is called on the last upload in the list of uploads.
-      # So, if there are multiple uploads this will only return data on the last
-      # response. The other images tend to trickle in via live reload, and for now
-      # that seems to be fine.
-      $('#uploads-progress').hide().find('.upload').remove()
-      jot = data.jot
-      @app.jots.push jot
-      @jots.smartInsertJotElem jot
-      new HoverNotice(@, 'Upload(s) successful! Images may take a moment to process.', 'success')
-
-      # Needs to be set every time files are uploaded.
-      # Not sure why.
-      # Also set in jots.js on init.
-      @jots.image_upload_input = @uploader.find("input[type='file']")
-
-    @uploader.bind 'ajax:error', (e, data) =>
-      $('#uploads-progress').hide().find('.upload').remove()
-
-      response = data.responseJSON
-      if response && response.errors && response.errors.upload && response.errors.upload.indexOf "monthly_limit_exceeded" > -1
-        new HoverNotice(@, 'Upload(s) unsuccessful: Monthly limit exceeded.', 'error')
-      else
-        new HoverNotice(@, 'Internal Server Error: Please contact us if this issue persists.', 'error')
-
-
-      # Needs to be set every time files are uploaded.
-      # Not sure why.
-      # Also set in jots.js on init.
-      @jots.image_upload_input = @uploader.find("input[type='file']")
-
-  # When the user changes topics this function will be called so we can make sure
-  # their next upload references the current topic id.
-  updateUploader: =>
-    # If there is a way to update 'additional_data' without having to pass in
-    # the same parameters each time, that'd be great.
-
-    @uploader.S3Uploader(
-      additional_data: { 'topic_id': @app.current_topic },
-      remove_completed_progress_bar: false,
-      allow_multiple_files: false,
-      progress_bar_target: $('#uploads-progress'),
-      max_file_size: 1024*1024*10
-    )
 
   closeAllDropdowns: =>
     $(document).foundation('dropdown', 'closeall')

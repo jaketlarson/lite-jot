@@ -24,7 +24,16 @@
 //= require jot_recovery
 //= require email_tagger
 //= require email_viewer
+//= require jot_uploader
+//= require aside
 //= require Autolinker
 //= require cooltip
 //= require cursor_position
+//= require helpers
 //= require litejot
+  
+if($('body#pages-dashboard').length > 0) {
+  window.lj = {
+    litejot: new window.LiteJot()
+  };
+}

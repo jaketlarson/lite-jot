@@ -59,7 +59,7 @@ class window.Connection extends LiteJot
         @lj.app.user = data.user
         @lj.app.last_update_check = data.last_update_check
         @lj.buildUI()
-        @lj.showAsideToggle()
+        @lj.aside.showToggle()
         @lj.setPageHeading()
         @lj.initKeyControls()
         @lj.sizeUI()

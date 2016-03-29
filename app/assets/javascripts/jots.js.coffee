@@ -23,7 +23,7 @@ class window.Jots extends LiteJot
 
     # This needs to be set every time something is uploaded. Not sure why. It's later set on file upload
     # success callback (last seen in litejot.js)
-    @image_upload_input = @lj.uploader.find("input[type='file']")
+    @image_upload_input = @lj.jot_uploader.uploader.find("input[type='file']")
 
     @new_jot_break_option_wrap = @new_jot_toolbar.find('#jot-toolbar-break-option')
     @new_jot_break_value = false

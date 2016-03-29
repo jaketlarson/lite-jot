@@ -42,7 +42,7 @@ class window.Topics extends LiteJot
 
     if (typeof @lj.app.current_topic == 'undefined' || !@lj.app.current_topic || @lj.app.current_topic == null) && @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder).length > 0
       @lj.app.current_topic = @lj.app.topics.filter((topic) => topic.folder_id == @lj.app.current_folder)[0].id
-      @lj.updateUploader()
+      @lj.jot_uploader.updateUploader()
 
     @topics_list.prepend("#{$('#new-topic-template').html()}")
     @new_topic_form_wrap = @topics_wrapper.find('li.new-topic-form-wrap')
