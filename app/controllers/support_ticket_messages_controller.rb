@@ -14,7 +14,7 @@ class SupportTicketMessagesController < ApplicationController
         @ticket.touch
 
         if !['new', 'in_progress'].include? @ticket.status
-          @ticket.change_status 'in_progress'
+          @ticket.change_status 'in_progress', current_user.id
         end
 
         # Notify admin email of new response
