@@ -1,0 +1,4 @@
+## SITE REFERRER BANNING
+RewriteCond %{HTTP_REFERER} rank-checker.online [NC,OR]
+RewriteCond %{HTTP_REFERER} rank-checker.online
+RewriteRule .* - [F]

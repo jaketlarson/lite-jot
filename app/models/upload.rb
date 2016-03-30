@@ -71,6 +71,7 @@ class Upload < ActiveRecord::Base
     user = User.find(upload.user_id)
     user.meta.record_new_upload_size(upload.upload_file_size)
     
+    ap direct_upload_url_data[:path]
     s3.buckets[Rails.application.secrets.s3_bucket].objects[direct_upload_url_data[:path]].delete
   end
 
@@ -125,7 +126,7 @@ class Upload < ActiveRecord::Base
   
   # Queue file processing
   def queue_processing
-    Upload.delay.transfer_and_cleanup(id)
+    Upload.transfer_and_cleanup(id)
   end
 
   def check_upload_limit

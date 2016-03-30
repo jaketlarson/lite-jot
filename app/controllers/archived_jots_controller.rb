@@ -33,10 +33,22 @@ class ArchivedJotsController < ApplicationController
         end
       end
 
+      # If this jot is an upload, remove image from S3
+      if jot.jot_type == 'upload'
+        upload = Upload.where('id = ?', jot.content.to_i)
+        if !upload.blank?
+          upload = upload.first
+          s3 = AWS::S3.new
+          s3.buckets[Rails.application.secrets.s3_bucket].objects[upload.upload.path].delete
+          s3.buckets[Rails.application.secrets.s3_bucket].objects[upload.upload.path(:thumbnail)].delete
+        end
+      end
+
       # No longer using really_destroy! immedateily.
       # Use perm_deleted to comply with syncing method.
       jot.perm_deleted = true
       jot.save
+
       # jot.really_destroy!
     end
 
