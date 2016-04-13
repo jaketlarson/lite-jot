@@ -34,7 +34,6 @@ class window.PhotoGallery extends LiteJot
     jots = $.map jots, (jot) =>
       return jot.id
     @upload_jots = jots
-    console.log @upload_jots
 
   initCloseBind: =>
     @close_link.click (e) =>
@@ -82,21 +81,11 @@ class window.PhotoGallery extends LiteJot
   unInitKeyboardShortcuts: =>
     @overlay.unbind 'keyup'
 
-  # populateThumbnails: =>
-  #   $.each @upload_jots, (index, jot) =>
-  #     console.log jot
-  #     $elem = $('<li />')
-  #     info = JSON.parse(jot.content)
-  #     $img = $("<img src='#{info.thumbnail}' />")
-  #     $elem.append $img
-  #     @thumbnail_list.append $elem
-
   setSize: =>
     @featured.css 'margin-top', ((@overlay.height() - @featured.height())/2)+'px'
     @featured.css 'margin-left', ((@overlay.width() - @featured.width())/2)+'px'
 
   showImage: (jot) =>
-    console.log jot
     info = JSON.parse(jot.content)
     image = info.original
 
