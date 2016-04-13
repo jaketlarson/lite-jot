@@ -50,6 +50,8 @@ class Upload < ActiveRecord::Base
       s3.buckets[Rails.application.secrets.s3_bucket].objects[paperclip_file_path].copy_from(direct_upload_url_data[:path])
     end
 
+    # Now do more processing stuff, which includes OCR
+    upload.postprocess_jot_update
     upload.processed = true
     upload.save
 
@@ -74,9 +76,9 @@ class Upload < ActiveRecord::Base
   # Has to be a public method (for delayed jobs)
   # We also run an OCR to read text from the image
   def postprocess_jot_update
-    ap "WHATS THE ORIGINAL URL?"
-    ap self.original_url
+    # Grab the latest version of this upload, instead of using self.
     upload = Upload.find(self.id)
+
     jot = Jot.where('id = ?', upload.jot_id)
     ap "okay here is the jot [id=#{upload.jot_id}] we just processed:"
     ap jot
@@ -102,29 +104,66 @@ class Upload < ActiveRecord::Base
 
   def get_text
     ap "getting text for.. #{self.upload.url}"
-
-    # When delayed_jobs is off, use url = self.direct_upload_url
-    # When delayed_jobs is on, use url = self.upload.url
+    # Grab the latest version of this upload, instead of using self.
     upload = Upload.find(self.id)
     url = upload.upload.url(:original)
     image = HTTParty.get(url).body
     
-    puts "Creating directory"
-    #%x(mkdir tessdir)
+    # puts "Creating directory"
+    # #%x(mkdir tessdir)
 
+    #prefix = "ocr-sample-#{self.user_id}"
+    prefix = "tesseract-sample"
+    suffix = '.jpg'
+    # tmp_file = Tempfile.new [prefix, suffix], "#{Rails.root}/tmp" # For some reason won't allow another folder called tesseract..
+    # ap tmp_file
     puts "Saving image"
-    file = File.open("tmp/tesseract/sample.jpg",'wb') # make a rails secret call
+    filename = "#{prefix}#{suffix}"
+    save_as = "tmp/#{filename}"
+    ap "saving as:"
+    ap save_as
+    ap File.size("#{save_as}")
+    file = File.open(save_as,'wb') # make a rails secret call
     file.write image
+
     
-    puts "Starting tesseract"
-    %x(tesseract tmp/tesseract/sample.jpg tmp/tesseract/out)
+    tempfile = Tempfile.new(['sample', '.jpg'], Rails.root.join('tmp','tesseract'))
+    tempfile.binmode
+    tempfile.write image
+    tempfile.close
+    save_path = tempfile.path
+    ap "save_path="
+    ap save_path
+    # puts "Starting tesseract"
+    # %x(tesseract tmp/tesseract-sample.jpg tmp/tesseract-out)
     
-    puts "Reading result"
-    file = File.open("tmp/tesseract/out.txt", "rb")
-    contents = file.read
-    puts contents
-    contents = contents.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
-    return contents
+    # puts "Reading result"
+    # file = File.open("tmp/tesseract-out.txt", "rb")
+    # contents = file.read
+    # ap "tesseract:"
+    # ap contents
+
+    # ap "google:"
+    
+    response = GoogleCloudVision::Classifier.new(Rails.application.secrets.google_server_key,
+    [
+      { image: save_path, detection: 'TEXT_DETECTION', max_results: 10 }
+    ]).response
+
+    # ap response
+    ap response
+    text = response['responses'][0]['textAnnotations'][0]['description']
+    if !response['responses'].empty? && !responses[0]['textAnnotations'].empty?
+      text = response['responses'][0]['textAnnotations'][0]['description']
+    else
+      text = ""
+    end
+
+    ap text
+
+    tempfile.unlink
+
+    return text
   end
 
   protected
@@ -159,7 +198,7 @@ class Upload < ActiveRecord::Base
   
   # Queue file processing
   def queue_processing
-    Upload.transfer_and_cleanup(id)
+    Upload.delay.transfer_and_cleanup(id)
   end
 
   def check_upload_limit

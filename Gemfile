@@ -80,3 +80,9 @@ gem 'protected_attributes' # attr_accessible
 
 # Retrieve files on web for Tesseract
 gem 'httparty'
+
+# Web server
+gem 'puma'
+
+# OCR
+gem 'google_cloud_vision'

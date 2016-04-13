@@ -13,8 +13,6 @@ class UploadsController < ApplicationController
     if @upload.valid?
       @upload.save
       jot = Jot.create_jot_from_upload(current_user.id, @upload.id, params[:topic_id].to_i)
-      #jot.save!
-      @upload.postprocess_jot_update # REMOVE THIS WHEN IT GOES INTO PRODUCTION
       ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
       render :json => {:success => true, :jot => ser_jot} 
       ap 'create done'
@@ -31,8 +29,12 @@ class UploadsController < ApplicationController
     url = @upload.upload.url
     image = HTTParty.get(url).body
 
+
     # Get extname but remove any added query strings
-    save_as = "tmp/downloads/#{@upload.id}#{File.extname(url).split('?')[0]}"
+    save_as = "#{@upload.id}"
+    prefix = 'download-sample'
+    suffix = "#{File.extname(url).split('?')[0]}"
+    Tempfile.new [prefix, suffix], "#{Rails.root}/tmp" # For some reason won't allow another folder called downloads
 
     # create tmp/dowloads dir if doesn't exist?
 
