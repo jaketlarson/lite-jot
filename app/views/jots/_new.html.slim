@@ -42,24 +42,29 @@ li#new-jot-wrap
   ul#jot-toolbar tabindex='7'
     li#jot-toolbar-tab-heading.tab data-tab='heading'
       i.fa.fa-header
-      |Heading
+      .show-for-medium-up
+        |Heading
 
     li#jot-toolbar-tab-standard.tab.active data-tab='standard'
       i.fa.fa-sticky-note
-      |Standard
+      .show-for-medium-up
+        |Standard
 
     li#jot-toolbar-tab-checklist.tab data-tab='checklist'
       i.fa.fa-th-list
-      |Checklist
+      .show-for-medium-up
+        |Checklist
 
     li#jot-toolbar-image-upload
       i.fa.fa-image
-      |Image
+      .show-for-medium-up
+        |Image
 
     - if current_user.auth_provider == 'google_oauth2'
       li#jot-toolbar-email-tag
         i.fa.fa-lg.fa-envelope
-        |Email Tag
+        .show-for-medium-up
+          |Email Tag
 
     li#jot-toolbar-break-option.right
       .is-checked

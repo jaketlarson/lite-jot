@@ -65,7 +65,8 @@ class JotSerializer < ActiveModel::Serializer
               :original => placeholder,
               :identified_text => content['identified_text'],
               :width => upload.width, # will be zero
-              :height => upload.height # will be zero
+              :height => upload.height, # will be zero
+              :processed => false
             }.to_json
         else
           return {
@@ -74,7 +75,8 @@ class JotSerializer < ActiveModel::Serializer
               :original => upload.original_url,
               :identified_text => content['identified_text'],
               :width => upload.width,
-              :height => upload.height
+              :height => upload.height,
+              :processed => true
             }.to_json
         end
       end

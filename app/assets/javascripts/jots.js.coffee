@@ -616,8 +616,16 @@ class window.Jots extends LiteJot
     @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').last().focus()
 
   parseUploadJotToHTML: (content) =>
-    images = JSON.parse(content)
-    "<a href='#{images.original}' class='th' target='_new'><img class='upload' src='#{images.thumbnail}' /></a>"
+    # Two cases: image is processed or image is not processed
+    content = JSON.parse(content)
+
+    # HTML is not broken into new lines because of the whitespace issue that surrounds image and
+    # makes the border look large
+    if content.processed # Image is processed
+      "<a href='#{content.original}' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /></a>"
+
+    else # Image is still processing
+      "<a href='#{content.original}' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /><div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div></a>"
 
   newJotLength: =>
     if @new_jot_current_tab == 'heading'
