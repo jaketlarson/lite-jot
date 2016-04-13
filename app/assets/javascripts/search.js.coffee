@@ -72,12 +72,28 @@ class window.Search extends LiteJot
       @search_button.attr('data-searching', 'true')
 
       keyword = @search_input.val().trim()
-      jot_results = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+      # Filter through jots, handling the special case of uploads, too.
+      # Uploads are searchable if they have text within their jot.content.identified_text property.
+      jot_results = @lj.app.jots.filter((jot) => 
+                                          if jot.jot_type == 'upload'
+                                              JSON.parse(jot.content).identified_text.toLowerCase().indexOf(keyword.toLowerCase()) > -1
+                                          else 
+                                              jot.content.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
       folder_keys = []
       topic_keys = []
 
       $.each jot_results.slice(0).concat(@lj.airplane_mode.getStoredJotsObject()), (key, jot) =>
         # if searching: checklist jots are special, so they need an extra loop
+        if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'
+          items = JSON.parse jot.content
+          items_matched = 0
+          $.each items, (index, item) =>
+            if item.value.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1
+              items_matched++
+          if items_matched == 0
+            return
+
+        # if searching: upload jots are searchable, but we need to target their 'identified_text' property
         if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'
           items = JSON.parse jot.content
           items_matched = 0

@@ -237,3 +237,33 @@ a.add-new-jot-to-end-link
         height: 100%
         width: 100%
         background-color: $palette-green
+
+#drag-and-drop-overlay
+  position: fixed
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  background-color: rgba(15, 15, 15, 0.9)
+  border: .5rem dashed $primary-color
+  opacity: 0.75
+  z-index: 2000
+  display: none
+
+  h1
+    position: fixed
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    -webkit-transform: translate(-50%, -50%)
+    text-align: center
+    color: $primary-color
+    font-family: 'Monda'
+    font-size: 3rem
+
+    .icon-wrap
+      display: block
+
+      i
+        font-size: 8rem
+

@@ -42,7 +42,13 @@ class window.Connection extends LiteJot
 
     else if @lj.init_data_loaded
       @loadUpdates()
-      @lj.jots.determineFocusForNewJot()
+
+      if @lj.current_photo_gallery
+        # Special case: if a PhotoGallery object exists, focus it.
+        @lj.current_photo_gallery.overlay.focus()
+      else
+        # Otherwise, focus jots
+        @lj.jots.determineFocusForNewJot()
 
   loadDataFromServer: =>
     # Include timezone in request to be set on user

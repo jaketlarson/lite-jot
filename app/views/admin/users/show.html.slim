@@ -47,8 +47,12 @@ article
           .value #{@user.auth_provider}
 
         .data-row
-          .field Subscribed to emails:
+          .field Subscribed to account emails:
           .value #{@user.receives_email}
+
+        .data-row
+          .field Subscribed to blog:
+          .value #{BlogSubscription.already_subscribed(@user.email)}
 
         .data-row
           .field Upload size this month:

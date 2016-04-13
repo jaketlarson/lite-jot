@@ -15,18 +15,6 @@ class Upload < ActiveRecord::Base
                     },
                     :convert_options => { :all => "-quality 100" }
 
-
-# Paperclip::Attachment.default_options.merge!(
-#   url:                  ':s3_domain_url',
-#   path:                 ':class/processed/:id/:style/:hash.:extension',
-#   storage:              :s3,
-#   s3_credentials:       { :access_key_id => Rails.application.secrets.aws_access_key_id, :secret_access_key => Rails.application.secrets.aws_secret_access_key },
-#   s3_permissions:       :private,
-#   s3_protocol:          'https',
-#   bucket:               'litejot',
-#   hash_secret: (0...64).map { (65 + rand(26)).chr }.join
-# )
-
   validates :direct_upload_url, presence: true, format: { with: DIRECT_UPLOAD_URL_FORMAT }
   validate :check_upload_limit, :on => :create
     
@@ -34,6 +22,7 @@ class Upload < ActiveRecord::Base
   after_create :queue_processing
   
   attr_accessible :direct_upload_url, :upload_file_size
+  after_post_process :save_image_dimensions
 
   # Paperclip version 4.0 requires:
   validates_attachment_content_type :upload, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
@@ -63,9 +52,6 @@ class Upload < ActiveRecord::Base
 
     upload.processed = true
     upload.save
-    ap upload
-    upload.postprocess_jot_update
-    ap upload
 
     # Update user meta
     user = User.find(upload.user_id)
@@ -86,18 +72,59 @@ class Upload < ActiveRecord::Base
   # Since we use delayed jobs to handle processing, we need to go back to the jot that is currently
   # showing a placeholder and show them the newly processed image..
   # Has to be a public method (for delayed jobs)
+  # We also run an OCR to read text from the image
   def postprocess_jot_update
-    jot = Jot.where('jot_type = ? AND content = ?', 'upload', self.id.to_s)
-    ap "okay here is the jot we just processed:"
+    ap "WHATS THE ORIGINAL URL?"
+    ap self.original_url
+    upload = Upload.find(self.id)
+    jot = Jot.where('id = ?', upload.jot_id)
+    ap "okay here is the jot [id=#{upload.jot_id}] we just processed:"
     ap jot
+    ap self
+    ap upload
     if !jot.empty?
       jot = jot.first
       topic = Topic.find(jot.topic_id)
       folder = Folder.find(jot.folder_id)
       folder.touch
       topic.touch
-      jot.touch
+
+      # Get text from upload using Tesseract OCR
+      ocr_text = self.get_text
+      ap "heres da text:"
+      ap ocr_text
+      content = JSON.parse(jot.content)
+      content['identified_text'] = ocr_text
+      jot.content = content.to_json
+      jot.save
     end
+  end
+
+  def get_text
+    ap "getting text for.. #{self.upload.url}"
+
+    # When delayed_jobs is off, use url = self.direct_upload_url
+    # When delayed_jobs is on, use url = self.upload.url
+    upload = Upload.find(self.id)
+    url = upload.upload.url(:original)
+    image = HTTParty.get(url).body
+    
+    puts "Creating directory"
+    #%x(mkdir tessdir)
+
+    puts "Saving image"
+    file = File.open("tmp/tesseract/sample.jpg",'wb') # make a rails secret call
+    file.write image
+    
+    puts "Starting tesseract"
+    %x(tesseract tmp/tesseract/sample.jpg tmp/tesseract/out)
+    
+    puts "Reading result"
+    file = File.open("tmp/tesseract/out.txt", "rb")
+    contents = file.read
+    puts contents
+    contents = contents.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
+    return contents
   end
 
   protected
@@ -123,6 +150,12 @@ class Upload < ActiveRecord::Base
       false
     end
   end
+
+  def save_image_dimensions
+    geometry = Paperclip::Geometry.from_file(self.upload.queued_for_write[:original])
+    self.width = geometry.width.to_i
+    self.height = geometry.height.to_i
+  end
   
   # Queue file processing
   def queue_processing
@@ -135,5 +168,4 @@ class Upload < ActiveRecord::Base
     ap self.upload_file_size
     errors.add(:upload, 'monthly_limit_exceeded') if user.meta.exceeds_upload_limit?(self.upload_file_size)
   end
-
 end

@@ -1,0 +1,74 @@
+#photo-gallery-overlay
+  position: fixed
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  background-color: rgba(15, 15, 15, 0.9)
+  display: none
+  z-index: 5
+  padding: 2rem
+  flex-direction: column
+  justify-content: center
+
+  img#photo-gallery-featured
+    width: auto
+    height: auto
+    max-width: 100%
+    max-height: 100%
+
+  ul#options
+    position: fixed
+    bottom: 1rem
+    left: 50%
+    transform: translateX(-50%)
+    list-style: none
+    margin: 0
+    box-shadow: $default-box-shadow
+    border-radius: rem-calc(2)
+    background-color: rgba(240, 240, 240, 0.8)
+
+    li:not(.divider)
+      display: inline-block
+
+      a
+        display: block
+        padding: .5rem 1.2rem
+        color: $palette-black
+
+        i
+          vertical-align: -5%
+
+        &.disabled
+          cursor: default
+          color: $palette-dark-gray
+
+          &:hover
+            color: $palette-dark-gray
+
+      &:hover a
+        color: $primary-color
+
+    li.divider
+      display: inline-block
+      background-color: $palette-gray
+      height: 1.7rem
+      width: 1px
+      vertical-align: middle
+      margin-bottom: 1px
+
+
+  a.close
+    position: fixed
+    top: 1rem
+    right: 1rem
+    color: $palette-dark-gray
+    font-size: 1rem
+
+    &:hover
+      color: $palette-white
+
+  .loader
+    display: none
+
+

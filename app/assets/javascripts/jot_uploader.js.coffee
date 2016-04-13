@@ -3,10 +3,12 @@ class window.JotUploader extends LiteJot
   constructor: (@lj) ->
     @initVars()
     @initUploader()
-    @initBinds()
+    @initUploaderBinds()
+    @initDragBinds()
 
   initVars: =>
     @uploader = $('#uploader')
+    @drag_and_drop_overlay = $('#drag-and-drop-overlay')
 
   initUploader: =>
     @uploader.S3Uploader(
@@ -15,7 +17,7 @@ class window.JotUploader extends LiteJot
       progress_bar_target: $('#uploads-progress')
     )
 
-  initBinds: =>
+  initUploaderBinds: =>
     @uploader.bind 's3_upload_failed', (e, content) =>
       $('#uploads-progress').hide().find('.upload').remove()
       new HoverNotice(@, 'Upload(s) unsuccessful: File size may exceed monthly allowance. Please contact us if this issue persists.', 'error')
@@ -27,6 +29,7 @@ class window.JotUploader extends LiteJot
       console.log content
       $('#uploads-progress').show()
       @lj.jots.scrollJotsToBottom()
+      @drag_and_drop_overlay.hide()
 
     @uploader.bind 'ajax:success', (e, data) =>
       # This method is called on the last upload in the list of uploads.
@@ -52,6 +55,31 @@ class window.JotUploader extends LiteJot
 
       @reassignImageUploadInputVar()
 
+  initDragBinds: =>
+    $('body').dndhover().on
+      'dndHoverStart': (event) =>
+        console.log 'HEY'
+        @drag_and_drop_overlay.show()
+        event.stopPropagation()
+        event.preventDefault()
+        false
+      'dndHoverEnd': (event) =>
+        console.log 'BYE'
+        @drag_and_drop_overlay.hide()
+        event.stopPropagation()
+        event.preventDefault()
+        false
+
+    # Ignore the drag and drop functionality of the jot uploader with this
+    # event. It does disable dragging images altogether, though.
+    # This is done for every jot upload element, but is also done here for
+    # all the non-jot images.
+    # $('img').on 'dragstart', (event) =>
+    #   event.preventDefault()
+    # Actaully, just do it for everything for now..
+    $('*').on 'dragstart', (event) =>
+      event.preventDefault()
+
   # When the user changes topics this function will be called so we can make sure
   # their next upload references the current topic id.
   updateUploader: =>
@@ -67,6 +95,9 @@ class window.JotUploader extends LiteJot
 
   reassignImageUploadInputVar: =>
     # Needs to be set every time files are uploaded.
-    # Not sure why.
+    # Not sure why. Seems to be that the uploader is reapplied to DOM.
     # Also set in jots.js on init.
     @lj.jots.image_upload_input = @uploader.find("input[type='file']")
+
+    # Also re-init drag-and-drop binds
+    @initDragBinds()

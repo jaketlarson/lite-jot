@@ -37,7 +37,7 @@ class Jot < ActiveRecord::Base
 
     jot = Jot.create(
       :user_id => user_id,
-      :content => upload_id,
+      :content => {:upload_id => upload_id, :identified_text => ''}.to_json,
       :jot_type => 'upload',
       :topic_id => topic.id,
       :folder_id => folder.id,
@@ -47,6 +47,12 @@ class Jot < ActiveRecord::Base
     # Updated updated_at for topic and folder
     topic.touch
     folder.touch
+
+    # Now save a reference from upload to jot.
+    ap "AND THE JOT ID IS... #{jot.id}"
+    upload = Upload.find(upload_id)
+    upload.jot_id = jot.id
+    upload.save
 
     return jot
   end

@@ -59,8 +59,6 @@ class window.PushUI extends LiteJot
         # This is a new jot
         any_new = true
         v_client.push s_jot_copy
-        console.log 'added:'
-        console.log s_jot
 
         @lj.jots.smartInsertJotElem s_jot_copy
 
@@ -80,8 +78,6 @@ class window.PushUI extends LiteJot
         @lj.app.jots[jot_key] = s_jot_copy
 
         if @lj.app.current_topic == s_jot_copy.topic_id && !@isSearching()
-          console.log "updated:"
-          console.log s_jot_copy
           @lj.jots.updateJotElem s_jot_copy
 
 
@@ -113,8 +109,6 @@ class window.PushUI extends LiteJot
         # This is a new topic
         any_topics_added_or_edited = true
         v_client.unshift s_topic_copy
-        console.log 'added:'
-        console.log s_topic
 
         if @lj.app.current_folder == s_topic.folder_id && !@isSearching()
           @lj.topics.insertTopicElem s_topic_copy
@@ -148,7 +142,6 @@ class window.PushUI extends LiteJot
 
     # Delete folders from client
     $.each deleted, (index, folder) =>
-      console.log "deleting folder #{folder.title}"
       any_folders_deleted = true
       @lj.folders.vanish folder.id
 
@@ -164,8 +157,6 @@ class window.PushUI extends LiteJot
         # This is a new folder
         any_folders_added_or_edited = true
         v_client.unshift s_folder_copy
-        console.log 'added:'
-        console.log s_folder
 
         if !@isSearching()
           @lj.folders.insertFolderElem s_folder_copy

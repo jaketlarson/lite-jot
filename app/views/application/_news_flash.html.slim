@@ -1,0 +1,40 @@
+- if @show_news_flash
+  #news-flash
+    .logo
+      a href='#'
+        = image_tag('feather-white-small.png')
+
+    .hello Welcome back, #{current_user.display_name}! Here's the scoop on image uploading..
+
+    ul
+      li
+        i.fa.fa-image
+        h1 Image Uploading Now Live
+        p To upload images, click the <em>Image</em> option on the jots toolbar
+
+      li
+        i.fa.fa-mouse-pointer
+        h1 Drag &amp; Drop
+        p Or, drop images onto Lite Jot from your file system
+
+      li
+        i.fa.fa-television
+        h1 Photo Gallery View
+        p Click an image to enlarge and flip through images within the topic
+
+      li
+        i.fa.fa-search
+        h1 Search Text Within Images
+        p Images are scanned for recognizable text to make searching easier
+
+      li
+        i.fa.fa-tachometer
+        h1 75 Megabyte Monthly Limit
+        p Head over to <a href='/users/edit'>your profile</a> to check your monthly upload limit
+
+    .close-button-wrap
+      a.button href='#' Got it!
+
+    .close-x
+      a href='#'
+        i.fa.fa-close

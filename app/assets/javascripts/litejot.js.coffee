@@ -3,6 +3,7 @@ class window.LiteJot
     @init_data_loaded = false
     @initVars()
 
+    @news_flash = new NewsFlash(@)
     @clock = new Clock(@)
     @fullscreen = new Fullscreen(@)
     @airplane_mode = new AirplaneMode(@)
@@ -52,6 +53,11 @@ class window.LiteJot
 
     @dash_loading_overlay = $('#dash-loading-overlay')
 
+    # Keep track of any currently opened photo gallery so
+    # we can resize that when it's opened and the window
+    # is resized.
+    @current_photo_gallery = null
+
   setViewport: =>
     @viewport =
       width: window.innerWidth
@@ -70,6 +76,10 @@ class window.LiteJot
 
     jots_height = window.innerHeight - nav_height - keyboard_shortcuts_height - airplane_notice_height - 0*@jots.new_jot_wrap.outerHeight(true)
     @jots.jots_wrapper.css 'height', jots_height
+
+    # If a photo gallery is currently opened, call it's size-settier
+    if @current_photo_gallery
+      @current_photo_gallery.setSize()
 
   setUIInterval: =>
     @UIInterval = setInterval(() =>

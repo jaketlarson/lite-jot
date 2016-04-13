@@ -13,6 +13,8 @@ class UploadsController < ApplicationController
     if @upload.valid?
       @upload.save
       jot = Jot.create_jot_from_upload(current_user.id, @upload.id, params[:topic_id].to_i)
+      #jot.save!
+      @upload.postprocess_jot_update # REMOVE THIS WHEN IT GOES INTO PRODUCTION
       ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
       render :json => {:success => true, :jot => ser_jot} 
       ap 'create done'
@@ -23,13 +25,33 @@ class UploadsController < ApplicationController
   end
 
   def download
-    redirect_to @upload.upload.expiring_url(30.seconds, :original)
+    #redirect_to @upload.upload.expiring_url(30.seconds, :original)
+
+    # Grab image from web
+    url = @upload.upload.url
+    image = HTTParty.get(url).body
+
+    # Get extname but remove any added query strings
+    save_as = "tmp/downloads/#{@upload.id}#{File.extname(url).split('?')[0]}"
+
+    # create tmp/dowloads dir if doesn't exist?
+
+    # Save file to temporary directory
+    file = File.open(save_as,'wb') # make a rails secret call for path
+    file.write image
+
+    # Send file to user for download
+    send_file(
+      save_as,
+      filename: "#{@upload.upload.original_filename}"
+      # type: ""
+    )
   end
 
   private
 
   def set_document
-    @upload = current_user.find(params[:id])
+    @upload = current_user.uploads.find(params[:id])
   end
 
   def upload_params

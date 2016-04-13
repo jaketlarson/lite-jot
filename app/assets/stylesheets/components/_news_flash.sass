@@ -1,0 +1,105 @@
+#news-flash
+  position: fixed
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  background-color: $palette-lightest-gray
+  z-index: 2001
+  transition: all .3s linear
+  border-top: .25rem solid $primary-color
+
+  &.disappear
+    opacity: 0
+    top: -30rem
+    left: -30rem
+    right: -30rem
+    bottom: 30rem
+
+  .logo
+    position: absolute
+    left: 1rem
+    bottom: 1rem
+    background-color: $primary-color
+    padding: .7rem
+    height: 3rem
+    width: 3rem
+    border-radius: 50%
+
+  .hello
+    position: fixed
+    top: 2.5rem
+    left: 1rem
+    right: 1rem
+    font-size: 1.2rem
+    font-family: 'Monda'
+    text-align: center
+    display: none
+
+  ul
+    width: 100%
+    max-width: 34rem
+    transform: translate(-50%, 0)
+    margin-left: 50%
+    list-style: none
+    margin-top: 3rem
+
+    @media #{$small-only}
+      padding: 0 1rem
+
+    li
+      overflow: hidden
+      margin-bottom: 1.6rem
+      opacity: 0
+      transition: all 1s linear
+
+      &.show
+        opacity: 1
+
+      i
+        color: $primary-color
+        font-size: 3.5rem
+        float: left
+        width: 5rem
+        text-align: center
+        margin-right: 1rem
+
+        &.fa.fa-mouse-pointer
+          border: .2rem dashed $primary-color
+          padding: 1rem .5rem
+          width: 4rem
+          margin: 0 1.5rem 0 .5rem
+          font-size: 2rem
+
+      h1
+        text-align: center
+        font-size: 1.3rem
+        font-family: 'Monda'
+        text-align: left
+        margin-bottom: .2rem
+        padding-left: 6rem
+
+      p
+        color: $palette-gray
+        font-family: 'Monda'
+        text-align: left
+        font-size: .75rem
+        padding-left: 6rem
+
+  .close-button-wrap
+    text-align: center
+    display: none
+
+  .close-x
+    position: absolute
+    top: 1rem
+    right: 1rem
+
+    a
+      color: $palette-dark-gray
+      font-size: 1rem
+
+      &:hover
+        color: $palette-black
+
+

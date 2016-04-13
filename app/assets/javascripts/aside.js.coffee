@@ -25,6 +25,16 @@ class window.Aside extends LiteJot
 
   toggle: =>
     if $('body').hasClass('hide-aside')
+      was_scrolled_to_bottom = false
+
+      # Remember if scrolled to bottom
+      if @lj.jots.isScrolledToBottom()
+        was_scrolled_to_bottom = true
+
       $('body').removeClass('hide-aside')
+
+      if was_scrolled_to_bottom
+        @lj.jots.scrollJotsToBottom()
+
     else
       $('body').addClass('hide-aside')

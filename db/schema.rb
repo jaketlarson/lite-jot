@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160318043902) do
+ActiveRecord::Schema.define(version: 20160413012112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -182,6 +182,9 @@ ActiveRecord::Schema.define(version: 20160318043902) do
     t.boolean  "processed",           default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "width",               default: 0
+    t.integer  "height",              default: 0
+    t.integer  "jot_id"
   end
 
   add_index "uploads", ["processed"], name: "index_uploads_on_processed", using: :btree
@@ -191,8 +194,9 @@ ActiveRecord::Schema.define(version: 20160318043902) do
     t.integer  "upload_size_this_month", default: 0
     t.datetime "upload_limit_resets_at"
     t.integer  "user_id"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.boolean  "saw_last_news_flash",    default: true
   end
 
   create_table "users", force: :cascade do |t|

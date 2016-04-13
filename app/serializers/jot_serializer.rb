@@ -46,8 +46,10 @@ class JotSerializer < ActiveModel::Serializer
       return checklist.to_json
 
     elsif object.jot_type == 'upload'
+      content = JSON.parse(object.content)
+
       # The jot object's content is the upload id. Grab the url from the upload:
-      upload = Upload.where('id = ?', object.content)
+      upload = Upload.where('id = ?', content['upload_id'])
 
       if upload.empty?
         return { :thumbnail => "", :original => "" }.to_json
@@ -57,9 +59,23 @@ class JotSerializer < ActiveModel::Serializer
         # Show a placeholder if an upload has not yet been processed
         if !upload.processed
           placeholder = "https://s3.amazonaws.com/litejot/uploads/image-processing-placeholder.png"
-          return { :thumbnail => upload.direct_upload_url, :original => placeholder }.to_json
+          return {
+              :upload_id => upload.id,
+              :thumbnail => upload.direct_upload_url,
+              :original => placeholder,
+              :identified_text => content['identified_text'],
+              :width => upload.width, # will be zero
+              :height => upload.height # will be zero
+            }.to_json
         else
-          return { :thumbnail => upload.thumbnail_url, :original => upload.original_url }.to_json
+          return {
+              :upload_id => upload.id,
+              :thumbnail => upload.thumbnail_url,
+              :original => upload.original_url,
+              :identified_text => content['identified_text'],
+              :width => upload.width,
+              :height => upload.height
+            }.to_json
         end
       end
 

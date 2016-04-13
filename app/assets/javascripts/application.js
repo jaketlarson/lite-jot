@@ -2,6 +2,7 @@
 // jQuery2 is included via CDN, called before this file is in layout.
 //= require jstz
 //= require jquery_ujs
+//= require jquery.dndhover
 //= require s3_direct_upload
 // DON'T require turbolinks
 //= require vendor/modernizr
@@ -30,6 +31,8 @@
 //= require cooltip
 //= require cursor_position
 //= require helpers
+//= require news_flash
+//= require photo_gallery
 //= require litejot
   
 if($('body#pages-dashboard').length > 0) {

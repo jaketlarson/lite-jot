@@ -1,0 +1,12 @@
+article
+  h3 News Flash Info
+  p A news flash is a screen that shows up when the user loads the dashboard. They are immediately marked as a user who has seen the current news flash and will no longer see it until the button below is pressed.
+  p
+    |#{pluralize(@num_seen, 'user')} have seen the last news flash.
+
+  h3 Resetting News Flash
+  p
+    |By resetting the news flash, all current users will see the news flash screen upon their next login. Only do so if you are absolutely certain a new news flash screen has been created and pushed into production successfully.
+
+    == link_to 'Reset News Flash', admin_reset_news_flash_path, :method => :post, :data => { :confirm => 'Are you sure? All users will see the current news flash on their next login.' }, :class => 'button reset-news-flash right'
+

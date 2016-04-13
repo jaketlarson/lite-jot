@@ -78,3 +78,5 @@ gem 'delayed_job_active_record'
 
 gem 'protected_attributes' # attr_accessible
 
+# Retrieve files on web for Tesseract
+gem 'httparty'

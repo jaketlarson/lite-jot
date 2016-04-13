@@ -334,6 +334,7 @@ class window.KeyControls extends LiteJot
     keyboard_shortcuts_list = $('#keyboard-shortcuts')
     keyboard_shortcuts_link = $('nav a#keyboard-shortcuts-link')
     help_is_visible = if keyboard_shortcuts_list.is(':visible') then true else false
+    was_scrolled_to_bottom = false
 
     if help_is_visible
       keyboard_shortcuts_list.removeClass('active')
@@ -353,6 +354,10 @@ class window.KeyControls extends LiteJot
       )
 
     else
+      # Remember if scrolled to bottom
+      if @lj.jots.isScrolledToBottom()
+        was_scrolled_to_bottom = true
+
       keyboard_shortcuts_list.addClass('active')
       keyboard_shortcuts_link.addClass('active')
 
@@ -369,7 +374,12 @@ class window.KeyControls extends LiteJot
         error: (data) =>
       )
 
+    # If showing keyboard shortcuts and jots was already scrolled
+    # to bottom, re-scroll to bottom after resizing the UI.
     @lj.sizeUI()
+
+    if was_scrolled_to_bottom
+      @lj.jots.scrollJotsToBottom()
 
   switchKeyboardShortcutsPane: =>
     panes = 

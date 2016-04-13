@@ -46,7 +46,7 @@
 
     ul#jots-list tabindex='3'
 
-      = render :partial => 'jots/new'
+      == render :partial => 'jots/new'
 
     a.add-new-jot-to-end-link
       i.fa.fa-plus
@@ -61,7 +61,16 @@
     i.fa.fa-hand-o-right
 
 - if !current_user.saw_intro
-  = render :partial => 'joyride_introduction'
+  == render :partial => 'joyride_introduction'
 
 #dash-loading-overlay
   .loading.loader Loading...
+
+#drag-and-drop-overlay
+  h1
+    .icon-wrap
+      i.fa.fa-cloud-upload
+    |Drop Images to Upload
+
+== render :partial => 'news_flash'
+== render :partial => 'photo_gallery'

@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   resources :jots
 
   resources :uploads
+  get 'uploads/:id/download' => 'uploads#download'
 
   post 'archived_jots/restore' => 'archived_jots#restore'
   delete 'archived_jots' => 'archived_jots#destroy'
@@ -59,6 +60,8 @@ Rails.application.routes.draw do
   get 'admin' => 'admin/pages#dashboard'
   get 'admin/users' => 'admin/users#index'
   get 'admin/users/:id' => 'admin/users#show'
+  get 'admin/news_flash' => 'admin/pages#news_flash'
+  post 'admin/reset_news_flash' => 'admin/pages#reset_news_flash'
 
   resources :blog_posts, :only => [:index, :show], :path => 'blog'
   resources :blog_subscriptions, :only => [:create, :destroy]

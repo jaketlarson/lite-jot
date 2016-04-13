@@ -1002,6 +1002,15 @@ class window.Jots extends LiteJot
       elem.find('.content').click (e) =>
         e.stopPropagation()
 
+      # Ignore the drag and drop functionality of the jot uploader with this
+      # event. It does disable dragging images altogether, though.
+      elem.find('img.upload').on 'dragstart', (event) =>
+        event.preventDefault()
+
+      .click (e) =>
+        e.preventDefault()
+        @lj.current_photo_gallery = new PhotoGallery(@lj, @lj.app.current_topic, jot)
+
   initJotElemChecklistBind: (jot_id) =>
     @jots_list.find("li[data-jot='#{jot_id}'] li.checklist-item input[type='checkbox']").change (e) => 
       e.stopPropagation()

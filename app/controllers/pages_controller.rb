@@ -18,6 +18,14 @@ class PagesController < ApplicationController
     else
       @jot_size = 1.0
     end
+
+    if !current_user.meta.saw_last_news_flash
+      @show_news_flash = true
+      current_user.meta.saw_last_news_flash = true
+      current_user.meta.save!
+    else
+      @show_news_flash = false
+    end
   end
 
   def terms
