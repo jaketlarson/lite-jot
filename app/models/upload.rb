@@ -8,12 +8,12 @@ class Upload < ActiveRecord::Base
                     :s3_permissions => :public_read,
                     :styles => {
                       :thumbnail => {
-                        :geometry => "150x120",
+                        :geometry => "800x120",
                         :quality => 100,
                         :format => 'jpg'
                       }
                     },
-                    :convert_options => { :all => "-quality 100" }
+                    :convert_options => { :all => "-quality 100 -auto-orient" }
 
   validates :direct_upload_url, presence: true, format: { with: DIRECT_UPLOAD_URL_FORMAT }
   validate :check_upload_limit, :on => :create
@@ -51,7 +51,13 @@ class Upload < ActiveRecord::Base
     end
 
     # Now do more processing stuff, which includes OCR
+    # First save it, so we can grab the new paperclip url in OCR process
+    upload.save
+
+    # Now call the other process method, more related to the jot and OCR routiens
     upload.postprocess_jot_update
+
+    # Mark this upload as processed, so the UI knows how to deal with it.
     upload.processed = true
     upload.save
 
@@ -86,10 +92,6 @@ class Upload < ActiveRecord::Base
     ap upload
     if !jot.empty?
       jot = jot.first
-      topic = Topic.find(jot.topic_id)
-      folder = Folder.find(jot.folder_id)
-      folder.touch
-      topic.touch
 
       # Get text from upload using Tesseract OCR
       ocr_text = self.get_text
@@ -97,53 +99,41 @@ class Upload < ActiveRecord::Base
       ap ocr_text
       content = JSON.parse(jot.content)
       content['identified_text'] = ocr_text
+      ap "saving identified_text to jot"
       jot.content = content.to_json
       jot.save
+
+      # Tell the topic and folder that they've been updated, so live sync catches the updated jot      
+      topic = Topic.find(jot.topic_id)
+      folder = Folder.find(jot.folder_id)
+      folder.touch
+      topic.touch
     end
   end
 
   def get_text
-    ap "getting text for.. #{self.upload.url}"
     # Grab the latest version of this upload, instead of using self.
+    # However, not necessary when using delayed_jobs and direct_upload_url column.
     upload = Upload.find(self.id)
-    url = upload.upload.url(:original)
+    url = URI.parse(upload.upload.url(:original))
     image = HTTParty.get(url).body
     
-    # puts "Creating directory"
-    # #%x(mkdir tessdir)
-
-    #prefix = "ocr-sample-#{self.user_id}"
-    prefix = "tesseract-sample"
+    prefix = "ocr-sample"
     suffix = '.jpg'
-    # tmp_file = Tempfile.new [prefix, suffix], "#{Rails.root}/tmp" # For some reason won't allow another folder called tesseract..
-    # ap tmp_file
-    puts "Saving image"
-    filename = "#{prefix}#{suffix}"
-    save_as = "tmp/#{filename}"
-    ap "saving as:"
-    ap save_as
-    ap File.size("#{save_as}")
-    file = File.open(save_as,'wb') # make a rails secret call
-    file.write image
 
-    
-    tempfile = Tempfile.new(['sample', '.jpg'], Rails.root.join('tmp','tesseract'))
+    # Create directory if necessary
+    if !File.directory?(Rails.root.join('tmp', 'ocr'))
+      %x(mkdir tmp/ocr)
+    end
+
+    puts "Saving image"
+    tempfile = Tempfile.new([prefix, suffix], Rails.root.join('tmp', 'ocr'))
     tempfile.binmode
     tempfile.write image
     tempfile.close
     save_path = tempfile.path
     ap "save_path="
     ap save_path
-    # puts "Starting tesseract"
-    # %x(tesseract tmp/tesseract-sample.jpg tmp/tesseract-out)
-    
-    # puts "Reading result"
-    # file = File.open("tmp/tesseract-out.txt", "rb")
-    # contents = file.read
-    # ap "tesseract:"
-    # ap contents
-
-    # ap "google:"
     
     response = GoogleCloudVision::Classifier.new(Rails.application.secrets.google_server_key,
     [
@@ -151,9 +141,8 @@ class Upload < ActiveRecord::Base
     ]).response
 
     # ap response
-    ap response
     text = response['responses'][0]['textAnnotations'][0]['description']
-    if !response['responses'].empty? && !responses[0]['textAnnotations'].empty?
+    if !response['responses'].empty? && !response['responses'][0]['textAnnotations'].empty?
       text = response['responses'][0]['textAnnotations'][0]['description']
     else
       text = ""

@@ -23,28 +23,32 @@ class UploadsController < ApplicationController
   end
 
   def download
-    #redirect_to @upload.upload.expiring_url(30.seconds, :original)
-
     # Grab image from web
     url = @upload.upload.url
     image = HTTParty.get(url).body
 
-
-    # Get extname but remove any added query strings
-    save_as = "#{@upload.id}"
-    prefix = 'download-sample'
-    suffix = "#{File.extname(url).split('?')[0]}"
-    Tempfile.new [prefix, suffix], "#{Rails.root}/tmp" # For some reason won't allow another folder called downloads
-
-    # create tmp/dowloads dir if doesn't exist?
-
     # Save file to temporary directory
-    file = File.open(save_as,'wb') # make a rails secret call for path
-    file.write image
+    prefix = "download"
+    suffix = '.jpg'
+
+    # Create directory if necessary
+    if !File.directory?(Rails.root.join('tmp', 'downloads'))
+      %x(mkdir tmp/downloads)
+    end
+
+    puts "Saving image"
+    tempfile = Tempfile.new([prefix, suffix], Rails.root.join('tmp', 'downloads'))
+    tempfile.binmode
+    tempfile.write image
+    tempfile.close
+    save_path = tempfile.path
+    ap "save_path="
+    ap save_path
+    
 
     # Send file to user for download
     send_file(
-      save_as,
+      save_path,
       filename: "#{@upload.upload.original_filename}"
       # type: ""
     )
