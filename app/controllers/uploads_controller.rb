@@ -1,6 +1,6 @@
 class UploadsController < ApplicationController
   before_filter :auth_user
-  before_action :set_document, only: [:download]
+  # before_action :set_upload, only: [:download]
 
   def create
     # add validation to topic_id being an int and existing in database
@@ -23,6 +23,29 @@ class UploadsController < ApplicationController
   end
 
   def download
+    @upload = Upload.find(params[:id])
+
+    # Check permissions... should REALLY be in its own method
+    can_download = false
+    jot = Jot.find(@upload.jot_id)
+    folder = Folder.find(jot.folder_id)
+    topic = Topic.find(jot.topic_id)
+
+    if jot.user_id == current_user.id || folder.user_id == current_user.id
+      can_download = true
+    else
+      share_check = TopicShare.where("recipient_id = ? AND topic_id = ?", current_user.id, jot.topic_id)
+      if share_check.length == 1
+        # This user is shared with the containing folder, so they can flag.
+        can_download = true
+      end
+    end
+
+    if !can_download
+      redirect_to '/'
+      return
+    end
+
     # Grab image from web
     url = @upload.upload.url
     image = HTTParty.get(url).body
@@ -56,9 +79,9 @@ class UploadsController < ApplicationController
 
   private
 
-  def set_document
-    @upload = current_user.uploads.find(params[:id])
-  end
+  # def set_upload
+  #   @upload = current_user.uploads.find(params[:id])
+  # end
 
   def upload_params
     params.require(:upload).permit(:direct_upload_url)
