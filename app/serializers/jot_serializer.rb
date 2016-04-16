@@ -56,6 +56,14 @@ class JotSerializer < ActiveModel::Serializer
       else
         upload = upload.first
 
+        # Would like to do a DB routine to add this parameter to the json data for each upload jot instead of
+        # having this in the code...
+        if content['annotations_info'].nil?
+          annotations_info = []
+        else
+          annotations_info = content['annotations_info']
+        end
+
         # Show a placeholder if an upload has not yet been processed
         if !upload.processed
           placeholder = "https://s3.amazonaws.com/litejot/uploads/image-processing-placeholder.png"
@@ -66,7 +74,8 @@ class JotSerializer < ActiveModel::Serializer
               :identified_text => content['identified_text'],
               :width => upload.width, # will be zero
               :height => upload.height, # will be zero
-              :processed => false
+              :processed => false,
+              :annotations_info => annotations_info
             }.to_json
         else
           return {
@@ -76,7 +85,8 @@ class JotSerializer < ActiveModel::Serializer
               :identified_text => content['identified_text'],
               :width => upload.width,
               :height => upload.height,
-              :processed => true
+              :processed => true,
+              :annotations_info => annotations_info
             }.to_json
         end
       end

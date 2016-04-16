@@ -7,6 +7,14 @@ class Upload < ActiveRecord::Base
   has_attached_file :upload,
                     :s3_permissions => :public_read,
                     :styles => {
+                      # original_no_exif is just a clone of the original image, but will have the
+                      # convert options applied, namely the auto-orient, dealing with EXIF-related
+                      # issues.
+                      :original_no_exif => {
+                        :geometry => "",
+                        :quality => 100,
+                        :format => 'jpg'
+                      },
                       :thumbnail => {
                         :geometry => "800x120",
                         :quality => 100,
@@ -70,7 +78,7 @@ class Upload < ActiveRecord::Base
   end
 
   def original_url
-    self.upload.url
+    self.upload.url(:original_no_exif)
   end
 
   def thumbnail_url
@@ -94,14 +102,20 @@ class Upload < ActiveRecord::Base
       jot = jot.first
 
       # Get text from upload using Tesseract OCR
-      ocr_text = self.get_text
+      ocr_response = self.get_text
+      #ocr_text = ""
       ap "heres da text:"
-      ap ocr_text
+      ap ocr_response
       content = JSON.parse(jot.content)
-      content['identified_text'] = ocr_text
+      content['identified_text'] = ocr_response[:text]
+      content['annotations_info'] = ocr_response[:annotations_info]
       ap "saving identified_text to jot"
       jot.content = content.to_json
       jot.save
+
+      # Do jot.touch just in case jot.save (above) did not have any new information to save,
+      # so that live sync still detects the changes and removes the processing image state.
+      jot.touch
 
       # Tell the topic and folder that they've been updated, so live sync catches the updated jot      
       topic = Topic.find(jot.topic_id)
@@ -115,7 +129,11 @@ class Upload < ActiveRecord::Base
     # Grab the latest version of this upload, instead of using self.
     # However, not necessary when using delayed_jobs and direct_upload_url column.
     upload = Upload.find(self.id)
-    url = URI.parse(upload.upload.url(:original))
+    #url = URI.parse(upload.upload.url(:original))
+    url = URI.parse(upload.upload.url(:original_no_exif))
+    ap "from url:"
+    ap url
+
     image = HTTParty.get(url).body
     
     prefix = "ocr-sample"
@@ -140,19 +158,34 @@ class Upload < ActiveRecord::Base
       { image: save_path, detection: 'TEXT_DETECTION', max_results: 10 }
     ]).response
 
+    ap response
+
     # ap response
-    text = response['responses'][0]['textAnnotations'][0]['description']
-    if !response['responses'].empty? && !response['responses'][0]['textAnnotations'].empty?
+    ap '1'
+    annotations_exist = false
+    if response && response['responses'] && !response['responses'].empty? && response['responses'][0]['textAnnotations'] && !response['responses'][0]['textAnnotations'].empty?
       text = response['responses'][0]['textAnnotations'][0]['description']
+      annotations_exist = true
+      annotations_info = response['responses'][0]['textAnnotations']
     else
       text = ""
     end
+    ap '2'
 
     ap text
 
     tempfile.unlink
 
-    return text
+    if annotations_exist
+      ap "annotations list: "
+      ap annotations_info.shift
+      ap annotations_info.length
+      data = { :text => text, :annotations_info => annotations_info }
+    else
+      data = { :text => text, :annotations_info => [] }
+    end
+
+    return data
   end
 
   protected

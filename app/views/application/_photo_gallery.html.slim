@@ -1,5 +1,7 @@
-#photo-gallery-overlay tabindex='5'
-  img#photo-gallery-featured
+#photo-gallery-overlay
+#photo-gallery-container tabindex='5'
+  #photo-gallery-featured-wrap
+    img#photo-gallery-featured
 
   #photo-gallery-options
 
@@ -8,11 +10,15 @@
       a.download-link href='javascript:;' title='Download'
         i.fa.fa-download
 
-    li.divider
-
     li
       a.external-link href='#' target='_new' title='Show in New Window'
         i.fa.fa-external-link
+
+    li.divider
+
+    li
+      a.annotations-toggle href='#' title='Toggle Text Recognition Annotations'
+        i.fa.fa-object-group
 
     li.divider
 

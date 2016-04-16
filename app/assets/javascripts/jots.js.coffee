@@ -622,10 +622,10 @@ class window.Jots extends LiteJot
     # HTML is not broken into new lines because of the whitespace issue that surrounds image and
     # makes the border look large
     if content.processed # Image is processed
-      "<a href='#{content.original}' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /></a>"
+      "<a href='#{content.original}' title='Open in gallery' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /></a>"
 
     else # Image is still processing
-      "<a href='#{content.original}' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /><div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div></a>"
+      "<a href='#{content.original}' title='Processing and scanning for text...' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /><div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div></a>"
 
   newJotLength: =>
     if @new_jot_current_tab == 'heading'
@@ -1568,3 +1568,70 @@ class window.Jots extends LiteJot
       new HoverNotice(@lj, 'Please create or select a topic to upload images.', 'error')
       return
 
+  # Called by photo gallery and on search results
+  # Takes in a parent wrap of the image and a jot object (that must be of type upload)
+  # and adds annotation to the image
+  showAnnotations: (jot, $wrap) =>
+    info = JSON.parse jot.content
+    $('.annotation').remove()
+    $.each info.annotations_info, (index, annotation) =>
+      $annotation = $("<div class='annotation' />")
+      $annotation.html annotation.description
+      $wrap.append $annotation
+
+      # It's possible that the image is not showing at full size.
+      # We use a size ratio to calculate the relative position of annotations
+      size_ratio = $wrap.width() / parseInt(info.width)
+
+      # Calculate each boundary. If it doesn't exist, assume it is 0 and on the edge of the image.
+      if annotation['boundingPoly']['vertices'][0]['x']
+        left_x = annotation['boundingPoly']['vertices'][0]['x']
+      else if annotation['boundingPoly']['vertices'][3]['x']
+        left_x = annotation['boundingPoly']['vertices'][3]['x']
+      else
+        left_x = 0
+
+      if annotation['boundingPoly']['vertices'][1]['x']
+        right_x = annotation['boundingPoly']['vertices'][1]['x']
+      else if annotation['boundingPoly']['vertices'][2]['x']
+        right_x = annotation['boundingPoly']['vertices'][2]['x']
+      else
+        right_x = 0
+
+      if annotation['boundingPoly']['vertices'][0]['y']
+        top_y = annotation['boundingPoly']['vertices'][0]['y']
+      else if annotation['boundingPoly']['vertices'][1]['y']
+        top_y = annotation['boundingPoly']['vertices'][1]['y']
+      else
+        top_y = 0
+
+      if annotation['boundingPoly']['vertices'][2]['y']
+        bottom_y = annotation['boundingPoly']['vertices'][2]['y']
+      else if annotation['boundingPoly']['vertices'][3]['y']
+        bottom_y = annotation['boundingPoly']['vertices'][3]['y']
+      else
+        bottom_y = 0
+
+      # For both top and left, calculate by percentage plus the offset from the relevant boundary
+      calc_top = "calc(#{(top_y*size_ratio / $wrap.height())*100}%"
+      calc_left = "calc(#{(left_x*size_ratio / $wrap.width())*100}%"
+      calc_width = "#{((right_x*size_ratio - left_x*size_ratio) / $wrap.width())*100}%"
+      calc_height = "#{((bottom_y*size_ratio - top_y*size_ratio) / $wrap.height())*100}%"
+      calc_fontsize = 0.7*(bottom_y*size_ratio-top_y*size_ratio)
+
+      $annotation.css({
+        top: calc_top
+        left: calc_left
+        minWidth: calc_width
+        minHeight: calc_height
+        fontSize: calc_fontsize+'px'
+        textAlign: 'center'
+        lineHeight: 1
+        })
+
+      $annotation.click (e) =>
+        e.preventDefault()
+
+  # Removes annotations of a specific parent wrap of a jot upload elem
+  removeAnnotations: ($wrap) =>
+    $wrap.find('.annotation').remove()

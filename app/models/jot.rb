@@ -37,7 +37,7 @@ class Jot < ActiveRecord::Base
 
     jot = Jot.create(
       :user_id => user_id,
-      :content => {:upload_id => upload_id, :identified_text => ''}.to_json,
+      :content => {:upload_id => upload_id, :identified_text => '', :annotations_info => []}.to_json,
       :jot_type => 'upload',
       :topic_id => topic.id,
       :folder_id => folder.id,
