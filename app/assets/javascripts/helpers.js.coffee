@@ -49,7 +49,7 @@ $ ->
       $parent = $this.parent()
       prevFontSize = undefined
 
-      while checkWidth($this) > $parent.width() + parseInt($parent.css('paddingLeft')) + parseInt($parent.css('paddingRight'))
+      while checkWidth($this) > $parent.width() - parseInt($parent.css('paddingLeft')) - parseInt($parent.css('paddingRight'))
         console.log $this.html()
         console.log "#{checkWidth($this)} is bigger than #{$parent.width()}"
         currentFontSize = parseInt($this.css('font-size').replace('px', ''))
