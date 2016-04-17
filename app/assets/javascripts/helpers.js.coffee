@@ -30,3 +30,32 @@ $ ->
   # hasScrollBar: http://stackoverflow.com/questions/4814398/how-can-i-check-if-a-scrollbar-is-visible
   $.fn.hasScrollBar = ->
     @get(0).scrollHeight > @height()
+
+  # Reduces the size of text in the element to fit the parent.
+  # http://stackoverflow.com/a/34366375/3179806
+  $.fn.reduceTextSize = (options) ->
+
+    checkWidth = (em) ->
+      $em = $(em)
+      oldPosition = $em.css('position')
+      $em.css 'position', 'absolute'
+      width = $em.width()
+      $em.css 'position', oldPosition
+      width
+
+    options = $.extend({ minFontSize: 1 }, options)
+    @each ->
+      $this = $(this)
+      $parent = $this.parent()
+      prevFontSize = undefined
+
+      while checkWidth($this) > $parent.width() + parseInt($parent.css('paddingLeft')) + parseInt($parent.css('paddingRight'))
+        console.log $this.html()
+        console.log "#{checkWidth($this)} is bigger than #{$parent.width()}"
+        currentFontSize = parseInt($this.css('font-size').replace('px', ''))
+        # Stop looping if min font size reached, or font size did not change last iteration.
+        if isNaN(currentFontSize) or currentFontSize <= options.minFontSize or prevFontSize and prevFontSize == currentFontSize
+          break
+        prevFontSize = currentFontSize
+        $this.css 'font-size', currentFontSize-1 + 'px'
+      return

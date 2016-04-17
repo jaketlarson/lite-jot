@@ -13,6 +13,7 @@ class UploadsController < ApplicationController
     if @upload.valid?
       @upload.save
       jot = Jot.create_jot_from_upload(current_user.id, @upload.id, params[:topic_id].to_i)
+      # @upload.postprocess_jot_update <-- used for local debugging
       ser_jot = JotSerializer.new(jot, :root => false, :scope => current_user)
       render :json => {:success => true, :jot => ser_jot} 
       ap 'create done'

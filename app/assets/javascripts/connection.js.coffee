@@ -150,7 +150,6 @@ class window.Connection extends LiteJot
     @aborted = true
 
   startDataLoadTimer: =>
-    console.log 'started'
     if @data_load_timer
       clearTimeout @data_load_timer
 

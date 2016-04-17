@@ -18,6 +18,8 @@ class window.Search extends LiteJot
     @offset_timer = null
     @offset_timing = 400
 
+    @jots_in_search_results = [] # array of jot id's that will be checked in @lj.jots.buildJotsList()
+
   initSearchListeners: =>
     @search_input.focus (e) =>
       @search_button.addClass('input-has-focus')
@@ -41,7 +43,15 @@ class window.Search extends LiteJot
         @lj.clock.showClock()
 
     @search_input.keyup (e) =>
-      @setSearchOffsetTimer()
+      # Don't search if we're just moving the cursor
+      if e.keyCode == @lj.key_controls.key_codes.left && @search_input.val().length > 0
+        # Do nothing, but don't allow the KeyControls to consider this as UI navigation.
+        e.stopImmediatePropagation()
+      else if e.keyCode == @lj.key_controls.key_codes.right && @search_input.val().length > 0
+        # Do nothing, but don't allow the KeyControls to consider this as UI navigation.
+        e.stopImmediatePropagation()
+      else
+        @setSearchOffsetTimer()
 
     @search_button.click (e) =>
       @clicking_button = true
@@ -75,13 +85,29 @@ class window.Search extends LiteJot
       # Filter through jots, handling the special case of uploads, too.
       # Uploads are searchable if they have text within their jot.content.identified_text property.
       jot_results = @lj.app.jots.filter((jot) => 
-                                          if jot.jot_type == 'upload'
-                                              JSON.parse(jot.content).identified_text.toLowerCase().indexOf(keyword.toLowerCase()) > -1
-                                          else 
-                                              jot.content.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+        if jot.jot_type == 'upload'
+          # Adding the ability for better search through image annotations by checking
+          # terms split by spaces match annotations. This should be extended to other jot type soon.
+          is_relevant = true
+          $.each keyword.toLowerCase().split(' '), (keyword_index, term) =>
+            # skip if this was determined to be an irrelevant jot
+            if !is_relevant
+              return
+
+            relevant_annotations = JSON.parse(jot.content).annotations_info.filter((annotation) =>
+              annotation.description.toLowerCase().indexOf(term) > -1
+            )
+            is_relevant = relevant_annotations.length > 0
+
+          return is_relevant
+
+        else
+          return jot.content.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+
       folder_keys = []
       topic_keys = []
 
+      # Check airplane mode-created jots
       $.each jot_results.slice(0).concat(@lj.airplane_mode.getStoredJotsObject()), (key, jot) =>
         # if searching: checklist jots are special, so they need an extra loop
         if @lj.search.current_terms.length > 0 & jot.jot_type == 'checklist'

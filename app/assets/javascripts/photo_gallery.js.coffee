@@ -12,6 +12,7 @@ class window.PhotoGallery extends LiteJot
     @initCloseBind()
     @initDirectionalBinds()
     @initAnnotationsToggleBind()
+    @checkIfAnnotationsAlreadyActive()
     @showGallery()
     @focusContainer()
     @initKeyboardShortcuts()
@@ -112,14 +113,10 @@ class window.PhotoGallery extends LiteJot
     calc_width = Math.min(info.width*size_ratio, max_allowed_width)
     calc_height = Math.min(info.height*size_ratio, max_allowed_height)
 
-    # if calc_width > inner_width_minus_padding
-    #   calc_width = 
-
     @featured_wrap.css 'width', calc_width+'px'
     @featured_wrap.css 'height', calc_height+'px'
 
   showImage: (jot) =>
-    console.log jot
     info = JSON.parse(jot.content)
     image = info.original
 
@@ -143,7 +140,7 @@ class window.PhotoGallery extends LiteJot
           @lj.jots.showAnnotations(jot, @featured_wrap)
 
     @external_link.attr 'href', image
-    @download_link.find('a.download-link').attr 'href', "uploads/#{info.upload_id}/download"
+    @download_link.attr 'href', "uploads/#{info.upload_id}/download"
 
   showPrevious: =>
     index = @upload_jots.indexOf @current_id
@@ -194,7 +191,7 @@ class window.PhotoGallery extends LiteJot
     @annotations_active = !@annotations_active
 
     if @annotations_active
-      @annotations_toggle_link.addClass('active')
+      @annotations_toggle_link.addClass 'active'
       jot_id = parseInt @featured.attr('data-jot-id')
       jot = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
       @lj.jots.showAnnotations jot, @featured_wrap
@@ -202,9 +199,17 @@ class window.PhotoGallery extends LiteJot
       @annotations_toggle_link.removeClass('active')
       @lj.jots.removeAnnotations @featured_wrap
 
+  checkIfAnnotationsAlreadyActive: =>
+    # If the photo gallery is opened, annotations turned on, then closed, then reopened,
+    # annotations icon may still be active, so we should show 
+    if @annotations_toggle_link.hasClass 'active'
+      @toggleAnnotations()
+
   close: =>
     # Unbind resize function
     # Unbind options
+    @annotations_toggle_link.unbind 'click'
+
     @hideGallery()
 
     # Set lj.current_photo_gallery to null since one will no longer be opened.
@@ -212,5 +217,9 @@ class window.PhotoGallery extends LiteJot
 
     # Unbind keyboard shortcuts
     @unInitKeyboardShortcuts()
+
+    # Remove any possible annotations from the photo gallery
+    if @annotations_active
+      @lj.jots.removeAnnotations @featured_wrap
 
 

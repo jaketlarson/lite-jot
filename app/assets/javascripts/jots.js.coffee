@@ -45,7 +45,6 @@ class window.Jots extends LiteJot
     @edit_notice = $('#edit-notice')
     @remember_palette_while_editing = null
     @currently_editing_id = null
-    @jots_in_search_results = [] # array of jot id's that will be checked in @insertJotElem()
     @text_resize_factor = parseInt($('#jot-options .font-change .range-slider').attr('data-slider')) / 100 # current text resize factor
     @timestamp_text_max_px = .55*16 # .55rem * 16px/rem
     @content_text_default_px = .95*16 # .95rem * 16px/rem
@@ -75,9 +74,7 @@ class window.Jots extends LiteJot
     if !@lj.app.current_topic
       @jots_heading_text.html 'Jots'
     else
-      console.log @lj.app.current_topic
       topic_title = @lj.app.topics.filter((topic) => topic.id == @lj.app.current_topic)[0].title
-      console.log topic_title
       @jots_heading_text.html topic_title
 
     if @lj.search.current_terms.length > 0
@@ -97,7 +94,10 @@ class window.Jots extends LiteJot
 
       # if searching, limit scope to keywords
       if @lj.search.current_terms.length > 0
-        jots_scope = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
+        jots_scope = @lj.search.jots_in_search_results.map((jot_id) =>
+          @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
+        )
+        #jots_scope = @lj.app.jots.filter((jot) => jot.content.toLowerCase().indexOf(@lj.search.current_terms.toLowerCase()) > -1)
       else
         jots_scope = @lj.app.jots
         jots_scope = rel_jots.slice(-1*@jots_per_page)
@@ -258,7 +258,6 @@ class window.Jots extends LiteJot
       @image_upload_input.click()
 
     @image_upload_input.change =>
-      console.log 'nice'
 
 
   initResizeListeners: =>
@@ -615,17 +614,55 @@ class window.Jots extends LiteJot
   focusLastCheckListItem: =>
     @new_jot_checklist_tab.find('li:not(.template) input.checklist-value').last().focus()
 
-  parseUploadJotToHTML: (content) =>
-    # Two cases: image is processed or image is not processed
-    content = JSON.parse(content)
+  parseUploadJotToHTML: (jot) =>
+    # This method is different from the other parseXToHTML methods in that it accepts the
+    # the jot object, creates a load bind, and returns an object.
 
-    # HTML is not broken into new lines because of the whitespace issue that surrounds image and
-    # makes the border look large
+    # Two cases: image is processed or image is not processed
+    content = JSON.parse(jot.content)
+
+    # If searching, show the original
+    if @lj.search.current_terms.length > 0
+      jot_image_url = content.original
+    else
+      jot_image_url = content.thumbnail
+
+    # if content.processed
+
+    #   "<a href='#{content.original}' title='Open in gallery' class='th' target='_new'><img class='upload' data-src='#{jot_image_url}' /></a>"
+
+    # else
+    #   "<a href='#{content.original}' title='Processing and scanning for text...' class='th' target='_new'><img class='upload' data-src='#{content.thumbnail}' /><div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div></a>"
+
+    $elem = $("<a />")
+    $elem.attr('href', content.original).attr('target', '_new').addClass('th')
+
+    $img = $("<img />")
+    $img.addClass 'upload'
+    $img.attr('src', jot_image_url)
+
+    # # HTML is not broken into new lines because of the whitespace issue that surrounds image and
+    # # makes the border look large
     if content.processed # Image is processed
-      "<a href='#{content.original}' title='Open in gallery' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /></a>"
+      $elem.attr 'title', 'Open in gallery'
+
+      # Using an onload function [by the way, no other .load or .on('load') callback worked.. this works
+      # because of the $("li[data-jot...."), since it's not "dynamic"] to load annotations if relevant
+      # to search terms
+      $img[0].onload = =>
+        # If searching, also show annotations
+        if @lj.search.current_terms.length > 0
+          @showAnnotations jot, $("li[data-jot='#{jot.id}'] a.th"), true
 
     else # Image is still processing
-      "<a href='#{content.original}' title='Processing and scanning for text...' class='th' target='_new'><img class='upload' src='#{content.thumbnail}' /><div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div></a>"
+      $elem.attr 'title', 'Processing and scanning for text...'
+      $elem.append "<div class='processing-info'><div class='icon-container'><i class='fa fa-spinner fa-spin'></i></div></div>"
+
+
+    $img.appendTo $elem
+
+    return $elem
+
 
   newJotLength: =>
     if @new_jot_current_tab == 'heading'
@@ -791,7 +828,6 @@ class window.Jots extends LiteJot
       $.each elem.find('li.checklist-item'), (key, checklist_item) =>
         $(checklist_item).attr 'data-checklist-item-id', content[key].id
 
-
   # Used to insert a jot element on the UI.
   # This is not called when a user submits a jot. Instead, insertTempJotElem is called.
   insertJotElem: (jot, method='append', before_id=null, flash=false) =>
@@ -810,6 +846,10 @@ class window.Jots extends LiteJot
     $html.addClass "jot-item #{flagged_class} #{heading_class} #{break_class} #{flash_class} #{email_tag_class}"
     $html.attr 'data-tagged-email-id', jot.tagged_email_id
     $html.append "<div class='timestamp'></div>"
+
+    # If searching, we may want to style jots a bit differently, like uploads
+    if @lj.search.current_terms.length > 0
+      $html.addClass 'search-result'
 
     if jot.has_manage_permissions
       $html.append "<i class='fa fa-trash delete' title='Delete jot' />"
@@ -830,9 +870,12 @@ class window.Jots extends LiteJot
                      #{jot_content}"
 
     else if jot.jot_type == 'upload'
-      $html.find('.content').append @parseUploadJotToHTML(jot.content)
-      img_elem = $html.find('.content img.upload')
-      @setJotUploadLoadBind img_elem
+      $html.find('.content').append @parseUploadJotToHTML(jot)
+      # setTimeout(() =>
+      #   @showAnnotations jot, $html.find('a.th'), true
+      # , 500)
+      # img_elem = $html.find('.content img.upload')
+      #@setJotUploadLoadBind jot, img_elem
 
     else
       $html.find('.content').append jot_content
@@ -894,11 +937,9 @@ class window.Jots extends LiteJot
     if was_scrolled_to_bottom
       @lj.jots.scrollJotsToBottom()
 
-  setJotUploadLoadBind: (elem) =>
-    elem.load =>
-      elem.css('height', 'auto')
-
   updateJotElem: (jot) =>
+    # Should really set this function up to act like insertJotElem, meaning remove the bare html
+    # string and create objects and append.
     elem = @jots_list.find("li[data-jot='#{jot.id}']")
     classes = "jot-item "
     if jot.is_flagged then classes += "flagged "
@@ -914,9 +955,9 @@ class window.Jots extends LiteJot
       jot_content = "<i class='fa fa-lock private-jot-icon' title='Jot is private, and is hidden from users shared with this folder.'></i>
                      <i class='fa fa-envelope email-tag-icon' title='This jot is an email tag.'></i>
                      #{jot_content}"
+
     else if jot.jot_type == 'upload'
-      console.log jot.content
-      jot_content = @parseUploadJotToHTML(jot.content)
+      jot_content = @parseUploadJotToHTML(jot)[0].outerHTML
 
     # parse possible links
     jot_content = Autolinker.link jot_content
@@ -1428,7 +1469,6 @@ class window.Jots extends LiteJot
 
   initJotColumnOptionsListener: =>
     $('nav a.options-dropdown-link').click =>
-      console.log 'test'
       setTimeout(() =>
         $(document).foundation 'slider', 'reflow'
       ,100)
@@ -1548,8 +1588,6 @@ class window.Jots extends LiteJot
   # there is ever supposed to be a non-jot element at the beginning of the list.
   sortJotsList: => #optimize this
     jot_elems = @lj.jots.jots_list.children('li[data-jot]')
-    console.log 'here:'
-    console.log jot_elems
 
     # Sort by jot ID
     jot_elems.detach().sort (a, b) =>
@@ -1571,12 +1609,24 @@ class window.Jots extends LiteJot
   # Called by photo gallery and on search results
   # Takes in a parent wrap of the image and a jot object (that must be of type upload)
   # and adds annotation to the image
-  showAnnotations: (jot, $wrap) =>
+  # Also checks if we're searching jots, so to only show relevant annotations
+  showAnnotations: (jot, $wrap, use_search_terms=false) =>
+    # use_search_terms=true means only showing annotations that match the search terms
     info = JSON.parse jot.content
-    $('.annotation').remove()
+
     $.each info.annotations_info, (index, annotation) =>
-      $annotation = $("<div class='annotation' />")
-      $annotation.html annotation.description
+      if use_search_terms
+        # check if this annotation is relevant to search terms
+        is_relevant = false
+        $.each @lj.search.current_terms.toLowerCase().split(' '), (index, term) =>
+          if annotation.description.toLowerCase().indexOf(term) > -1
+            is_relevant = true
+
+        if !is_relevant
+          return
+
+      $annotation = $("<div class='image-annotation' />")
+      $annotation.html "<span class='text'>#{annotation.description}</span>"
       $wrap.append $annotation
 
       # It's possible that the image is not showing at full size.
@@ -1617,7 +1667,7 @@ class window.Jots extends LiteJot
       calc_left = "calc(#{(left_x*size_ratio / $wrap.width())*100}%"
       calc_width = "#{((right_x*size_ratio - left_x*size_ratio) / $wrap.width())*100}%"
       calc_height = "#{((bottom_y*size_ratio - top_y*size_ratio) / $wrap.height())*100}%"
-      calc_fontsize = 0.7*(bottom_y*size_ratio-top_y*size_ratio)
+      calc_fontsize = .9*(bottom_y*size_ratio-top_y*size_ratio)
 
       $annotation.css({
         top: calc_top
@@ -1625,13 +1675,16 @@ class window.Jots extends LiteJot
         minWidth: calc_width
         minHeight: calc_height
         fontSize: calc_fontsize+'px'
+        #fontSize: '4vw'
+        width: calc_width
         textAlign: 'center'
         lineHeight: 1
-        })
+        }).find('span').reduceTextSize()
 
       $annotation.click (e) =>
         e.preventDefault()
+        e.stopImmediatePropagation()
 
   # Removes annotations of a specific parent wrap of a jot upload elem
   removeAnnotations: ($wrap) =>
-    $wrap.find('.annotation').remove()
+    $wrap.find('.image-annotation').remove()

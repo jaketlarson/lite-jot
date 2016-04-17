@@ -79,6 +79,7 @@ class window.LiteJot
 
     # If a photo gallery is currently opened, call it's size-settier
     if @current_photo_gallery
+      console.log 'calling setSize from sizeUI'
       @current_photo_gallery.setSize()
 
   setUIInterval: =>
