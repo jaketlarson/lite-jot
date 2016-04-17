@@ -1663,8 +1663,8 @@ class window.Jots extends LiteJot
         bottom_y = 0
 
       # For both top and left, calculate by percentage plus the offset from the relevant boundary
-      calc_top = "calc(#{(top_y*size_ratio / $wrap.height())*100}%"
-      calc_left = "calc(#{(left_x*size_ratio / $wrap.width())*100}%"
+      calc_top = "calc(#{(top_y*size_ratio / $wrap.height())*100}%)"
+      calc_left = "calc(#{(left_x*size_ratio / $wrap.width())*100}%)"
       calc_width = "#{((right_x*size_ratio - left_x*size_ratio) / $wrap.width())*100}%"
       calc_height = "#{((bottom_y*size_ratio - top_y*size_ratio) / $wrap.height())*100}%"
       calc_fontsize = .9*(bottom_y*size_ratio-top_y*size_ratio)

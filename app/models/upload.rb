@@ -213,7 +213,7 @@ class Upload < ActiveRecord::Base
   end
 
   def save_image_dimensions
-    geometry = Paperclip::Geometry.from_file(self.upload.queued_for_write[:original])
+    geometry = Paperclip::Geometry.from_file(self.upload.queued_for_write[:original_no_exif])
     self.width = geometry.width.to_i
     self.height = geometry.height.to_i
   end

@@ -12,13 +12,13 @@ class window.PhotoGallery extends LiteJot
     @initCloseBind()
     @initDirectionalBinds()
     @initAnnotationsToggleBind()
-    @checkIfAnnotationsAlreadyActive()
     @showGallery()
     @focusContainer()
     @initKeyboardShortcuts()
     #@populateThumbnails()
     @showImage @jot
     @determineDirectionalButtonStates()
+    @checkIfAnnotationsAlreadyActive()
 
   initVars: =>
     @overlay = $('#photo-gallery-overlay')
@@ -194,7 +194,15 @@ class window.PhotoGallery extends LiteJot
       @annotations_toggle_link.addClass 'active'
       jot_id = parseInt @featured.attr('data-jot-id')
       jot = @lj.app.jots.filter((jot) => jot.id == jot_id)[0]
-      @lj.jots.showAnnotations jot, @featured_wrap
+
+      # Since annotations can take a second to build and size correctly,
+      # let's show the loading bar for a sec
+      @loader.show()
+      setTimeout(() =>
+        @lj.jots.showAnnotations jot, @featured_wrap
+        @loader.hide()
+      , 0)
+
     else
       @annotations_toggle_link.removeClass('active')
       @lj.jots.removeAnnotations @featured_wrap
@@ -209,6 +217,10 @@ class window.PhotoGallery extends LiteJot
     # Unbind resize function
     # Unbind options
     @annotations_toggle_link.unbind 'click'
+    @next_link.unbind 'click'
+    @prev_link.unbind 'click'
+    @external_link.unbind 'click'
+    @download_link.unbind 'click'
 
     @hideGallery()
 

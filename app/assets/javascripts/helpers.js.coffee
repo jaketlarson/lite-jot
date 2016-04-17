@@ -50,8 +50,6 @@ $ ->
       prevFontSize = undefined
 
       while checkWidth($this) > $parent.width() - parseInt($parent.css('paddingLeft')) - parseInt($parent.css('paddingRight'))
-        console.log $this.html()
-        console.log "#{checkWidth($this)} is bigger than #{$parent.width()}"
         currentFontSize = parseInt($this.css('font-size').replace('px', ''))
         # Stop looping if min font size reached, or font size did not change last iteration.
         if isNaN(currentFontSize) or currentFontSize <= options.minFontSize or prevFontSize and prevFontSize == currentFontSize

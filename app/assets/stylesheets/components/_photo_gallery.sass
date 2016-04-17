@@ -31,49 +31,54 @@
       max-width: 100%
       max-height: 100%
 
-  ul#options
+  #photo-gallery-options
     position: fixed
     bottom: 1rem
-    left: 50%
-    transform: translateX(-50%)
-    list-style: none
-    margin: 0
-    box-shadow: $default-box-shadow
-    border-radius: rem-calc(2)
-    background-color: rgba(240, 240, 240, 0.8)
-    min-width: 12.3rem
+    width: calc(100% - 4rem) // Take into account #photo-gallery=container left property
+    text-align: center
 
-    li:not(.divider)
+    ul#options
+      //left: 50%
+      //transform: translateX(-50%)
       display: inline-block
+      list-style: none
+      margin: 0
+      box-shadow: $default-box-shadow
+      border-radius: rem-calc(2)
+      background-color: rgba(240, 240, 240, 0.8)
+      min-width: 12.3rem
 
-      a
-        display: block
-        padding: .5rem 1.1rem
-        color: $palette-black
+      li:not(.divider)
+        display: inline-block
 
-        i:not(.fa-object-group)
-          vertical-align: -5%
+        a
+          display: block
+          padding: .5rem 1.1rem
+          color: $palette-black
 
-        &.disabled
-          cursor: default
-          color: $palette-dark-gray
+          i:not(.fa-object-group)
+            vertical-align: -5%
 
-          &:hover
+          &.disabled
+            cursor: default
             color: $palette-dark-gray
 
-        &.active
+            &:hover
+              color: $palette-dark-gray
+
+          &.active
+            color: $primary-color
+
+        &:hover a
           color: $primary-color
 
-      &:hover a
-        color: $primary-color
-
-    li.divider
-      display: inline-block
-      background-color: $palette-gray
-      height: 1.7rem
-      width: 1px
-      vertical-align: middle
-      margin-bottom: 1px
+      li.divider
+        display: inline-block
+        background-color: $palette-gray
+        height: 1.7rem
+        width: 1px
+        vertical-align: middle
+        margin-bottom: 1px
 
 
   a.close
@@ -88,11 +93,12 @@
 
   .loader
     display: none
+    z-index: 10
 
 .image-annotation
   position: absolute
   background-color: rgba(240, 240, 0, 0.7)
-  padding: .25rem
+  padding: .05rem
   border: 1px solid yellow
   z-index: 1
   //transition-property: top, left, width, height, font-size, min-width, line-height
@@ -104,6 +110,7 @@
   span
     vertical-align: 25%
     color: $palette-black
+    white-space: nowrap
 
   &:hover
     z-index: 2
