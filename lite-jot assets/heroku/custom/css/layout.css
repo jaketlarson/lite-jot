@@ -1,0 +1,95 @@
+@import 'fonts.css';
+@import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css';
+@import 'foundation.css';
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Monda';
+  background-color: whitesmoke;
+}
+
+a {
+  color: #4A88DD;
+}
+
+a:hover, a:active, a:visited {
+  color: #4A88DD;
+}
+
+header {
+  border-bottom: 0.15rem solid #4A88DD;
+  height: calc(4rem + 0.15rem); /* 4rem for standard height, 0.15rem for border-bottom height */
+  background-color: #fff;
+  width: 100%;
+}
+
+header h1 {
+  margin: 0;
+  height: 4rem;
+  line-height: 4rem;
+  display: inline-block;
+}
+
+header h1 img {
+  height: 2rem;
+  width: auto;
+  margin-top: 1.1rem;
+  margin-right: .5rem;
+  float: left;
+  height: 2rem;
+}
+
+header h1 a {
+  font-size: 1.5rem;
+  font-weight: normal;
+  vertical-align: top;
+  text-decoration: none;
+  font-family: 'Monda';
+}
+
+header a.twitter-link {
+  float: right;
+  color: #777;
+  line-height: 4rem;
+}
+
+header a.twitter-link:hover {
+  color: #4A88DD;
+}
+
+article {
+  width: auto;
+  max-width: 64rem;
+  margin: 6rem auto;
+}
+
+article i.maintenance-icon {
+  font-size: 8rem;
+  color: #777;
+  float: left;
+  margin-right: 2rem;
+}
+
+article h2 {
+  font-family: 'Monda';
+  margin-left: 10rem;
+}
+
+article p {
+  margin-left: 10rem;
+  font-family: 'Open Sans';
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  line-height: 3rem;
+  color: #999;
+}
+
