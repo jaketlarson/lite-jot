@@ -137,7 +137,7 @@ class window.PhotoGallery extends LiteJot
         @setSize()
 
         if @annotations_active
-          @lj.jots.showAnnotations(jot, @featured_wrap)
+          @lj.jots.showAnnotations jot, @featured_wrap
 
     @external_link.attr 'href', image
     @download_link.attr 'href', "uploads/#{info.upload_id}/download"

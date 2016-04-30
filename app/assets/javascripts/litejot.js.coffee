@@ -191,7 +191,7 @@ class window.LiteJot
       topic_name = @app.topics.filter((topic) => topic.id == @app.current_topic)[0].title
 
     $('nav h2').html "#{folder_name} &nbsp; / &nbsp; #{topic_name}"
-    window.document.title = "#{folder_name} / #{topic_name} | Lite Jot"
+    window.document.title = "#{topic_name} | Lite Jot"
 
   closeAllDropdowns: =>
     $(document).foundation('dropdown', 'closeall')

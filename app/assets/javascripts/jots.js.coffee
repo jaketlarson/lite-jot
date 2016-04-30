@@ -1614,6 +1614,9 @@ class window.Jots extends LiteJot
     # use_search_terms=true means only showing annotations that match the search terms
     info = JSON.parse jot.content
 
+    # Make sure no other annotations exist in this $wrap
+    @removeAnnotations $wrap
+
     $.each info.annotations_info, (index, annotation) =>
       if use_search_terms
         # check if this annotation is relevant to search terms
